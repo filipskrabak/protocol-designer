@@ -1,12 +1,16 @@
 <template>
-  <div ref="svgWrapper">
+  <div class="d-flex justify-center align-center">
+    <v-skeleton-loader type="table-row, table-row, table-row, table-row" height="240" width="380" v-if="svgLoading">
+    </v-skeleton-loader>
+    <div ref="svgWrapper">
+    </div>
   </div>
   <div>
     <button @click="showAddFieldModal = true">+</button>
   </div>
 
 
-  <ProtocolInfoModal v-if="showModal" @close="toggleModal" :protocolInfo="protocolInfo" />
+  <ProtocolInfoModal :protocolInfoModal="protocolInfoModal" @modal="toggleModal" :protocolInfo="protocolInfo" />
   <AddFieldModal v-if="showAddFieldModal" @close="toggleAddFieldModal" @addField="handleAddField"/>
 </template>
 
@@ -18,12 +22,13 @@ import AddFieldModal from './modals/AddFieldModal.vue';
 import { Field, FieldOptions } from '../contracts';
 
 const svgWrapper = ref<HTMLElement>();
-const showModal = ref(false);
+const protocolInfoModal = ref(false);
 const protocolInfo = ref({});
 const showAddFieldModal = ref(false);
+const svgLoading = ref(true);
 
 const toggleModal = () => {
-  showModal.value = !showModal.value;
+  protocolInfoModal.value = !protocolInfoModal.value;
 };
 
 const toggleAddFieldModal = () => {
@@ -63,6 +68,7 @@ function setSvgSize() {
 }
 
 function onSvgLoaded() {
+  svgLoading.value = false;
   setSvgSize();
 
   const metadata = d3.select('metadata').node() as HTMLElement;
@@ -155,18 +161,6 @@ function handleAddField(newField: Field) {
 
   metadata.appendChild(newFieldElement);
 
-  // add new g element to the svg
-
-  // example of drawn svg:
-  /*
-  <g transform="translate(0, 160)" data-id="fcs" class="dataElement">
-            <rect class="field" width="256" height="40"></rect>
-            <svg width="256" height="40">
-                <text x="50%" y="50%" class="fieldText">FCS</text>
-            </svg>
-        </g>
-  */
-
   const lastGElement = svg.selectAll('.dataElement').nodes().pop();
 
   if(!lastGElement || !(lastGElement instanceof HTMLElement)) {
@@ -214,6 +208,6 @@ function handleAddField(newField: Field) {
   }
 
   .dataElement:hover rect {
-    fill: grey;
+    fill: rgb(216, 216, 216);
   }
 </style>

@@ -1,16 +1,20 @@
 <template>
-    <div class="backdrop" @click.self="closeModal">
-        <div class="modal">
-            <h2>Protocol Info</h2>
+    <v-dialog
+      v-model="protocolInfoModalRef"
+      width="500"
+    >
+      <v-card>
+        <v-card-text>
+          <h2>Field: {{ protocolInfo?.display_name }}</h2>
             <dl>
-                <dt>Length</dt>
-                <dd>{{ protocolInfo?.length }}b or {{ protocolInfo?.length / 8 }}B</dd>
-
-                <dt>Display Name</dt>
+                <dt>Name</dt>
                 <dd>{{ protocolInfo?.display_name }}</dd>
 
                 <dt>Internal Name</dt>
                 <dd>{{ protocolInfo?.id }}</dd>
+
+                <dt>Length</dt>
+                <dd>{{ protocolInfo?.length }}b or {{ protocolInfo?.length / 8 }}B</dd>
 
                 <div v-if="protocolInfo?.encapsulate != null">
                     <dt>Encapsulate</dt>
@@ -21,45 +25,39 @@
                     <dt>Possible Values</dt>
                     <dd>
                         <dl>
-                            <dd v-for="option in protocolInfo?.options">{{ option.value }} - {{ option.name }}</dd>
+                            <dd v-for="option in protocolInfo?.options" :key="option.id">{{ option.value }} - {{ option.name }}</dd>
                         </dl>
                     </dd>
                 </div>
-            </dl>
-
-        </div>
-    </div>
+          </dl>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn color="primary" block @click="protocolInfoModalRef = false">Close</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed } from 'vue';
 
 const props = defineProps({
+    protocolInfoModal: Boolean,
     protocolInfo: Object,
 });
 
-const emit = defineEmits(['close']);
-function closeModal() {
-    emit('close');
-}
+const emit = defineEmits(['modal']);
+
+// Send info about the modal to the parent component
+const protocolInfoModalRef = computed({
+    get: () => props.protocolInfoModal,
+    set: (value: boolean) => {
+        emit('modal', value);
+    },
+});
 </script>
 
 <style>
-.backdrop {
-    position: fixed;
-    top: 0;
-    left: 0;
-    background: rgba(0, 0, 0, 0.5);
-    width: 100%;
-    height: 100%;
-}
-.modal {
-    width: 400px;
-    background: white;
-    padding: 30px;
-    margin: 100px auto;
-    border-radius: 10px;
-}
 dt {
     font-weight: bold;
     margin-top: 10px;
