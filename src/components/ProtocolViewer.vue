@@ -10,25 +10,27 @@
   </div>
 
 
-  <ProtocolInfoModal :protocolInfoModal="protocolInfoModal" @modal="toggleModal" :protocolInfo="protocolInfo" />
+  <ProtocolEditModal :protocolEditModal="protocolEditModal" @modal="toggleModal"/>
   <AddFieldModal v-if="showAddFieldModal" @close="toggleAddFieldModal" @addField="handleAddField"/>
 </template>
 
 <script setup lang="ts">
 import * as d3 from 'd3';
 import { ref, onMounted } from 'vue';
-import ProtocolInfoModal from './modals/ProtocolInfoModal.vue';
+import ProtocolEditModal from './modals/ProtocolEditModal.vue';
 import AddFieldModal from './modals/AddFieldModal.vue';
 import { Field, FieldOptions } from '../contracts';
+import { Endian } from '../contracts';
+import { useProtocolStore } from '@/store/ProtocolStore';
 
+const protocolStore = useProtocolStore();
 const svgWrapper = ref<HTMLElement>();
-const protocolInfoModal = ref(false);
-const protocolInfo = ref({});
+const protocolEditModal = ref(false);
 const showAddFieldModal = ref(false);
 const svgLoading = ref(true);
 
 const toggleModal = () => {
-  protocolInfoModal.value = !protocolInfoModal.value;
+  protocolEditModal.value = !protocolEditModal.value;
 };
 
 const toggleAddFieldModal = () => {
@@ -69,13 +71,10 @@ function setSvgSize() {
 
 function onSvgLoaded() {
   svgLoading.value = false;
+
   setSvgSize();
 
   const metadata = d3.select('metadata').node() as HTMLElement;
-
-  if(!metadata) {
-    throw new Error('metadata is not defined');
-  }
 
   if(!metadata) {
     throw new Error('metadata is not defined');
@@ -92,16 +91,15 @@ function onSvgLoaded() {
 
     const targetElement = d3.select(`[data-id="${field.getAttribute('pd:id')}"]`);
 
-    targetElement.on('click', function() {
-      const fieldOptions: FieldOptions[] = [];
+    const fieldOptions: FieldOptions[] = [];
 
       const options = field.getElementsByTagNameNS(pdNamespaceURI, 'option');
 
       Array.from(options).forEach((option) => {
-        const D3option = d3.select(option);
+        const d3Option = d3.select(option);
 
-        const optionName = D3option.attr('pd:name');
-        const optionValue: number = parseInt(D3option.attr('pd:value'));
+        const optionName = d3Option.attr('pd:name');
+        const optionValue: number = parseInt(d3Option.attr('pd:value'));
 
         fieldOptions.push({
           name: optionName,
@@ -109,26 +107,40 @@ function onSvgLoaded() {
         });
       });
 
-      const D3field = d3.select(field);
+    const d3Field = d3.select(field);
 
-      console.log("D3field", D3field)
+    console.log("d3Field", d3Field)
 
-      // print all attributes of the field
-      console.log("attributes", D3field.attr('pd:length'))
-      console.log("attributes", D3field.attr('pd:length_max'))
-      console.log("attributes", D3field.attr('pd:display_name'))
+    // print all attributes of the field
+    console.log("attributes", d3Field.attr('pd:length'))
+    console.log("attributes", d3Field.attr('pd:length_max'))
+    console.log("attributes", d3Field.attr('pd:display_name'))
 
-      protocolInfo.value = {
-        length: D3field.attr('pd:length'),
-        length_max: D3field.attr('pd:length_max'),
-        display_name: D3field.attr('pd:display_name'),
-        id: D3field.attr('pd:id'),
-        encapsulate: D3field.attr('pd:encapsulate'),
-        options: fieldOptions,
-      };
+    let is_variable_length = d3Field.attr('pd:length') === '0';
 
+    // Assume big endian if not specified, since that's what most protocols use
+    let endian: Endian = Endian.Big;
+    if(d3Field.attr('pd:endian') === 'little') {
+      endian = Endian.Little;
+    }
 
-      console.log("protocolInfo", protocolInfo.value)
+    let fieldInfo: Field = {
+      field_options: fieldOptions,
+      length: parseInt(d3Field.attr('pd:length')),
+      max_length: parseInt(d3Field.attr('pd:length_max')),
+      is_variable_length: is_variable_length,
+      endian: endian,
+      display_name: d3Field.attr('pd:display_name'),
+      id: d3Field.attr('pd:id'),
+      description: d3Field.attr('pd:description'),
+      encapsulate: d3Field.attr('pd:encapsulate') === 'true' ? true : false,
+    };
+
+    protocolStore.addField(fieldInfo);
+
+    targetElement.on('click', function() {
+      protocolStore.editingField = fieldInfo;
+      protocolStore.editingFieldId = fieldInfo.id;
 
       toggleModal();
     });

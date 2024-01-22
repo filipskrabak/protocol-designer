@@ -9,6 +9,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     AddFieldModal: typeof import('./src/components/modals/AddFieldModal.vue')['default']
     HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
+    ProtocolEditModal: typeof import('./src/components/modals/ProtocolEditModal.vue')['default']
     ProtocolInfoModal: typeof import('./src/components/modals/ProtocolInfoModal.vue')['default']
     ProtocolViewer: typeof import('./src/components/ProtocolViewer.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
