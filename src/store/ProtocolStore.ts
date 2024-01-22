@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { Field, Endian, Protocol } from '@/contracts'
+import { Field, Protocol } from '@/contracts'
 
 export const useProtocolStore = defineStore('ProtocolStore', {
   // State

@@ -132,8 +132,8 @@
 </template>
 
 <script setup lang="ts">
-import { Field, Endian } from '@/contracts';
-import { PropType, computed} from 'vue';
+import { Endian } from '@/contracts';
+import { computed } from 'vue';
 import { useProtocolStore } from '@/store/ProtocolStore';
 
 const protocolStore = useProtocolStore();
