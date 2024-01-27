@@ -3,38 +3,6 @@
       v-model="modalRef"
       width="800"
     >
-      <!--<v-card>
-        <v-card-text>
-          <h2>Field: {{ protocolInfo?.display_name }}</h2>
-            <dl>
-                <dt>Name</dt>
-                <dd>{{ protocolInfo?.display_name }}</dd>
-
-                <dt>Internal Name</dt>
-                <dd>{{ protocolInfo?.id }}</dd>
-
-                <dt>Length</dt>
-                <dd>{{ protocolInfo?.length }}b or {{ protocolInfo?.length / 8 }}B</dd>
-
-                <div v-if="protocolInfo?.encapsulate != null">
-                    <dt>Encapsulate</dt>
-                    <dd>{{ protocolInfo?.encapsulate }}</dd>
-                </div>
-
-                <div v-if="protocolInfo?.options.length != 0">
-                    <dt>Possible Values</dt>
-                    <dd>
-                        <dl>
-                            <dd v-for="option in protocolInfo?.options" :key="option.id">{{ option.value }} - {{ option.name }}</dd>
-                        </dl>
-                    </dd>
-                </div>
-          </dl>
-        </v-card-text>
-        <v-card-actions>
-          <v-btn color="primary" block @click="modalRef = false">Close</v-btn>
-        </v-card-actions>
-      </v-card>-->
       <v-card>
         <v-card-title>
           <span class="text-h5">Field: {{ protocolStore.editingField.display_name }}</span>
@@ -142,7 +110,7 @@ const props = defineProps({
     protocolEditModal: Boolean,
 });
 
-const emit = defineEmits(['modal']);
+const emit = defineEmits(['modal', 'save']);
 
 // Send info about the modal to the parent component
 const modalRef = computed({
@@ -154,7 +122,9 @@ const modalRef = computed({
 
 // Save edit
 function saveEdit() {
-
+    protocolStore.saveEditingField();
+    emit('save');
+    modalRef.value = false;
 }
 
 </script>

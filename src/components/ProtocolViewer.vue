@@ -10,8 +10,12 @@
   </div>
 
 
-  <ProtocolEditModal :protocolEditModal="protocolEditModal" @modal="toggleModal"/>
-  <AddFieldModal v-if="showAddFieldModal" @close="toggleAddFieldModal" @addField="handleAddField"/>
+  <ProtocolEditModal :protocolEditModal="protocolEditModal" @modal="toggleModal" @save="renderSVG"/>
+  <AddFieldModal v-if="showAddFieldModal" @close="toggleAddFieldModal" @addField="handleAddField" />
+
+  <!-- button for renderSVG() -->
+
+  <button @click="renderSVG">Render SVG</button>
 </template>
 
 <script setup lang="ts">
@@ -22,6 +26,7 @@ import AddFieldModal from './modals/AddFieldModal.vue';
 import { Field, FieldOptions } from '../contracts';
 import { Endian } from '../contracts';
 import { useProtocolStore } from '@/store/ProtocolStore';
+import { PIXELS_PER_BIT, BITS_PER_LINE, LINE_HEIGHT_PX } from '../constants';
 
 const protocolStore = useProtocolStore();
 const svgWrapper = ref<HTMLElement>();
@@ -47,7 +52,7 @@ onMounted(() => {
   // create D3 namespace for pd
   d3.namespaces['pd'] = 'http://www.protocoldescription.com';
 
-  d3.xml('https://raw.githubusercontent.com/filipskrabak/protocols/main/eth2/eth2.svg').then((data) => {
+  d3.xml('https://raw.githubusercontent.com/filipskrabak/protocols/main/udp/udp.svg').then((data) => {
     if(!svg) {
       throw new Error('svg is not defined');
     }
@@ -72,6 +77,9 @@ function setSvgSize() {
 function onSvgLoaded() {
   svgLoading.value = false;
 
+  // Clear protocolStore fields array
+  protocolStore.clearProtocol();
+
   setSvgSize();
 
   const metadata = d3.select('metadata').node() as HTMLElement;
@@ -82,7 +90,7 @@ function onSvgLoaded() {
 
   // select all pd:field elements inside metadata
   const pdNamespaceURI = d3.namespaces['pd'];
-  const fields = metadata.getElementsByTagNameNS(pdNamespaceURI, 'field');
+  const fields = metadata.querySelectorAll('field');
 
   console.log(fields)
 
@@ -93,7 +101,7 @@ function onSvgLoaded() {
 
     const fieldOptions: FieldOptions[] = [];
 
-      const options = field.getElementsByTagNameNS(pdNamespaceURI, 'option');
+      const options = field.querySelectorAll('option');
 
       Array.from(options).forEach((option) => {
         const d3Option = d3.select(option);
@@ -107,33 +115,29 @@ function onSvgLoaded() {
         });
       });
 
-    const d3Field = d3.select(field);
-
-    console.log("d3Field", d3Field)
-
     // print all attributes of the field
-    console.log("attributes", d3Field.attr('pd:length'))
-    console.log("attributes", d3Field.attr('pd:length_max'))
-    console.log("attributes", d3Field.attr('pd:display_name'))
+    console.log("attributes", field.attributes.getNamedItem('pd:length')?.value)
+    console.log("attributes", field.attributes.getNamedItem('pd:length_max')?.value)
+    console.log("attributes", field.attributes.getNamedItem('pd:display_name')?.value)
 
-    let is_variable_length = d3Field.attr('pd:length') === '0';
+    let is_variable_length = field.attributes.getNamedItem('pd:length')?.value === '0';
 
     // Assume big endian if not specified, since that's what most protocols use
     let endian: Endian = Endian.Big;
-    if(d3Field.attr('pd:endian') === 'little') {
+    if(field.attributes.getNamedItem('pd:endian')?.value === 'little') {
       endian = Endian.Little;
     }
 
     let fieldInfo: Field = {
       field_options: fieldOptions,
-      length: parseInt(d3Field.attr('pd:length')),
-      max_length: parseInt(d3Field.attr('pd:length_max')),
+      length: parseInt(field.attributes.getNamedItem('pd:length')?.value ?? "0"),
+      max_length: parseInt(field.attributes.getNamedItem('pd:length_max')?.value ?? "0"),
       is_variable_length: is_variable_length,
       endian: endian,
-      display_name: d3Field.attr('pd:display_name'),
-      id: d3Field.attr('pd:id'),
-      description: d3Field.attr('pd:description'),
-      encapsulate: d3Field.attr('pd:encapsulate') === 'true' ? true : false,
+      display_name: field.attributes.getNamedItem('pd:display_name')?.value ?? "",
+      id: field.attributes.getNamedItem('pd:id')?.value ?? "",
+      description: field.attributes.getNamedItem('pd:description')?.value ?? "",
+      encapsulate: field.attributes.getNamedItem('pd:encapsulate')?.value === 'true' ? true : false,
     };
 
     protocolStore.addField(fieldInfo);
@@ -212,6 +216,131 @@ function handleAddField(newField: Field) {
   onSvgLoaded();
 
 }
+
+/**
+ * Renders the SVG based on the protocolStore fields array
+ * the whole SVG is re-rendered every time a field is added or edited
+ */
+function renderSVG() {
+  if(!svgWrapper.value) {
+    throw new Error('svgWrapper is not defined');
+  }
+
+  const svg = d3.select(svgWrapper.value);
+  const metadata = d3.select('metadata').node();
+  const pdNamespaceURI = d3.namespaces['pd'];
+
+  if(!metadata || !(metadata instanceof Element)) {
+    throw new Error('metadata is not defined');
+  }
+
+  // remove all children from the root g element
+  svg.select('g').selectAll('*').remove();
+
+  // remove all children from the metadata element
+  metadata.innerHTML = '';
+
+  let lastWrapperHeight = 0;
+  let renderedPixelsInLine = 0;
+  let lastWrapperGElement: d3.Selection<SVGGElement, unknown, null, undefined> | null = null;
+  let lastInnerHeight = 0;
+  let lastInnerWidth = 0;
+
+  // iterate over all fields in the protocolStore
+  protocolStore.fields.forEach((field) => {
+    let rendered = false;
+    let totalWidthToRender = 0;
+
+    // append a new pd:field element to the metadata element
+    const newFieldElement = document.createElementNS(pdNamespaceURI, 'pd:field');
+
+    newFieldElement.setAttribute('pd:display_name', field.display_name);
+    newFieldElement.setAttribute('pd:id', field.id);
+    newFieldElement.setAttribute('pd:length', String(field.length));
+    newFieldElement.setAttribute('pd:length_max', String(field.length));
+
+    metadata.appendChild(newFieldElement);
+
+
+    if(field.is_variable_length) {
+      if(!field.max_length) {
+        // Stretch to the end of the line
+        totalWidthToRender = (BITS_PER_LINE * PIXELS_PER_BIT) - renderedPixelsInLine;
+      }
+    } else {
+      totalWidthToRender = field.length * PIXELS_PER_BIT;
+    }
+
+    console.log("totalWidthToRender", totalWidthToRender)
+    console.log("field length", field.length)
+
+    if(renderedPixelsInLine == 0) {
+      lastWrapperGElement = svg.select('g').append('g')
+        .attr('transform', 'translate(0, ' + (lastWrapperHeight) + ')')
+
+        lastInnerHeight = 0;
+    }
+
+    while(!rendered) {
+      if(!lastWrapperGElement) {
+        throw new Error('lastWrapperGElement is not defined');
+      }
+
+      // append a new g element to the root g element
+      const newG = lastWrapperGElement.append('g')
+        .attr('transform', 'translate(' + (lastInnerWidth) + ', ' + (lastInnerHeight) + ')')
+        .attr('data-id', field.id)
+        .classed('dataElement', true);
+
+      let width = totalWidthToRender;
+
+      if(renderedPixelsInLine + totalWidthToRender > BITS_PER_LINE * PIXELS_PER_BIT) {
+        width = (BITS_PER_LINE * PIXELS_PER_BIT) - renderedPixelsInLine;
+      }
+
+
+      // append a new rect element to the new g element
+      newG.append('rect')
+        .classed('field', true)
+        .attr('width', width)
+        .attr('height', LINE_HEIGHT_PX);
+
+      // append a new svg element to the new g element
+      newG.append('svg')
+        .attr('width', width)
+        .attr('height', LINE_HEIGHT_PX)
+        .append('text')
+        .attr('x', '50%')
+        .attr('y', '50%')
+        .classed('fieldText', true)
+        .text(field.is_variable_length ? field.display_name + ' ...' : field.display_name);
+
+      renderedPixelsInLine += width;
+
+      if(renderedPixelsInLine >= BITS_PER_LINE * PIXELS_PER_BIT) {
+        renderedPixelsInLine = 0;
+        lastInnerWidth = 0;
+        lastInnerHeight += LINE_HEIGHT_PX;
+      } else {
+        lastInnerWidth += width;
+      }
+
+      totalWidthToRender -= width;
+
+      if(totalWidthToRender <= 0) {
+        rendered = true;
+      }
+    }
+    lastWrapperHeight += lastInnerHeight;
+  });
+
+  setSvgSize();
+
+  onSvgLoaded();
+}
+
+
+
 </script>
 
 <style>

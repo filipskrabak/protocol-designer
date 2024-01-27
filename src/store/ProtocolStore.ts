@@ -18,6 +18,20 @@ export const useProtocolStore = defineStore('ProtocolStore', {
     addField(field: Field) {
       this.fields.push(field)
     },
+    clearProtocol() {
+      this.fields = []
+      this.protocol = {} as Protocol
+    },
+    saveEditingField() {
+      // replace the field being edited with the new one
+      const index = this.fields.findIndex(field => field.id === this.editingFieldId)
+      this.fields[index] = this.editingField
+
+    },
+
+    findFieldById(id: string) {
+      return this.fields.find(field => field.id === id)
+    }
 
   },
 
