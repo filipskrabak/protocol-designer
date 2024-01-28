@@ -1,7 +1,10 @@
 <template>
   <div class="d-flex justify-center align-center">
-    <v-skeleton-loader type="table-row, table-row, table-row, table-row" height="240" width="380" v-if="svgLoading">
-    </v-skeleton-loader>
+    <template v-if="protocolUploaded">
+      <v-skeleton-loader type="table-row, table-row, table-row, table-row" height="240" width="380" v-if="svgLoading">
+      </v-skeleton-loader>
+    </template>
+    <ProtocolUpload v-else @protocolUploaded="protocolUploaded = true" @protocolData="protocolData" />
     <div ref="svgWrapper">
     </div>
   </div>
@@ -23,16 +26,21 @@ import * as d3 from 'd3';
 import { ref, onMounted } from 'vue';
 import ProtocolEditModal from './modals/ProtocolEditModal.vue';
 import AddFieldModal from './modals/AddFieldModal.vue';
+import ProtocolUpload from './ProtocolUpload.vue';
 import { Field, FieldOptions } from '../contracts';
 import { Endian } from '../contracts';
 import { useProtocolStore } from '@/store/ProtocolStore';
 import { PIXELS_PER_BIT, BITS_PER_LINE, LINE_HEIGHT_PX } from '../constants';
 
+// Stores
 const protocolStore = useProtocolStore();
+
+// Refs
 const svgWrapper = ref<HTMLElement>();
 const protocolEditModal = ref(false);
 const showAddFieldModal = ref(false);
 const svgLoading = ref(true);
+const protocolUploaded = ref(false);
 
 const toggleModal = () => {
   protocolEditModal.value = !protocolEditModal.value;
@@ -41,7 +49,7 @@ const toggleModal = () => {
 const toggleAddFieldModal = () => {
   showAddFieldModal.value = !showAddFieldModal.value;
 };
-
+/*
 onMounted(() => {
   if(!svgWrapper.value) {
     throw new Error('svgWrapper is not defined');
@@ -62,6 +70,23 @@ onMounted(() => {
 
   });
 });
+*/
+function protocolData(data: string) {
+  console.log('protocolData', data);
+  if(!svgWrapper.value) {
+    throw new Error('svgWrapper is not defined');
+  }
+
+  const svg = d3.select(svgWrapper.value);
+
+  // create D3 namespace for pd
+  d3.namespaces['pd'] = 'http://www.protocoldescription.com';
+
+  // Decode the base64 string
+  svg.node()?.append(new DOMParser().parseFromString(atob(data.split(',')[1]), 'image/svg+xml').documentElement);
+
+  onSvgLoaded();
+}
 
 function setSvgSize() {
   let bBox = document.querySelector("svg")?.getBBox();
@@ -234,8 +259,8 @@ function renderSVG() {
     throw new Error('metadata is not defined');
   }
 
-  // remove all children from the root g element
-  svg.select('g').selectAll('*').remove();
+  // remove all children from the root g element (g element without attribute data-scale)
+  svg.select('g[data-table]').selectAll('*').remove();
 
   // remove all children from the metadata element
   metadata.innerHTML = '';
@@ -275,7 +300,7 @@ function renderSVG() {
     console.log("field length", field.length)
 
     if(renderedPixelsInLine == 0) {
-      lastWrapperGElement = svg.select('g').append('g')
+      lastWrapperGElement = svg.select('g[data-table]').append('g')
         .attr('transform', 'translate(0, ' + (lastWrapperHeight) + ')')
 
         lastInnerHeight = 0;
@@ -334,9 +359,78 @@ function renderSVG() {
     lastWrapperHeight += lastInnerHeight;
   });
 
+  renderScale();
+
   setSvgSize();
 
   onSvgLoaded();
+}
+
+function renderScale() {
+  if(!svgWrapper.value) {
+    throw new Error('svgWrapper is not defined');
+  }
+
+  const svg = d3.select(svgWrapper.value);
+
+  // remove all children from data-scale g element
+  svg.select('g[data-scale]').selectAll('*').remove();
+
+  // append a new svg element to the data-scale g element
+  const newSvgEl = svg.select('g[data-scale]').append('svg')
+    .attr('width', PIXELS_PER_BIT * BITS_PER_LINE)
+    .attr('height', LINE_HEIGHT_PX);
+
+
+  // append defs
+  const defs = newSvgEl.append('defs');
+
+  // append a new marker element to the defs element
+  const newMarker = defs.append('marker')
+    .attr('id', 'arrow')
+    .attr('viewBox', '0 0 10 10')
+    .attr('refX', '10')
+    .attr('refY', '5')
+    .attr('markerWidth', '6')
+    .attr('markerHeight', '6')
+    .attr('orient', 'auto-start-reverse');
+
+  // append a new path element to the marker element
+  newMarker.append('path')
+    .attr('d', 'M 0 0 L 10 5 L 0 10')
+    .attr('fill', 'transparent')
+    .attr('stroke', 'black')
+    .attr('stroke-width', '2px');
+
+  // append a new g element to the svg element
+  const newG = newSvgEl.append('g')
+    .attr('transform', 'translate(0, 20)');
+
+  // append a new line element to the g element
+  newG.append('line')
+    .attr('x1', '0')
+    .attr('y1', '0')
+    .attr('x2', '100%')
+    .attr('y2', '0')
+    .attr('stroke', 'black')
+    .attr('stroke-width', '2')
+    .attr('marker-end', 'url(#arrow)')
+    .attr('marker-start', 'url(#arrow)');
+
+  // append a new rect element to the svg element
+  newSvgEl.append('rect')
+    .attr('x', (PIXELS_PER_BIT * BITS_PER_LINE) / 2 - 50)
+    .attr('y', '0')
+    .attr('height', '40')
+    .attr('width', '100')
+    .attr('fill', 'rgb(255,255,255)');
+
+  // append a new text element to the svg element
+  newSvgEl.append('text')
+    .attr('x', '50%')
+    .attr('y', '50%')
+    .classed('fieldText', true)
+    .text(BITS_PER_LINE + ' bits');
 }
 
 

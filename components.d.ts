@@ -11,6 +11,7 @@ declare module 'vue' {
     HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
     ProtocolEditModal: typeof import('./src/components/modals/ProtocolEditModal.vue')['default']
     ProtocolInfoModal: typeof import('./src/components/modals/ProtocolInfoModal.vue')['default']
+    ProtocolUpload: typeof import('./src/components/ProtocolUpload.vue')['default']
     ProtocolViewer: typeof import('./src/components/ProtocolViewer.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
