@@ -1,13 +1,17 @@
 <template>
-  <v-file-input
-  :rules="rules"
-  accept="image/svg+xml"
-  placeholder="Pick an avatar"
-  prepend-icon="mdi-camera"
-  label="Avatar"
-  @change="uploadProtocol"
-  ref="file"
-></v-file-input>
+  <div class="wrapper w-md-100">
+    <v-file-input
+    :rules="rules"
+    accept="image/svg+xml"
+    placeholder="Upload a protocol (.svg)"
+    label="Drag and drop a protocol file here or click to browse"
+    variant="outlined"
+    @change="uploadProtocol"
+    ref="file"
+    prepend-icon="mdi-ip-network"
+    style="height: 100%;"
+    ></v-file-input>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -46,3 +50,18 @@ async function uploadProtocol($event: Event) {
 }
 
 </script>
+
+<style scoped>
+  .wrapper {
+    margin: 0 auto;
+    width: 50%;
+    height: 300px;
+  }
+
+  @media screen and (max-width: 768px) {
+    .wrapper {
+      width: 100%;
+      padding: 0 1rem;
+    }
+  }
+</style>
