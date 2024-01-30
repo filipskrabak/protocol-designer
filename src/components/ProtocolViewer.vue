@@ -24,16 +24,20 @@
 <script setup lang="ts">
 import * as d3 from 'd3';
 import { ref, onMounted } from 'vue';
+
 import ProtocolEditModal from './modals/ProtocolEditModal.vue';
 import AddFieldModal from './modals/AddFieldModal.vue';
 import ProtocolUpload from './ProtocolUpload.vue';
+
 import { Field, FieldOptions } from '../contracts';
 import { Endian } from '../contracts';
 import { useProtocolStore } from '@/store/ProtocolStore';
-import { PIXELS_PER_BIT, BITS_PER_LINE, LINE_HEIGHT_PX } from '../constants';
+import { useSettingsStore } from '@/store/SettingsStore';
+import { PIXELS_PER_BIT, LINE_HEIGHT_PX } from '../constants';
 
 // Stores
 const protocolStore = useProtocolStore();
+const settingsStore = useSettingsStore();
 
 // Refs
 const svgWrapper = ref<HTMLElement>();
@@ -49,28 +53,7 @@ const toggleModal = () => {
 const toggleAddFieldModal = () => {
   showAddFieldModal.value = !showAddFieldModal.value;
 };
-/*
-onMounted(() => {
-  if(!svgWrapper.value) {
-    throw new Error('svgWrapper is not defined');
-  }
 
-  const svg = d3.select(svgWrapper.value);
-
-  // create D3 namespace for pd
-  d3.namespaces['pd'] = 'http://www.protocoldescription.com';
-
-  d3.xml('https://raw.githubusercontent.com/filipskrabak/protocols/main/udp/udp.svg').then((data) => {
-    if(!svg) {
-      throw new Error('svg is not defined');
-    }
-    svg.node()?.append(data.documentElement);
-
-    onSvgLoaded();
-
-  });
-});
-*/
 function protocolData(data: string) {
   console.log('protocolData', data);
   if(!svgWrapper.value) {
@@ -290,7 +273,7 @@ function renderSVG() {
     if(field.is_variable_length) {
       if(!field.max_length) {
         // Stretch to the end of the line
-        totalWidthToRender = (BITS_PER_LINE * PIXELS_PER_BIT) - renderedPixelsInLine;
+        totalWidthToRender = (settingsStore.bitsPerRow * PIXELS_PER_BIT) - renderedPixelsInLine;
       }
     } else {
       totalWidthToRender = field.length * PIXELS_PER_BIT;
@@ -319,8 +302,8 @@ function renderSVG() {
 
       let width = totalWidthToRender;
 
-      if(renderedPixelsInLine + totalWidthToRender > BITS_PER_LINE * PIXELS_PER_BIT) {
-        width = (BITS_PER_LINE * PIXELS_PER_BIT) - renderedPixelsInLine;
+      if(renderedPixelsInLine + totalWidthToRender > settingsStore.bitsPerRow * PIXELS_PER_BIT) {
+        width = (settingsStore.bitsPerRow * PIXELS_PER_BIT) - renderedPixelsInLine;
       }
 
 
@@ -342,7 +325,7 @@ function renderSVG() {
 
       renderedPixelsInLine += width;
 
-      if(renderedPixelsInLine >= BITS_PER_LINE * PIXELS_PER_BIT) {
+      if(renderedPixelsInLine >= settingsStore.bitsPerRow * PIXELS_PER_BIT) {
         renderedPixelsInLine = 0;
         lastInnerWidth = 0;
         lastInnerHeight += LINE_HEIGHT_PX;
@@ -378,7 +361,7 @@ function renderScale() {
 
   // append a new svg element to the data-scale g element
   const newSvgEl = svg.select('g[data-scale]').append('svg')
-    .attr('width', PIXELS_PER_BIT * BITS_PER_LINE)
+    .attr('width', PIXELS_PER_BIT * settingsStore.bitsPerRow)
     .attr('height', LINE_HEIGHT_PX);
 
 
@@ -419,7 +402,7 @@ function renderScale() {
 
   // append a new rect element to the svg element
   newSvgEl.append('rect')
-    .attr('x', (PIXELS_PER_BIT * BITS_PER_LINE) / 2 - 50)
+    .attr('x', (PIXELS_PER_BIT * settingsStore.bitsPerRow) / 2 - 50)
     .attr('y', '0')
     .attr('height', '40')
     .attr('width', '100')
@@ -430,7 +413,7 @@ function renderScale() {
     .attr('x', '50%')
     .attr('y', '50%')
     .classed('fieldText', true)
-    .text(BITS_PER_LINE + ' bits');
+    .text(settingsStore.bitsPerRow + ' bits');
 }
 
 

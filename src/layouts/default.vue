@@ -26,7 +26,7 @@
           </v-list>
         </v-menu>
 
-        <v-btn icon @click.stop="drawerRight = !drawerRight">
+        <v-btn icon @click.stop="settingsModal = !settingsModal">
           <v-icon>mdi-cog</v-icon>
         </v-btn>
       </v-app-bar>
@@ -36,19 +36,15 @@
         v-model="drawerLeft"
         location="left"
       >
-        <v-list
-
-        ></v-list>
-      </v-navigation-drawer>
-
-      <v-navigation-drawer
-        v-model="drawerRight"
-        location="right"
-      >
         <v-list>
-
+          <LeftDrawer />
         </v-list>
       </v-navigation-drawer>
+
+      <SettingsModal
+        v-model="settingsModal"
+        @modal="settingsModal = !settingsModal"
+      />
 
 
       <v-main class="d-flex align-center justify-center" style="min-height: 300px;">
@@ -61,9 +57,11 @@
 <script lang="ts" setup>
   import DefaultBar from './default/AppBar.vue'
   import DefaultView from './default/View.vue'
+  import LeftDrawer from '@/components/navs/LeftDrawer.vue'
+  import SettingsModal from '@/components/modals/SettingsModal.vue'
 
   import { ref } from 'vue'
 
   const drawerLeft = ref(false)
-  const drawerRight = ref(false)
+  const settingsModal = ref(false)
 </script>
