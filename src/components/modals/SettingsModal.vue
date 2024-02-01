@@ -1,14 +1,17 @@
 <template>
   <v-dialog
       v-model="modalRef"
-      width="auto"
+      width="900"
   >
     <v-card>
+
+    <v-card-title>
+      <span class="text-h5">Settings</span>
+    </v-card-title>
     <v-tabs
       v-model="tab"
-      grow
     >
-      <v-tab value="one">Item One</v-tab>
+      <v-tab value="one">Protocol</v-tab>
       <v-tab value="two">Item Two</v-tab>
       <v-tab value="three">Item Three</v-tab>
     </v-tabs>
@@ -33,7 +36,7 @@
           <v-btn
             color="blue-darken-1"
             variant="text"
-            @click="modalRef = false"
+            @click="modalRef = false, protocolRenderStore.initialize()"
           >
             Close
           </v-btn>
@@ -46,6 +49,9 @@
 
 import { defineProps, defineEmits, computed, ref } from 'vue';
 import GenericTab from '@/components/modals/settingstabs/GenericTab.vue';
+import { useProtocolRenderStore } from '@/store/ProtocolRenderStore';
+
+const protocolRenderStore = useProtocolRenderStore();
 
 const tab = ref('one');
 
