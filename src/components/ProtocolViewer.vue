@@ -9,7 +9,7 @@
     </div>
   </div>
 
-  <ProtocolEditModal :protocolEditModal="protocolRenderStore.protocolEditModal" @modal="protocolRenderStore.toggleModal()" @save="protocolRenderStore.renderSVG()"/>
+  <ProtocolEditModal :protocolEditModal="protocolRenderStore.protocolEditModal" @modal="protocolRenderStore.toggleModal()" @save="protocolRenderStore.initialize()"/>
 </template>
 
 <script setup lang="ts">

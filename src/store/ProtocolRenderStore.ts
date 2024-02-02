@@ -70,19 +70,30 @@ export const useProtocolRenderStore = defineStore('ProtocolRenderStore', {
         // append a new pd:field element to the metadata element
         const newFieldElement = document.createElementNS(pdNamespaceURI, 'pd:field');
 
+        // Mandatory attributes
         newFieldElement.setAttribute('pd:display_name', field.display_name);
         newFieldElement.setAttribute('pd:id', field.id);
         newFieldElement.setAttribute('pd:length', String(field.length));
-        newFieldElement.setAttribute('pd:length_max', String(field.length));
+
+        // Optional attributes
+        if(field.is_variable_length) {
+          newFieldElement.setAttribute('pd:length_max', String(field.max_length));
+        }
+
+        if(field.endian) {
+          newFieldElement.setAttribute('pd:endian', field.endian);
+        }
+
+        if(field.description) {
+          newFieldElement.setAttribute('pd:description', field.description);
+        }
 
         metadata.appendChild(newFieldElement);
 
 
-        if(field.is_variable_length) {
-          if(!field.max_length) {
-            // Stretch to the end of the line
-            totalWidthToRender = (this.settingsStore.bitsPerRow * this.settingsStore.pixelsPerBit) - renderedPixelsInLine;
-          }
+        if(field.is_variable_length && !field.max_length) {
+          // Stretch to the end of the line
+          totalWidthToRender = (this.settingsStore.bitsPerRow * this.settingsStore.pixelsPerBit) - renderedPixelsInLine;
         } else {
           totalWidthToRender = field.length * this.settingsStore.pixelsPerBit;
         }
@@ -226,7 +237,7 @@ export const useProtocolRenderStore = defineStore('ProtocolRenderStore', {
      * Sets the size of the svgWrapper based on the bounding box of the SVG
      */
     setSvgSize() {
-      let bBox = document.querySelector("svg")?.getBBox();
+      const bBox = document.querySelector("svg")?.getBBox();
 
       if(!this.svgWrapper || !bBox) {
         return;
@@ -254,7 +265,6 @@ export const useProtocolRenderStore = defineStore('ProtocolRenderStore', {
       }
 
       // select all pd:field elements inside metadata
-      const pdNamespaceURI = d3.namespaces['pd'];
       const fields = metadata.querySelectorAll('field');
 
       console.log(fields)
@@ -285,7 +295,7 @@ export const useProtocolRenderStore = defineStore('ProtocolRenderStore', {
         console.log("attributes", field.attributes.getNamedItem('pd:length_max')?.value)
         console.log("attributes", field.attributes.getNamedItem('pd:display_name')?.value)
 
-        let is_variable_length = field.attributes.getNamedItem('pd:length')?.value === '0';
+        const is_variable_length = (field.attributes.getNamedItem('pd:length')?.value === '0' || field.attributes.getNamedItem('pd:length_max')) ? true : false;
 
         // Assume big endian if not specified, since that's what most protocols use
         let endian: Endian = Endian.Big;
@@ -293,7 +303,7 @@ export const useProtocolRenderStore = defineStore('ProtocolRenderStore', {
           endian = Endian.Little;
         }
 
-        let fieldInfo: Field = {
+        const fieldInfo: Field = {
           field_options: fieldOptions,
           length: parseInt(field.attributes.getNamedItem('pd:length')?.value ?? "0"),
           max_length: parseInt(field.attributes.getNamedItem('pd:length_max')?.value ?? "0"),

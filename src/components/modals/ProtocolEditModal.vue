@@ -73,6 +73,7 @@
                   label="Description"
                   rows="2"
                   row-height="20"
+                  v-model="protocolStore.editingField.description"
                 ></v-textarea>
               </v-col>
             </v-row>
