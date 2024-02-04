@@ -5,8 +5,38 @@
         <v-app-bar-nav-icon variant="text" @click.stop="drawerLeft = !drawerLeft"></v-app-bar-nav-icon>
 
         <v-toolbar-title>Protocol Designer</v-toolbar-title>
-        <v-btn icon>
-          <v-icon>mdi-upload</v-icon>
+        <v-btn>
+          <v-icon class="me-2">mdi-plus-circle</v-icon>
+          New
+
+          <v-dialog
+            v-model="newProtocolDialog"
+            activator="parent"
+            width="auto"
+          >
+            <v-card>
+              <v-card-text>
+                Do you want to create a new protocol? All unsaved changes will be lost.
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn
+                  color="blue-darken-1"
+                  variant="text"
+                  @click="newProtocolDialog = false"
+                >
+                  Cancel
+                </v-btn>
+                <v-btn
+                  color="blue-darken-1"
+                  variant="text"
+                  @click="newProtocolDialog = false; newProtocol()"
+                >
+                  Create
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
         </v-btn>
 
         <v-menu>
@@ -14,7 +44,7 @@
             <v-btn
               v-bind="props"
             >
-              <v-icon>mdi-download</v-icon>
+              <v-icon class="me-2">mdi-download</v-icon>
               Export
             </v-btn>
           </template>
@@ -62,6 +92,15 @@
 
   import { ref } from 'vue'
 
+  import { useProtocolStore } from '@/store/ProtocolStore'
+
   const drawerLeft = ref(false)
   const settingsModal = ref(false)
+  const newProtocolDialog = ref(false)
+
+  const protocolStore = useProtocolStore()
+
+  function newProtocol() {
+    protocolStore.newProtocol()
+  }
 </script>

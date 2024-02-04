@@ -274,7 +274,7 @@ export const useProtocolRenderStore = defineStore('ProtocolRenderStore', {
       // iterate over all pd:field elements (HTMLCollection)
       Array.from(fields).forEach((field) => {
 
-        const targetElement = d3.select(`[data-id="${field.getAttribute('pd:id')}"]`);
+        const targetElements = d3.selectAll(`[data-id="${field.getAttribute('pd:id')}"]`);
 
         const fieldOptions: FieldOptions[] = [];
 
@@ -319,7 +319,7 @@ export const useProtocolRenderStore = defineStore('ProtocolRenderStore', {
 
         this.protocolStore.addField(fieldInfo);
 
-        targetElement.on('click', () => {
+        targetElements.on('click', () => {
           this.protocolStore.editingField = fieldInfo;
           this.protocolStore.editingFieldId = fieldInfo.id;
 
@@ -327,8 +327,34 @@ export const useProtocolRenderStore = defineStore('ProtocolRenderStore', {
         });
 
         // add dataElement class to the target element
-        targetElement.classed('dataElement', true);
+        targetElements.classed('dataElement', true);
       });
+
+      let dataElements = document.getElementsByClassName('dataElement');
+
+      // elements with same attribute "data-id" will be highlighted
+      for (let i = 0; i < dataElements.length; i++) {
+        dataElements[i].addEventListener('mouseover', function() {
+          let dataId = dataElements[i].getAttribute('data-id');
+          let elementsToHighlight = d3.selectAll(`[data-id="${dataId}"]`);
+
+
+          elementsToHighlight.each(function() {
+            let rect = d3.select(this).select('rect');
+            rect.style('fill', 'rgb(216, 216, 216)');
+          });
+        });
+
+        dataElements[i].addEventListener('mouseout', function() {
+          let dataId = dataElements[i].getAttribute('data-id');
+          let elementsToHighlight = d3.selectAll(`[data-id="${dataId}"]`);
+
+          elementsToHighlight.each(function() {
+            let rect = d3.select(this).select('rect');
+            rect.style('fill', 'white');
+          });
+        });
+      }
     },
 
     /**

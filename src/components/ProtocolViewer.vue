@@ -1,10 +1,10 @@
 <template>
   <div class="d-flex justify-center align-center">
-    <template v-if="protocolUploaded">
+    <template v-if="protocolStore.uploaded">
       <v-skeleton-loader type="table-row, table-row, table-row, table-row" height="240" width="380" v-if="protocolRenderStore.loading">
       </v-skeleton-loader>
     </template>
-    <ProtocolUpload v-else @protocolUploaded="protocolUploaded = true" @protocolData="protocolRenderStore.protocolData" />
+    <ProtocolUpload v-else @protocolUploaded="protocolStore.uploaded = true" @protocolData="protocolRenderStore.protocolData" />
     <div ref="svgWrapper">
     </div>
   </div>
@@ -20,17 +20,31 @@ import ProtocolUpload from './ProtocolUpload.vue';
 
 import { useProtocolRenderStore } from '@/store/ProtocolRenderStore';
 import { onMounted } from 'vue';
+import { useProtocolStore } from '@/store/ProtocolStore';
+import { watch } from 'vue';
 
 // Stores
 const protocolRenderStore = useProtocolRenderStore();
+const protocolStore = useProtocolStore();
 
 // Refs
 const svgWrapper = ref<HTMLElement>();
-const protocolUploaded = ref(false);
 
 onMounted(() => {
   if (svgWrapper.value) {
     protocolRenderStore.svgWrapper = svgWrapper.value;
+  }
+});
+
+// used when a new protocol is created (clears the old protocol)
+watch(() => protocolStore.uploaded, (newVal) => {
+  if (!newVal) {
+    if(svgWrapper.value) {
+      svgWrapper.value.innerHTML = '';
+      svgWrapper.value.style.width = '0';
+      svgWrapper.value.style.height = '0';
+    }
+
   }
 });
 

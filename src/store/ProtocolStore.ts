@@ -8,12 +8,16 @@ export const useProtocolStore = defineStore('ProtocolStore', {
     protocol: {} as Protocol,
     editingField: {} as Field,
     editingFieldId: '', // Used to track which field is being edited to update it later
+    uploaded: false
   }),
 
   // Actions
   actions: {
     setProtocol(protocol: Protocol) {
       this.protocol = protocol
+    },
+    newProtocol() {
+      this.uploaded = false
     },
     addField(field: Field) {
       this.fields.push(field)
@@ -28,7 +32,6 @@ export const useProtocolStore = defineStore('ProtocolStore', {
       this.fields[index] = this.editingField
 
     },
-
     findFieldById(id: string) {
       return this.fields.find(field => field.id === id)
     }
