@@ -102,10 +102,12 @@ export const useProtocolRenderStore = defineStore('ProtocolRenderStore', {
         console.log("field length", field.length)
 
         if(renderedPixelsInLine == 0) {
+          lastWrapperHeight += lastInnerHeight;
+
           lastWrapperGElement = svg.select('g[data-table]').append('g')
             .attr('transform', 'translate(0, ' + (lastWrapperHeight) + ')')
 
-            lastInnerHeight = 0;
+          lastInnerHeight = 0;
         }
 
         while(!rendered) {
@@ -157,8 +159,8 @@ export const useProtocolRenderStore = defineStore('ProtocolRenderStore', {
           if(totalWidthToRender <= 0) {
             rendered = true;
           }
+          console.log("lastInnerHeight", lastInnerHeight)
         }
-        lastWrapperHeight += lastInnerHeight;
       });
     },
 
