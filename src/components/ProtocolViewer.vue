@@ -9,13 +9,13 @@
     </div>
   </div>
 
-  <ProtocolEditModal :protocolEditModal="protocolRenderStore.protocolEditModal" @modal="protocolRenderStore.toggleModal()" @save="protocolRenderStore.initialize()"/>
+  <FieldEditModal :fieldEditModal="protocolRenderStore.fieldEditModal" @modal="protocolRenderStore.closeFieldModal()" @save="protocolRenderStore.initialize()"/>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
 
-import ProtocolEditModal from './modals/ProtocolEditModal.vue';
+import FieldEditModal from './modals/FieldEditModal.vue';
 import ProtocolUpload from './ProtocolUpload.vue';
 
 import { useProtocolRenderStore } from '@/store/ProtocolRenderStore';

@@ -8,6 +8,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AddFieldModal: typeof import('./src/components/modals/AddFieldModal.vue')['default']
+    FieldEditModal: typeof import('./src/components/modals/FieldEditModal.vue')['default']
     GenericTab: typeof import('./src/components/modals/settingstabs/GenericTab.vue')['default']
     HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
     LeftDrawer: typeof import('./src/components/navs/LeftDrawer.vue')['default']

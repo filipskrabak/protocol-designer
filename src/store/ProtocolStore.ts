@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { Field, Protocol } from '@/contracts'
+import { Field, Protocol, EditingMode } from '@/contracts'
 
 export const useProtocolStore = defineStore('ProtocolStore', {
   // State
@@ -8,7 +8,8 @@ export const useProtocolStore = defineStore('ProtocolStore', {
     protocol: {} as Protocol,
     editingField: {} as Field,
     editingFieldId: '', // Used to track which field is being edited to update it later
-    uploaded: false
+    uploaded: false,
+    editingMode: EditingMode.Add as EditingMode
   }),
 
   // Actions
@@ -28,8 +29,12 @@ export const useProtocolStore = defineStore('ProtocolStore', {
     },
     saveEditingField() {
       // replace the field being edited with the new one
-      const index = this.fields.findIndex(field => field.id === this.editingFieldId)
-      this.fields[index] = this.editingField
+      if(this.editingMode === EditingMode.Add) {
+        this.addField(this.editingField)
+      } else {
+        const index = this.fields.findIndex(field => field.id === this.editingFieldId)
+        this.fields[index] = this.editingField
+      }
 
     },
     findFieldById(id: string) {

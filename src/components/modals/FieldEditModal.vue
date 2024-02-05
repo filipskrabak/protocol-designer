@@ -5,7 +5,8 @@
     >
       <v-card>
         <v-card-title>
-          <span class="text-h5">Field: {{ protocolStore.editingField.display_name }}</span>
+          <span v-if="protocolStore.editingMode == EditingMode.Edit" class="text-h5">Field: {{ protocolStore.editingField.display_name }}</span>
+          <span v-else class="text-h5">New Field</span>
         </v-card-title>
         <v-card-text>
           <v-container>
@@ -101,21 +102,21 @@
 </template>
 
 <script setup lang="ts">
-import { Endian } from '@/contracts';
+import { EditingMode, Endian } from '@/contracts';
 import { computed } from 'vue';
 import { useProtocolStore } from '@/store/ProtocolStore';
 
 const protocolStore = useProtocolStore();
 
 const props = defineProps({
-    protocolEditModal: Boolean,
+    fieldEditModal: Boolean,
 });
 
 const emit = defineEmits(['modal', 'save']);
 
 // Send info about the modal to the parent component
 const modalRef = computed({
-    get: () => props.protocolEditModal,
+    get: () => props.fieldEditModal,
     set: (value: boolean) => {
         emit('modal', value);
     },

@@ -1,7 +1,7 @@
 import * as d3 from 'd3';
 
 import { defineStore } from 'pinia'
-import { Field, FieldOptions } from '../contracts';
+import { EditingMode, Field, FieldOptions } from '../contracts';
 import { Endian } from '../contracts';
 import { useProtocolStore } from '@/store/ProtocolStore';
 import { useSettingsStore } from '@/store/SettingsStore';
@@ -19,7 +19,7 @@ export const useProtocolRenderStore = defineStore('ProtocolRenderStore', {
     settingsStore: useSettingsStore(),
 
     // Modals
-    protocolEditModal: ref(false),
+    fieldEditModal: ref(false),
   }),
 
   // Actions
@@ -323,7 +323,7 @@ export const useProtocolRenderStore = defineStore('ProtocolRenderStore', {
           this.protocolStore.editingField = fieldInfo;
           this.protocolStore.editingFieldId = fieldInfo.id;
 
-          this.toggleModal();
+          this.showFieldEditModal();
         });
 
         // add dataElement class to the target element
@@ -379,9 +379,58 @@ export const useProtocolRenderStore = defineStore('ProtocolRenderStore', {
     },
 
     // Modal stuff
-    toggleModal() {
-      this.protocolEditModal = !this.protocolEditModal;
+    showFieldEditModal() {
+      this.protocolStore.editingMode = EditingMode.Edit;
+      this.fieldEditModal = !this.fieldEditModal;
     },
+    showFieldAddModal() {
+      this.protocolStore.editingMode = EditingMode.Add;
+
+      // clean up the editingField
+      this.protocolStore.editingField = {
+        field_options: [],
+        length: 0,
+        max_length: 0,
+        is_variable_length: false,
+        endian: Endian.Big,
+        display_name: '',
+        id: '',
+        description: '',
+        encapsulate: false,
+      };
+
+      this.fieldEditModal = !this.fieldEditModal;
+    },
+    closeFieldModal() {
+      this.fieldEditModal = false;
+    },
+
+
+    // Exports
+
+    exportSVG() {
+      if(!this.svgWrapper) {
+        throw new Error('svgWrapper is not defined');
+      }
+
+      const svg = this.svgWrapper.querySelector('svg');
+
+      if(!svg) {
+        throw new Error('svg is not defined');
+      }
+
+      const svgData = new XMLSerializer().serializeToString(svg);
+
+      const svgBlob = new Blob([svgData], {type: 'image/svg+xml;charset=utf-8'});
+      const svgUrl = URL.createObjectURL(svgBlob);
+
+      const downloadLink = document.createElement('a');
+      downloadLink.href = svgUrl;
+      downloadLink.download = this.protocolStore.protocol.name + '.svg';
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+    }
   },
 
   // Getters

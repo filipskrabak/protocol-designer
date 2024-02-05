@@ -49,9 +49,9 @@
             </v-btn>
           </template>
           <v-list>
-            <v-list-item
+            <v-list-item link
             >
-              <v-list-item-title>Scalable Vector Graphics (.svg)</v-list-item-title>
+              <v-list-item-title @click="protocolRenderStore.exportSVG()">Scalable Vector Graphics (.svg)</v-list-item-title>
             </v-list-item>
           </v-list>
         </v-menu>
@@ -93,12 +93,14 @@
   import { ref } from 'vue'
 
   import { useProtocolStore } from '@/store/ProtocolStore'
+  import { useProtocolRenderStore } from '@/store/ProtocolRenderStore'
 
   const drawerLeft = ref(false)
   const settingsModal = ref(false)
   const newProtocolDialog = ref(false)
 
   const protocolStore = useProtocolStore()
+  const protocolRenderStore = useProtocolRenderStore()
 
   function newProtocol() {
     protocolStore.newProtocol()
