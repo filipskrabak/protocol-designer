@@ -14,6 +14,7 @@ declare module 'vue' {
     LeftDrawer: typeof import('./src/components/navs/LeftDrawer.vue')['default']
     ProtocolEditModal: typeof import('./src/components/modals/ProtocolEditModal.vue')['default']
     ProtocolInfoModal: typeof import('./src/components/modals/ProtocolInfoModal.vue')['default']
+    ProtocolProperties: typeof import('./src/components/ProtocolProperties.vue')['default']
     ProtocolUpload: typeof import('./src/components/ProtocolUpload.vue')['default']
     ProtocolViewer: typeof import('./src/components/ProtocolViewer.vue')['default']
     RightDrawer: typeof import('./src/components/navs/RightDrawer.vue')['default']

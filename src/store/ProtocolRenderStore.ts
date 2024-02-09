@@ -208,13 +208,13 @@ export const useProtocolRenderStore = defineStore('ProtocolRenderStore', {
 
       const svg = d3.select(this.svgWrapper);
 
-      let dataScale = svg.select('g[data-scale]')
+      const dataScale = svg.select('g[data-scale]')
 
       // remove all children from data-scale g element
       dataScale.selectAll('*').remove();
 
-      let tableGroup = svg.select('g[data-table]');
-      let lineHeight = this.settingsStore.showScale ? LINE_HEIGHT_PX : 0;
+      const tableGroup = svg.select('g[data-table]');
+      const lineHeight = this.settingsStore.showScale ? LINE_HEIGHT_PX : 0;
       tableGroup.attr('transform', `translate(0, ${lineHeight})`);
 
       if(!this.settingsStore.showScale) {
@@ -373,27 +373,27 @@ export const useProtocolRenderStore = defineStore('ProtocolRenderStore', {
         targetElements.classed('dataElement', true);
       });
 
-      let dataElements = document.getElementsByClassName('dataElement');
+      const dataElements = document.getElementsByClassName('dataElement');
 
       // elements with same attribute "data-id" will be highlighted
       for (let i = 0; i < dataElements.length; i++) {
         dataElements[i].addEventListener('mouseover', function() {
-          let dataId = dataElements[i].getAttribute('data-id');
-          let elementsToHighlight = d3.selectAll(`[data-id="${dataId}"]`);
+          const dataId = dataElements[i].getAttribute('data-id');
+          const elementsToHighlight = d3.selectAll(`[data-id="${dataId}"]`);
 
 
           elementsToHighlight.each(function() {
-            let rect = d3.select(this).select('rect');
+            const rect = d3.select(this).select('rect');
             rect.style('fill', 'rgb(216, 216, 216)');
           });
         });
 
         dataElements[i].addEventListener('mouseout', function() {
-          let dataId = dataElements[i].getAttribute('data-id');
-          let elementsToHighlight = d3.selectAll(`[data-id="${dataId}"]`);
+          const dataId = dataElements[i].getAttribute('data-id');
+          const elementsToHighlight = d3.selectAll(`[data-id="${dataId}"]`);
 
           elementsToHighlight.each(function() {
-            let rect = d3.select(this).select('rect');
+            const rect = d3.select(this).select('rect');
             rect.style('fill', 'white');
           });
         });

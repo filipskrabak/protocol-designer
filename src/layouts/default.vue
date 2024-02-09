@@ -83,7 +83,6 @@
 </template>
 
 <script lang="ts" setup>
-  import DefaultBar from './default/AppBar.vue'
   import DefaultView from './default/View.vue'
   import LeftDrawer from '@/components/navs/LeftDrawer.vue'
   import SettingsModal from '@/components/modals/SettingsModal.vue'

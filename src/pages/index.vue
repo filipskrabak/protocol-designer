@@ -18,6 +18,9 @@
         </v-container>
       </v-window-item>
       <v-window-item :value="2">
+        <v-container class="tab-container">
+          <ProtocolProperties />
+        </v-container>
       </v-window-item>
       <v-window-item :value="3">
 
@@ -36,3 +39,11 @@ const protocolStore = useProtocolStore();
 
 const tab = ref<number>(1);
 </script>
+
+<style scoped>
+@media only screen and (min-width: 960px) {
+  .tab-container {
+    max-width: 960px;
+  }
+}
+</style>
