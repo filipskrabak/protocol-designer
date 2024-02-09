@@ -1,10 +1,13 @@
 <template>
+  <div class="d-flex justify-center mb-3" v-if="protocolStore.uploaded">
+      <h1>{{ protocolStore.protocol.name }}</h1>
+  </div>
   <div class="d-flex justify-center align-center">
     <template v-if="protocolStore.uploaded">
       <v-skeleton-loader type="table-row, table-row, table-row, table-row" height="240" width="380" v-if="protocolRenderStore.loading">
       </v-skeleton-loader>
     </template>
-    <ProtocolUpload v-else @protocolUploaded="protocolStore.uploaded = true" @protocolData="protocolRenderStore.protocolData" />
+    <ProtocolUpload v-else class="mt-5" @protocolUploaded="protocolStore.uploaded = true" @protocolData="protocolRenderStore.protocolData" />
     <div ref="svgWrapper">
     </div>
   </div>

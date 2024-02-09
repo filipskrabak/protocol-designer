@@ -5,7 +5,8 @@ export const useSettingsStore = defineStore('SettingsStore', {
   // State
   state: () => ({
     bitsPerRow: 32,
-    pixelsPerBit: 32
+    pixelsPerBit: 32,
+    showScale: true,
   }),
 
   // Actions

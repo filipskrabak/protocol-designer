@@ -77,9 +77,7 @@
       />
 
 
-      <v-main class="d-flex align-center justify-center" style="min-height: 300px;">
-        <DefaultView />
-      </v-main>
+      <DefaultView />
     </v-layout>
   </v-app>
 </template>

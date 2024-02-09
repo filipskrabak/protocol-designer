@@ -50,11 +50,41 @@ export const useProtocolRenderStore = defineStore('ProtocolRenderStore', {
         throw new Error('metadata is not defined');
       }
 
-      // remove all children from the root g element (g element without attribute data-scale)
+      // remove all children from the root g element
       svg.select('g[data-table]').selectAll('*').remove();
 
       // remove all children from the metadata element
       metadata.innerHTML = '';
+
+      // render pd:info element
+      const newInfoElement = document.createElementNS(pdNamespaceURI, 'pd:info');
+
+      const newNameElement = document.createElementNS(pdNamespaceURI, 'pd:name');
+      newNameElement.textContent = this.protocolStore.protocol.name;
+      newInfoElement.appendChild(newNameElement);
+
+      const newAuthorElement = document.createElementNS(pdNamespaceURI, 'pd:author');
+      newAuthorElement.textContent = this.protocolStore.protocol.author;
+      newInfoElement.appendChild(newAuthorElement);
+
+      const newDescriptionElement = document.createElementNS(pdNamespaceURI, 'pd:description');
+      newDescriptionElement.textContent = this.protocolStore.protocol.description;
+      newInfoElement.appendChild(newDescriptionElement);
+
+      const newVersionElement = document.createElementNS(pdNamespaceURI, 'pd:version');
+      newVersionElement.textContent = this.protocolStore.protocol.version;
+      newInfoElement.appendChild(newVersionElement);
+
+      const newLastUpdateElement = document.createElementNS(pdNamespaceURI, 'pd:last_update');
+      newLastUpdateElement.textContent = this.protocolStore.protocol.last_update;
+      newInfoElement.appendChild(newLastUpdateElement);
+
+      const newCreatedElement = document.createElementNS(pdNamespaceURI, 'pd:created');
+      newCreatedElement.textContent = this.protocolStore.protocol.created;
+      newInfoElement.appendChild(newCreatedElement);
+
+      metadata.appendChild(newInfoElement);
+
 
       let lastWrapperHeight = 0;
       let renderedPixelsInLine = 0;
@@ -90,10 +120,13 @@ export const useProtocolRenderStore = defineStore('ProtocolRenderStore', {
 
         metadata.appendChild(newFieldElement);
 
-
+        // Field is variable length, but the max length is unknown
         if(field.is_variable_length && !field.max_length) {
           // Stretch to the end of the line
           totalWidthToRender = (this.settingsStore.bitsPerRow * this.settingsStore.pixelsPerBit) - renderedPixelsInLine;
+        } else if(field.is_variable_length && field.length == 0) { // Field is variable length, but the minimum length is unknown
+          // Stretch to the end of the line OR to max_length
+          totalWidthToRender = Math.min(field.max_length * this.settingsStore.pixelsPerBit, this.settingsStore.bitsPerRow * this.settingsStore.pixelsPerBit) - renderedPixelsInLine;
         } else {
           totalWidthToRender = field.length * this.settingsStore.pixelsPerBit;
         }
@@ -175,8 +208,18 @@ export const useProtocolRenderStore = defineStore('ProtocolRenderStore', {
 
       const svg = d3.select(this.svgWrapper);
 
+      let dataScale = svg.select('g[data-scale]')
+
       // remove all children from data-scale g element
-      svg.select('g[data-scale]').selectAll('*').remove();
+      dataScale.selectAll('*').remove();
+
+      let tableGroup = svg.select('g[data-table]');
+      let lineHeight = this.settingsStore.showScale ? LINE_HEIGHT_PX : 0;
+      tableGroup.attr('transform', `translate(0, ${lineHeight})`);
+
+      if(!this.settingsStore.showScale) {
+        return;
+      }
 
       // append a new svg element to the data-scale g element
       const newSvgEl = svg.select('g[data-scale]').append('svg')
@@ -355,6 +398,26 @@ export const useProtocolRenderStore = defineStore('ProtocolRenderStore', {
           });
         });
       }
+
+      // Load protocol information
+
+      const protocolInfo = metadata.querySelector('info')
+
+      if(!protocolInfo) {
+        throw new Error('protocolInfo is not defined');
+      }
+
+      console.log("protocolInfo", protocolInfo)
+
+      // get element by tag name
+      this.protocolStore.protocol.name = protocolInfo.querySelector('name')?.textContent ?? "";
+      this.protocolStore.protocol.author = protocolInfo.querySelector('author')?.textContent ?? "";
+      this.protocolStore.protocol.description = protocolInfo.querySelector('description')?.textContent ?? "";
+      this.protocolStore.protocol.version = protocolInfo.querySelector('version')?.textContent ?? "";
+      this.protocolStore.protocol.last_update = protocolInfo.querySelector('last_update')?.textContent ?? "";
+      this.protocolStore.protocol.created = protocolInfo.querySelector('created')?.textContent ?? "";
+
+      console.log("protocolStore", this.protocolStore.protocol)
     },
 
     /**
