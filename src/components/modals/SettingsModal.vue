@@ -5,15 +5,15 @@
   >
     <v-card>
 
-    <v-card-title>
+    <v-card-title class="text-center">
       <span class="text-h5">Settings</span>
     </v-card-title>
     <v-tabs
       v-model="tab"
+      bg-color="grey-lighten-4"
     >
       <v-tab value="one">Protocol</v-tab>
-      <v-tab value="two">Item Two</v-tab>
-      <v-tab value="three">Item Three</v-tab>
+      <v-tab value="two">Validation Rules</v-tab>
     </v-tabs>
 
     <v-card-text>
@@ -23,11 +23,7 @@
         </v-window-item>
 
         <v-window-item value="two">
-          Two
-        </v-window-item>
-
-        <v-window-item value="three">
-          Three
+          TODO
         </v-window-item>
       </v-window>
     </v-card-text>
@@ -36,9 +32,9 @@
           <v-btn
             color="blue-darken-1"
             variant="text"
-            @click="modalRef = false, protocolRenderStore.initialize()"
+            @click="save()"
           >
-            Close
+            Save
           </v-btn>
       </v-card-actions>
   </v-card>
@@ -50,8 +46,10 @@
 import { defineProps, defineEmits, computed, ref } from 'vue';
 import GenericTab from '@/components/modals/settingstabs/GenericTab.vue';
 import { useProtocolRenderStore } from '@/store/ProtocolRenderStore';
+import { useNotificationStore } from '@/store/NotificationStore';
 
 const protocolRenderStore = useProtocolRenderStore();
+const notificationStore = useNotificationStore();
 
 const tab = ref('one');
 
@@ -68,5 +66,18 @@ const modalRef = computed({
         emit('modal', value);
     },
 });
+
+function save() {
+  modalRef.value = false;
+  protocolRenderStore.initialize();
+
+  notificationStore.showNotification({
+    message: 'Settings have been saved',
+    timeout: 3000,
+    color: 'success',
+    icon: 'mdi-check'
+  });
+
+}
 
 </script>

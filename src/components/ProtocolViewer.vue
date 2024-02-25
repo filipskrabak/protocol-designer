@@ -25,6 +25,7 @@ import { useProtocolRenderStore } from '@/store/ProtocolRenderStore';
 import { onMounted } from 'vue';
 import { useProtocolStore } from '@/store/ProtocolStore';
 import { watch } from 'vue';
+import { onUpdated } from 'vue';
 
 // Stores
 const protocolRenderStore = useProtocolRenderStore();

@@ -1,5 +1,6 @@
 import * as d3 from 'd3';
 
+import { Buffer } from 'buffer';
 import { defineStore } from 'pinia'
 import { EditingMode, Field, FieldOptions } from '../contracts';
 import { Endian } from '../contracts';
@@ -425,6 +426,7 @@ export const useProtocolRenderStore = defineStore('ProtocolRenderStore', {
      * @param data Base64 encoded SVG string
      */
     protocolData(data: string) {
+
       console.log('protocolData', data);
       if(!this.svgWrapper) {
         throw new Error('svgWrapper is not defined');
@@ -436,7 +438,7 @@ export const useProtocolRenderStore = defineStore('ProtocolRenderStore', {
       d3.namespaces['pd'] = 'http://www.protocoldescription.com';
 
       // Decode the base64 string
-      svg.node()?.append(new DOMParser().parseFromString(atob(data.split(',')[1]), 'image/svg+xml').documentElement);
+      svg.node()?.append(new DOMParser().parseFromString(Buffer.from(data.split(',')[1], 'base64').toString('utf-8'), 'image/svg+xml').documentElement);
 
       this.getMetadata();
     },

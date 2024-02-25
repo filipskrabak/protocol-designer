@@ -79,6 +79,25 @@
 
       <DefaultView />
     </v-layout>
+
+    <v-snackbar
+      v-model="notificationStore.snackbar"
+      :timeout="notificationStore.notification.timeout"
+      :color="notificationStore.notification.color"
+    >
+      <v-icon class="mb-1" v-if="notificationStore.notification.icon" :icon="notificationStore.notification.icon"/>
+
+      {{ notificationStore.notification.message }}
+
+      <template v-slot:actions>
+        <v-btn
+          variant="text"
+          @click="notificationStore.snackbar = false"
+        >
+          Close
+        </v-btn>
+      </template>
+    </v-snackbar>
   </v-app>
 </template>
 
@@ -91,6 +110,7 @@
 
   import { useProtocolStore } from '@/store/ProtocolStore'
   import { useProtocolRenderStore } from '@/store/ProtocolRenderStore'
+  import { useNotificationStore } from '@/store/NotificationStore'
 
   const drawerLeft = ref(false)
   const settingsModal = ref(false)
@@ -98,6 +118,7 @@
 
   const protocolStore = useProtocolStore()
   const protocolRenderStore = useProtocolRenderStore()
+  const notificationStore = useNotificationStore()
 
   function newProtocol() {
     protocolStore.newProtocol()

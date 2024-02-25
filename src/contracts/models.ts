@@ -26,3 +26,10 @@ export interface Protocol {
   created: string; // timestamp
   fields: Field[];
 }
+
+export interface Notification {
+  message: string;
+  timeout: number;
+  color: string;
+  icon: string;
+}

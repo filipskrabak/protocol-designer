@@ -4,81 +4,29 @@
       width="800"
     >
       <v-card>
-        <v-card-title>
-          <span v-if="protocolStore.editingMode == EditingMode.Edit" class="text-h5">Field: {{ protocolStore.editingField.display_name }}</span>
-          <span v-else class="text-h5">New Field</span>
+        <v-card-title class="text-center">
+        <span v-if="protocolStore.editingMode == EditingMode.Edit" class="text-h5">{{ protocolStore.editingField.display_name }}</span>
+        <span v-else class="text-h5">New Field</span>
         </v-card-title>
+        <v-tabs
+          v-model="tab"
+          bg-color="grey-lighten-4"
+          align-tabs="center"
+        >
+          <v-tab value="one">Field</v-tab>
+          <v-tab value="two">Options and Values</v-tab>
+        </v-tabs>
+
         <v-card-text>
-          <v-container>
-            <v-row>
-              <v-col
-                md="6"
-              >
-                <v-text-field
-                  label="Display name*"
-                  required
-                  v-model="protocolStore.editingField.display_name"
-                  hint="Name displayed to the user (ex. Destination Port)"
-                ></v-text-field>
-              </v-col>
-              <v-col
-                md="6"
-              >
-                <v-text-field
-                  label="ID (internal name)*"
-                  required
-                  v-model="protocolStore.editingField.id"
-                  hint="Name used in the protocol definition (ex. dst_port)"
-                ></v-text-field>
-              </v-col>
-              <v-col
-                md="12"
-                class="py-0"
-              >
-                <v-switch label="Variable length" v-model="protocolStore.editingField.is_variable_length" color="primary">
-                </v-switch>
-              </v-col>
-              <v-col
-                md="6"
-              >
-                <v-text-field
-                    :label="protocolStore.editingField.is_variable_length ? 'Minimum length*' : 'Length*'"
-                    required
-                    v-model="protocolStore.editingField.length"
-                    hint="If variable length is enabled, this is the minimum length"
-                    suffix="bits"
-                  ></v-text-field>
-              </v-col>
-              <v-col
-                md="6"
-              >
-                <v-text-field v-if="protocolStore.editingField.is_variable_length"
-                    label="Maximum length*"
-                    required
-                    v-model="protocolStore.editingField.max_length"
-                    hint="Maximum possible length"
-                    suffix="bits"
-                  ></v-text-field>
-              </v-col>
-              <v-col cols="12">
-                <v-select
-                  :items="[Endian.Big, Endian.Little]"
-                  label="Endianity*"
-                  v-model="protocolStore.editingField.endian"
-                  required
-                ></v-select>
-              </v-col>
-              <v-col cols="12">
-                <v-textarea
-                  auto-grow
-                  label="Description"
-                  rows="2"
-                  row-height="20"
-                  v-model="protocolStore.editingField.description"
-                ></v-textarea>
-              </v-col>
-            </v-row>
-          </v-container>
+          <v-window v-model="tab">
+            <v-window-item value="one">
+              <FieldTab />
+            </v-window-item>
+
+            <v-window-item value="two">
+              <OptionTab />
+            </v-window-item>
+          </v-window>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
@@ -102,11 +50,17 @@
 </template>
 
 <script setup lang="ts">
-import { EditingMode, Endian } from '@/contracts';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useProtocolStore } from '@/store/ProtocolStore';
+import { useNotificationStore } from '@/store/NotificationStore';
+import { EditingMode, Endian } from '@/contracts';
+import FieldTab from '@/components/modals/fieldedittabs/FieldTab.vue';
+import OptionTab from '@/components/modals/fieldedittabs/OptionTab.vue';
 
 const protocolStore = useProtocolStore();
+const notificationStore = useNotificationStore();
+
+const tab = ref('one');
 
 const props = defineProps({
     fieldEditModal: Boolean,
@@ -127,13 +81,16 @@ function saveEdit() {
     protocolStore.saveEditingField();
     emit('save');
     modalRef.value = false;
+
+    notificationStore.showNotification({
+      message: `The field ${protocolStore.editingField.display_name} has been updated`,
+      timeout: 3000,
+      color: 'success',
+      icon: 'mdi-check'
+    });
 }
 
 </script>
 
 <style>
-dt {
-    font-weight: bold;
-    margin-top: 10px;
-}
 </style>

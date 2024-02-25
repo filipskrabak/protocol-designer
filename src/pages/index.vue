@@ -7,7 +7,7 @@
       v-if="protocolStore.uploaded"
       bg-color="grey-lighten-4"
     >
-      <v-tab :value="1">Protocol Header</v-tab>
+      <v-tab :value="1" @click="updateProtocolViewer()">Protocol Header</v-tab>
       <v-tab :value="2">Properties</v-tab>
       <v-tab :value="3">Encapsulation</v-tab>
     </v-tabs>
@@ -34,10 +34,20 @@ import ProtocolViewer from '@/components/ProtocolViewer.vue';
 
 import { ref } from 'vue';
 import { useProtocolStore } from '@/store/ProtocolStore';
+import { useProtocolRenderStore } from '@/store/ProtocolRenderStore';
+import { nextTick } from 'vue';
 
 const protocolStore = useProtocolStore();
+const protocolRenderStore = useProtocolRenderStore();
 
 const tab = ref<number>(1);
+
+async function updateProtocolViewer() {
+  // Fix for SVG size not being set correctly
+  await nextTick();
+  protocolRenderStore.setSvgSize();
+}
+
 </script>
 
 <style scoped>

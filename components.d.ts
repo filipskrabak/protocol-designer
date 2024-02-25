@@ -9,9 +9,12 @@ declare module 'vue' {
   export interface GlobalComponents {
     AddFieldModal: typeof import('./src/components/modals/AddFieldModal.vue')['default']
     FieldEditModal: typeof import('./src/components/modals/FieldEditModal.vue')['default']
+    FieldsTab: typeof import('./src/components/modals/fieldedittabs/FieldsTab.vue')['default']
+    FieldTab: typeof import('./src/components/modals/fieldedittabs/FieldTab.vue')['default']
     GenericTab: typeof import('./src/components/modals/settingstabs/GenericTab.vue')['default']
     HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
     LeftDrawer: typeof import('./src/components/navs/LeftDrawer.vue')['default']
+    OptionTab: typeof import('./src/components/modals/fieldedittabs/OptionTab.vue')['default']
     ProtocolEditModal: typeof import('./src/components/modals/ProtocolEditModal.vue')['default']
     ProtocolInfoModal: typeof import('./src/components/modals/ProtocolInfoModal.vue')['default']
     ProtocolProperties: typeof import('./src/components/ProtocolProperties.vue')['default']
@@ -21,5 +24,6 @@ declare module 'vue' {
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SettingsModal: typeof import('./src/components/modals/SettingsModal.vue')['default']
+    ValueTab: typeof import('./src/components/modals/fieldedittabs/ValueTab.vue')['default']
   }
 }
