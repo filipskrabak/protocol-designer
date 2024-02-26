@@ -12,6 +12,7 @@
           v-model="tab"
           bg-color="grey-lighten-4"
           align-tabs="center"
+          style="overflow:visible;"
         >
           <v-tab value="one">Field</v-tab>
           <v-tab value="two">Options and Values</v-tab>

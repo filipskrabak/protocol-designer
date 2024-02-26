@@ -35,8 +35,8 @@
           </v-col>
         </v-row>
         <!-- Add new option -->
-        <v-col cols="auto" class="d-flex justify-center" @click="addNewOption()">
-          <v-btn icon="mdi-plus" size="small"></v-btn>
+        <v-col cols="auto" class="d-flex justify-center">
+          <v-btn @click="addNewOption()" icon="mdi-plus" size="small"></v-btn>
         </v-col>
 
       </v-container>

@@ -11,6 +11,7 @@
     <v-tabs
       v-model="tab"
       bg-color="grey-lighten-4"
+      style="overflow:visible;"
     >
       <v-tab value="one">Protocol</v-tab>
       <v-tab value="two">Validation Rules</v-tab>
