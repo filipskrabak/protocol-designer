@@ -119,6 +119,14 @@ export const useProtocolRenderStore = defineStore('ProtocolRenderStore', {
           newFieldElement.setAttribute('pd:description', field.description);
         }
 
+        // Field options
+        field.field_options.forEach((option) => {
+          const newOptionElement = document.createElementNS(pdNamespaceURI, 'pd:option');
+          newOptionElement.setAttribute('pd:name', option.name);
+          newOptionElement.setAttribute('pd:value', String(option.value));
+          newFieldElement.appendChild(newOptionElement);
+        });
+
         metadata.appendChild(newFieldElement);
 
         // Field is variable length, but the max length is unknown
@@ -324,11 +332,11 @@ export const useProtocolRenderStore = defineStore('ProtocolRenderStore', {
 
           const options = field.querySelectorAll('option');
 
-          Array.from(options).forEach((option) => {
-            const d3Option = d3.select(option);
+          console.log("options", options)
 
-            const optionName = d3Option.attr('pd:name');
-            const optionValue: number = parseInt(d3Option.attr('pd:value'));
+          Array.from(options).forEach((option) => {
+            const optionName = option.getAttribute('pd:name') ?? "";
+            const optionValue: number = parseInt(option.getAttribute('pd:value') ?? "0");
 
             fieldOptions.push({
               name: optionName,
