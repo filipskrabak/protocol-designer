@@ -136,6 +136,9 @@ export const useProtocolRenderStore = defineStore('ProtocolRenderStore', {
         } else if(field.is_variable_length && field.length == 0) { // Field is variable length, but the minimum length is unknown
           // Stretch to the end of the line OR to max_length
           totalWidthToRender = Math.min(field.max_length * this.settingsStore.pixelsPerBit, this.settingsStore.bitsPerRow * this.settingsStore.pixelsPerBit) - renderedPixelsInLine;
+        } else if(field.is_variable_length && this.settingsStore.truncateVariableLengthFields) { // Field is variable length, has set min and max length, but should be truncated
+          // Truncate the field to the minimum length
+          totalWidthToRender = Math.min(field.length * this.settingsStore.pixelsPerBit, this.settingsStore.bitsPerRow * this.settingsStore.pixelsPerBit) - renderedPixelsInLine;
         } else {
           totalWidthToRender = field.length * this.settingsStore.pixelsPerBit;
         }

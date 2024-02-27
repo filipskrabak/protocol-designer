@@ -20,10 +20,17 @@
           suffix="pixels"
         ></v-text-field>
       </v-col>
-      <v-col cols="12" md="6">
+      <v-col cols="12">
         <v-switch
           v-model="settingsStore.showScale"
           label="Show scale"
+          color="primary"
+        ></v-switch>
+      </v-col>
+      <v-col cols="12">
+        <v-switch
+          v-model="settingsStore.truncateVariableLengthFields"
+          label="Truncate variable length fields"
           color="primary"
         ></v-switch>
       </v-col>

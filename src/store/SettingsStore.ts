@@ -7,6 +7,7 @@ export const useSettingsStore = defineStore('SettingsStore', {
     bitsPerRow: 32,
     pixelsPerBit: 32,
     showScale: true,
+    truncateVariableLengthFields: true
   }),
 
   // Actions
