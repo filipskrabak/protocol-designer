@@ -33,3 +33,10 @@ export interface Notification {
   color: string;
   icon: string;
 }
+
+export interface FieldTooltip {
+  show: boolean;
+  x: number;
+  y: number;
+  field: Field;
+}

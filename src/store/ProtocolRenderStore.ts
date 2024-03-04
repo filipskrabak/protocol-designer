@@ -2,10 +2,11 @@ import * as d3 from 'd3';
 
 import { Buffer } from 'buffer';
 import { defineStore } from 'pinia'
-import { EditingMode, Field, FieldOptions } from '../contracts';
+import { EditingMode, Field, FieldOptions, FieldTooltip } from '../contracts';
 import { Endian } from '../contracts';
 import { useProtocolStore } from '@/store/ProtocolStore';
 import { useSettingsStore } from '@/store/SettingsStore';
+import { useNotificationStore } from './NotificationStore';
 import { LINE_HEIGHT_PX } from '../constants';
 
 import { ref } from 'vue';
@@ -18,6 +19,9 @@ export const useProtocolRenderStore = defineStore('ProtocolRenderStore', {
     loading: false,
     protocolStore: useProtocolStore(),
     settingsStore: useSettingsStore(),
+    notificationStore: useNotificationStore(),
+
+    fieldTooltip: {} as FieldTooltip,
 
     // Modals
     fieldEditModal: ref(false),
@@ -389,9 +393,39 @@ export const useProtocolRenderStore = defineStore('ProtocolRenderStore', {
 
       // elements with same attribute "data-id" will be highlighted
       for (let i = 0; i < dataElements.length; i++) {
-        dataElements[i].addEventListener('mouseover', function() {
+        let that = this;
+        dataElements[i].addEventListener('mouseover', function(event) {
           const dataId = dataElements[i].getAttribute('data-id');
           const elementsToHighlight = d3.selectAll(`[data-id="${dataId}"]`);
+
+          if(!dataId) {
+            return;
+          }
+
+          // Tooltip stuff
+
+          let field = that.protocolStore.findFieldById(dataId);
+
+          if(!field) {
+            return;
+          }
+
+          let firstHighlightedEl = elementsToHighlight.nodes()[0];
+
+          if(!firstHighlightedEl || !(firstHighlightedEl instanceof SVGElement)) {
+            return;
+          }
+
+          // Calculate X based in field position
+          let x = firstHighlightedEl.getBoundingClientRect().left + firstHighlightedEl.getBoundingClientRect().width / 2 - 100;
+          let y = firstHighlightedEl.getBoundingClientRect().top - firstHighlightedEl.getBoundingClientRect().height - 30;
+
+          that.fieldTooltip = {
+            show: true,
+            x: x,
+            y: y,
+            field: field,
+          };
 
 
           elementsToHighlight.each(function() {
@@ -403,6 +437,8 @@ export const useProtocolRenderStore = defineStore('ProtocolRenderStore', {
         dataElements[i].addEventListener('mouseout', function() {
           const dataId = dataElements[i].getAttribute('data-id');
           const elementsToHighlight = d3.selectAll(`[data-id="${dataId}"]`);
+
+          that.fieldTooltip.show = false;
 
           elementsToHighlight.each(function() {
             const rect = d3.select(this).select('rect');
@@ -452,6 +488,13 @@ export const useProtocolRenderStore = defineStore('ProtocolRenderStore', {
       svg.node()?.append(new DOMParser().parseFromString(Buffer.from(data.split(',')[1], 'base64').toString('utf-8'), 'image/svg+xml').documentElement);
 
       this.getMetadata();
+
+      this.notificationStore.showNotification({
+        message: 'Protocol successfully uploaded',
+        timeout: 5000,
+        color: 'green',
+        icon: 'mdi-check',
+      });
     },
 
     // Modal stuff

@@ -10,6 +10,16 @@
     <ProtocolUpload v-else class="mt-5" @protocolUploaded="protocolStore.uploaded = true" @protocolData="protocolRenderStore.protocolData" />
     <div ref="svgWrapper">
     </div>
+    <div class="tooltip" v-if="protocolRenderStore.fieldTooltip.show" :style="{ top: protocolRenderStore.fieldTooltip.y + 'px', left: protocolRenderStore.fieldTooltip.x + 'px' }">
+      <div class="tooltip-inner">
+        <div class="tooltip-header">
+          <h4>{{ protocolRenderStore.fieldTooltip.field.id }}</h4>
+        </div>
+        <div class="tooltip-body">
+            Length: {{ getFieldLength() }}
+        </div>
+      </div>
+    </div>
   </div>
 
   <FieldEditModal :fieldEditModal="protocolRenderStore.fieldEditModal" @modal="protocolRenderStore.closeFieldModal()" @save="protocolRenderStore.initialize()"/>
@@ -52,14 +62,34 @@ watch(() => protocolStore.uploaded, (newVal) => {
   }
 });
 
+function getFieldLength() {
+  if(protocolRenderStore.fieldTooltip.field.is_variable_length) {
+    return "Variable (min: " + protocolRenderStore.fieldTooltip.field.length + " b, max: " + protocolRenderStore.fieldTooltip.field.max_length + " b)";
+  }
+  return protocolRenderStore.fieldTooltip.field.length + " b";
+}
 </script>
 
-<style>
+<style scoped>
   .dataElement {
     cursor: pointer;
   }
 
   .dataElement:hover rect {
     fill: rgb(216, 216, 216);
+  }
+
+  .tooltip {
+    position: fixed;
+    z-index: 100;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+    width: 200px;
+    padding: 5px;
+    transition: all 0.3s;
+  }
+  .tooltip-inner {
+    text-align: center;
   }
 </style>
