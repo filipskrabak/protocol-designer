@@ -34,7 +34,7 @@ export interface Notification {
   icon: string;
 }
 
-export interface FieldTooltip {
+export interface FloatingFieldWindow {
   show: boolean;
   x: number;
   y: number;

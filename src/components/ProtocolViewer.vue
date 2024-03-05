@@ -10,6 +10,8 @@
     <ProtocolUpload v-else class="mt-5" @protocolUploaded="protocolStore.uploaded = true" @protocolData="protocolRenderStore.protocolData" />
     <div ref="svgWrapper">
     </div>
+
+    <!-- Single Field Tooltip -->
     <div class="tooltip" v-if="protocolRenderStore.fieldTooltip.show" :style="{ top: protocolRenderStore.fieldTooltip.y + 'px', left: protocolRenderStore.fieldTooltip.x + 'px' }">
       <div class="tooltip-inner">
         <div class="tooltip-header">
@@ -20,15 +22,44 @@
         </div>
       </div>
     </div>
+
+    <!-- Single Field Context Menu -->
+    <v-menu
+      v-model="protocolRenderStore.fieldContextMenu.show"
+      offset-y
+      absolute
+      location-strategy="static"
+
+      :style="{ top: protocolRenderStore.fieldContextMenu.y + 'px', left: protocolRenderStore.fieldContextMenu.x + 'px' }"
+    >
+      <v-list>
+        <v-list-item prepend-icon="mdi-pencil" @click="protocolRenderStore.showFieldEditModal(protocolRenderStore.fieldTooltip.field)">
+          <v-list-item-title>Edit Field</v-list-item-title>
+        </v-list-item>
+        <!-- Add to the left -->
+        <v-list-item prepend-icon="mdi-arrow-left-thick" @click="protocolRenderStore.showFieldAddModal(protocolRenderStore.fieldTooltip.field, AddFieldPosition.Before)">
+          <v-list-item-title>Add new Field before</v-list-item-title>
+        </v-list-item>
+        <!-- Add to the right -->
+        <v-list-item prepend-icon="mdi-arrow-right-thick" @click="protocolRenderStore.showFieldAddModal(protocolRenderStore.fieldTooltip.field, AddFieldPosition.After)">
+          <v-list-item-title>Add new Field after</v-list-item-title>
+        </v-list-item>
+        <v-list-item prepend-icon="mdi-delete" @click="protocolRenderStore.showFieldDeleteModal(protocolRenderStore.fieldTooltip.field)">
+          <v-list-item-title>Delete Field</v-list-item-title>
+        </v-list-item>
+      </v-list>
+    </v-menu>
   </div>
 
   <FieldEditModal :fieldEditModal="protocolRenderStore.fieldEditModal" @modal="protocolRenderStore.closeFieldModal()" @save="protocolRenderStore.initialize()"/>
+  <FieldDeleteModal/>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
 
 import FieldEditModal from './modals/FieldEditModal.vue';
+import FieldDeleteModal from './modals/FieldDeleteModal.vue';
 import ProtocolUpload from './ProtocolUpload.vue';
 
 import { useProtocolRenderStore } from '@/store/ProtocolRenderStore';
@@ -36,6 +67,8 @@ import { onMounted } from 'vue';
 import { useProtocolStore } from '@/store/ProtocolStore';
 import { watch } from 'vue';
 import { onUpdated } from 'vue';
+
+import { AddFieldPosition } from '@/contracts';
 
 // Stores
 const protocolRenderStore = useProtocolRenderStore();

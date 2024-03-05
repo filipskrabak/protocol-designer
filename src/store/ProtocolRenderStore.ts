@@ -2,7 +2,7 @@ import * as d3 from 'd3';
 
 import { Buffer } from 'buffer';
 import { defineStore } from 'pinia'
-import { EditingMode, Field, FieldOptions, FieldTooltip } from '../contracts';
+import { AddFieldPosition, EditingMode, Field, FieldOptions, FloatingFieldWindow } from '../contracts';
 import { Endian } from '../contracts';
 import { useProtocolStore } from '@/store/ProtocolStore';
 import { useSettingsStore } from '@/store/SettingsStore';
@@ -17,14 +17,18 @@ export const useProtocolRenderStore = defineStore('ProtocolRenderStore', {
   state: () => ({
     svgWrapper: null as HTMLElement | null,
     loading: false,
+
+    // Stores
     protocolStore: useProtocolStore(),
     settingsStore: useSettingsStore(),
     notificationStore: useNotificationStore(),
 
-    fieldTooltip: {} as FieldTooltip,
+    fieldTooltip: {} as FloatingFieldWindow,
+    fieldContextMenu: {} as FloatingFieldWindow,
 
     // Modals
     fieldEditModal: ref(false),
+    fieldDeleteModal: ref(false),
   }),
 
   // Actions
@@ -379,10 +383,20 @@ export const useProtocolRenderStore = defineStore('ProtocolRenderStore', {
         this.protocolStore.addField(fieldInfo);
 
         targetElements.on('click', () => {
-          this.protocolStore.editingField = fieldInfo;
-          this.protocolStore.editingFieldId = fieldInfo.id;
+          this.showFieldEditModal(fieldInfo)
+        });
 
-          this.showFieldEditModal();
+        targetElements.on('contextmenu', (e) => {
+          e.preventDefault();
+
+          this.fieldContextMenu = {
+            show: true,
+            x: e.clientX,
+            y: e.clientY,
+            field: fieldInfo,
+          };
+
+          console.log("contextmenu", fieldInfo.id)
         });
 
         // add dataElement class to the target element
@@ -498,12 +512,21 @@ export const useProtocolRenderStore = defineStore('ProtocolRenderStore', {
     },
 
     // Modal stuff
-    showFieldEditModal() {
+    showFieldEditModal(field: Field) {
+      this.protocolStore.editingField = field;
+      this.protocolStore.editingFieldId = field.id;
+
       this.protocolStore.editingMode = EditingMode.Edit;
       this.fieldEditModal = !this.fieldEditModal;
     },
-    showFieldAddModal() {
+    showFieldAddModal(relativeFieldPosition: Field | null = null, position: AddFieldPosition = AddFieldPosition.End) {
       this.protocolStore.editingMode = EditingMode.Add;
+
+      // Relative add
+      if(relativeFieldPosition && position) {
+        this.protocolStore.addFieldPosition = position;
+        this.protocolStore.addFieldPositionFieldId = relativeFieldPosition.id;
+      }
 
       // clean up the editingField
       this.protocolStore.editingField = {
@@ -519,6 +542,13 @@ export const useProtocolRenderStore = defineStore('ProtocolRenderStore', {
       };
 
       this.fieldEditModal = !this.fieldEditModal;
+    },
+    showFieldDeleteModal(field: Field) {
+      this.protocolStore.editingField = field;
+      this.protocolStore.editingFieldId = field.id;
+
+      this.protocolStore.editingMode = EditingMode.Edit;
+      this.fieldDeleteModal = !this.fieldDeleteModal;
     },
     closeFieldModal() {
       this.fieldEditModal = false;

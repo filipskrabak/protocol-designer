@@ -7,3 +7,9 @@ export enum EditingMode {
   Add = 'add',
   Edit = 'edit',
 }
+
+export enum AddFieldPosition {
+  Before = 'before',
+  After = 'after',
+  End = 'end',
+}
