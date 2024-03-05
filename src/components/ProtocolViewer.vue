@@ -51,6 +51,20 @@
     </v-menu>
   </div>
 
+  <!-- Append new Field -->
+  <v-row class="mt-3" v-if="protocolStore.uploaded">
+    <v-col cols="12" class="d-flex justify-center">
+      <v-btn @click="protocolRenderStore.showFieldAddModal(null, AddFieldPosition.After)" icon="mdi-plus" size="small">
+        <v-icon>mdi-plus</v-icon>
+        <v-tooltip
+        activator="parent"
+        location="top"
+        >Add a new Field</v-tooltip>
+      </v-btn>
+    </v-col>
+  </v-row>
+
+
   <FieldEditModal :fieldEditModal="protocolRenderStore.fieldEditModal" @modal="protocolRenderStore.closeFieldModal()" @save="protocolRenderStore.initialize()"/>
   <FieldDeleteModal/>
 </template>
@@ -97,7 +111,7 @@ watch(() => protocolStore.uploaded, (newVal) => {
 
 function getFieldLength() {
   if(protocolRenderStore.fieldTooltip.field.is_variable_length) {
-    return "Variable (min: " + protocolRenderStore.fieldTooltip.field.length + " b, max: " + protocolRenderStore.fieldTooltip.field.max_length + " b)";
+    return "min: " + protocolRenderStore.fieldTooltip.field.length + " b, max: " + protocolRenderStore.fieldTooltip.field.max_length + " b";
   }
   return protocolRenderStore.fieldTooltip.field.length + " b";
 }

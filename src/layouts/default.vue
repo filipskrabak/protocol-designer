@@ -80,6 +80,14 @@
       <DefaultView />
     </v-layout>
 
+    <v-footer class="bg-grey-lighten-4" style="max-height: 150px;">
+        <v-row justify="center" no-gutters>
+          <v-col class="text-center mt-4" cols="12">
+            {{ new Date().getFullYear() }} — <strong>Protocol Designer</strong>
+          </v-col>
+        </v-row>
+      </v-footer>
+
     <v-snackbar
       v-model="notificationStore.snackbar"
       :timeout="notificationStore.notification.timeout"
@@ -115,6 +123,7 @@
   const drawerLeft = ref(false)
   const settingsModal = ref(false)
   const newProtocolDialog = ref(false)
+  const links = ['About', 'Contact', 'Legal']
 
   const protocolStore = useProtocolStore()
   const protocolRenderStore = useProtocolRenderStore()
