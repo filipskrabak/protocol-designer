@@ -119,6 +119,7 @@
   import { useProtocolStore } from '@/store/ProtocolStore'
   import { useProtocolRenderStore } from '@/store/ProtocolRenderStore'
   import { useNotificationStore } from '@/store/NotificationStore'
+  import router from '@/router'
 
   const drawerLeft = ref(false)
   const settingsModal = ref(false)
@@ -131,5 +132,6 @@
 
   function newProtocol() {
     protocolStore.newProtocol()
+    router.push('/upload')
   }
 </script>

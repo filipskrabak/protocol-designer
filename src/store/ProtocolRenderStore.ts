@@ -15,6 +15,7 @@ import { ref } from 'vue';
 export const useProtocolRenderStore = defineStore('ProtocolRenderStore', {
   // State
   state: () => ({
+    rawProtocolData: '',
     svgWrapper: null as HTMLElement | null,
     loading: false,
 
@@ -502,6 +503,8 @@ export const useProtocolRenderStore = defineStore('ProtocolRenderStore', {
       svg.node()?.append(new DOMParser().parseFromString(Buffer.from(data.split(',')[1], 'base64').toString('utf-8'), 'image/svg+xml').documentElement);
 
       this.getMetadata();
+
+      this.initialize();
 
       this.notificationStore.showNotification({
         message: 'Protocol successfully uploaded',

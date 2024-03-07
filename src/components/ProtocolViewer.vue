@@ -3,11 +3,14 @@
       <h1>{{ protocolStore.protocol.name }}</h1>
   </div>
   <div class="d-flex justify-center align-center">
+
+    <!-- Skeleton -->
     <template v-if="protocolStore.uploaded">
       <v-skeleton-loader type="table-row, table-row, table-row, table-row" height="240" width="380" v-if="protocolRenderStore.loading">
       </v-skeleton-loader>
     </template>
-    <ProtocolUpload v-else class="mt-5" @protocolUploaded="protocolStore.uploaded = true" @protocolData="protocolRenderStore.protocolData" />
+
+    <!-- SVG Wrapper -->
     <div ref="svgWrapper">
     </div>
 
@@ -95,6 +98,9 @@ onMounted(() => {
   if (svgWrapper.value) {
     protocolRenderStore.svgWrapper = svgWrapper.value;
   }
+
+  protocolRenderStore.protocolData(protocolRenderStore.rawProtocolData)
+  protocolRenderStore.loading = false;
 });
 
 // used when a new protocol is created (clears the old protocol)

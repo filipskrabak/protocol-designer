@@ -1,0 +1,61 @@
+ <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:pd="http://www.protocoldescription.com" height="100%" width="100%">
+    <!-- Protocol Description -->
+    <metadata>
+        <pd:info>
+            <pd:name>Unnamed Protocol</pd:name>
+            <pd:author>Your Name</pd:author>
+            <pd:description></pd:description>
+            <pd:version>1.0</pd:version>
+            <pd:last_update></pd:last_update>
+            <pd:created></pd:created>
+        </pd:info>
+    </metadata>
+
+    <!--Classes -->
+    <style>
+        <![CDATA[
+            rect.field {
+                fill:rgb(255,255,255);
+                stroke-width:2;
+                stroke:rgb(0,0,0);
+            }
+            text.fieldText {
+                font-family: Verdana;
+                font-size: 14px;
+                fill: black;
+                text-anchor: middle;
+                dominant-baseline: middle;
+            }
+        ]]>
+    </style>
+
+    <!-- Shows the bits per row (scale) -->
+    <g transform="translate(0,0)" data-scale="true">
+        <svg width="1024" height="40">
+              <defs>
+                <!-- A marker to be used as an arrowhead -->
+                <marker
+                id="arrow"
+                viewBox="0 0 10 10"
+                refX="10"
+                refY="5"
+                markerWidth="6"
+                markerHeight="6"
+                orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10" fill="transparent" stroke="black" stroke-width="2px" />
+                </marker>
+            </defs>
+
+            <!-- draw a line across X -->
+            <g transform="translate(0, 20)">
+                <line x1="0" y1="0" x2="100%" y2="0" stroke="black" stroke-width="2" marker-end="url(#arrow)" marker-start="url(#arrow)"/>
+            </g>    
+            <rect x="462" y="0" height="40" width="100" fill="rgb(255,255,255)"/>
+            <text x="50%" y="50%" class="fieldText">32 bits</text>
+        </svg>
+    </g>
+    
+    <!-- Protocol Header -->
+    <g transform="translate(0,40)" data-table="true">
+    </g>
+</svg> 

@@ -15,15 +15,19 @@
 </template>
 
 <script lang="ts" setup>
+import router from '@/router';
+import { useProtocolRenderStore } from '@/store/ProtocolRenderStore';
+import { useProtocolStore } from '@/store/ProtocolStore';
 import { ref } from 'vue';
+
+const protocolRenderStore = useProtocolRenderStore();
+const protocolStore = useProtocolStore();
 
 const file = ref<File | null>(null);
 
 const rules = ref([
   (v: string) => !!v || 'File is required'
 ]);
-
-const emit = defineEmits(['protocolUploaded', 'protocolData']);
 
 
 async function uploadProtocol($event: Event) {
@@ -41,11 +45,16 @@ async function uploadProtocol($event: Event) {
   const reader = new FileReader();
   reader.readAsDataURL(file.value);
   reader.onload = (e) => {
-    if(!e.target) return;
 
-    // TODO: cleanup protocolUploaded
-    emit('protocolData', e.target.result);
-    emit('protocolUploaded');
+  if(!e.target)
+    return;
+
+  protocolRenderStore.rawProtocolData = e.target.result as string;
+  protocolStore.uploaded = true;
+  protocolRenderStore.loading = true;
+
+  router.push('/');
+
   };
 }
 
