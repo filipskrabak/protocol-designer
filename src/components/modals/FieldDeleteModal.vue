@@ -17,7 +17,7 @@
             Cancel
           </v-btn>
 
-          <v-btn @click="protocolRenderStore.fieldDeleteModal = false; protocolStore.deleteField(protocolStore.editingField.id); protocolRenderStore.initialize();" color="red darken-1" dark>
+          <v-btn @click="deleteField()" color="red darken-1" dark>
             Delete
           </v-btn>
         </template>
@@ -29,9 +29,24 @@
 <script setup lang="ts">
 import { useProtocolStore } from '@/store/ProtocolStore';
 import { useProtocolRenderStore } from '@/store/ProtocolRenderStore';
+import { useNotificationStore } from '@/store/NotificationStore';
 
 // Stores
 const protocolStore = useProtocolStore();
 const protocolRenderStore = useProtocolRenderStore();
+const notificationStore = useNotificationStore();
+
+function deleteField() {
+  protocolRenderStore.fieldDeleteModal = false;
+  protocolStore.deleteField(protocolStore.editingField.id);
+  protocolRenderStore.initialize();
+
+  notificationStore.showNotification({
+    message: `Field ${protocolStore.editingField.display_name} has been deleted`,
+    timeout: 3000,
+    color: 'green',
+    icon: 'mdi-check',
+  });
+}
 
 </script>

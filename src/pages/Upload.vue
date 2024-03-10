@@ -4,7 +4,7 @@
       <v-skeleton-loader type="table-row, table-row, table-row, table-row" height="240" width="380" v-if="protocolRenderStore.loading">
       </v-skeleton-loader>
     </template>
-    <ProtocolUpload class="mt-5" />
+    <ProtocolUpload v-else class="mt-5" />
   </v-container>
 </template>
 
