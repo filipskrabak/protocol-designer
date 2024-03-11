@@ -2,12 +2,12 @@
     <!-- Protocol Description -->
     <metadata>
         <pd:info>
-            <pd:name>Unnamed Protocol</pd:name>
+            <pd:name>Protocol Name</pd:name>
             <pd:author>Your Name</pd:author>
             <pd:description></pd:description>
             <pd:version>1.0</pd:version>
-            <pd:last_update></pd:last_update>
-            <pd:created></pd:created>
+            <pd:last_update>%CURRENT_DATE%</pd:last_update>
+            <pd:created>%CURRENT_DATE%</pd:created>
         </pd:info>
     </metadata>
 

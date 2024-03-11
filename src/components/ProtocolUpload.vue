@@ -84,6 +84,10 @@ async function uploadProtocol($event: Event) {
 async function newProject() {
   const response = await axios.get('/protocols/default.svg');
 
+  // replace %CURRENT_DATE% with current date (format DD.MM.YYYY)
+  const currentDate = new Date().toLocaleDateString('sk-SK');
+  response.data = response.data.replaceAll('%CURRENT_DATE%', currentDate);
+
   // base64 encode the response data
   protocolRenderStore.rawProtocolData = `data:image/svg+xml;base64,${btoa(response.data)}`;
   protocolStore.uploaded = true;
