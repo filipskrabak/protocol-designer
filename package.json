@@ -13,14 +13,18 @@
     "buffer": "^6.0.3",
     "core-js": "^3.34.0",
     "d3": "^7.8.5",
+    "lodash": "^4.17.21",
     "roboto-fontface": "*",
+    "uuid": "^9.0.1",
     "vue": "^3.3.0",
     "vuetify": "^3.0.0"
   },
   "devDependencies": {
     "@babel/types": "^7.23.0",
     "@types/d3": "^7.4.3",
+    "@types/lodash": "^4.17.0",
     "@types/node": "^20.10.0",
+    "@types/uuid": "^9.0.8",
     "@vitejs/plugin-vue": "^4.5.0",
     "@vue/eslint-config-typescript": "^12.0.0",
     "eslint": "^8.56.0",

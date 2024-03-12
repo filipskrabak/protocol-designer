@@ -42,6 +42,7 @@ import { useProtocolRenderStore } from '@/store/ProtocolRenderStore';
 import { useProtocolStore } from '@/store/ProtocolStore';
 import { ref } from 'vue';
 import axios from 'axios';
+import { v4 as uuid } from 'uuid';
 
 const protocolRenderStore = useProtocolRenderStore();
 const protocolStore = useProtocolStore();
@@ -87,6 +88,9 @@ async function newProject() {
   // replace %CURRENT_DATE% with current date (format DD.MM.YYYY)
   const currentDate = new Date().toLocaleDateString('sk-SK');
   response.data = response.data.replaceAll('%CURRENT_DATE%', currentDate);
+
+  // replace %PROTOCOL_ID% with an uuid
+  response.data = response.data.replaceAll('%PROTOCOL_ID%', uuid());
 
   // base64 encode the response data
   protocolRenderStore.rawProtocolData = `data:image/svg+xml;base64,${btoa(response.data)}`;

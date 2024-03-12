@@ -1,4 +1,5 @@
 import { Endian } from "./enums"
+import { v4 } from "uuid";
 
 export interface FieldOptions {
   name: string;
@@ -18,6 +19,7 @@ export interface Field {
 }
 
 export interface Protocol {
+  id: typeof v4;
   name: string;
   author: string;
   description: string;

@@ -2,6 +2,7 @@
     <!-- Protocol Description -->
     <metadata>
         <pd:info>
+            <pd:id>%PROTOCOL_ID%</pd:id>
             <pd:name>Protocol Name</pd:name>
             <pd:author>Your Name</pd:author>
             <pd:description></pd:description>

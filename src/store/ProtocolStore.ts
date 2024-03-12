@@ -1,11 +1,12 @@
 import { defineStore } from 'pinia'
 import { Field, Protocol, EditingMode, AddFieldPosition } from '@/contracts'
+import { v4 } from "uuid";
 
 export const useProtocolStore = defineStore('ProtocolStore', {
   // State
   state: () => ({
-    fields: [] as Field[],
     protocol: {} as Protocol,
+    encapsulated_protocols: [] as typeof v4[], // list of protocol ids that are encapsulated
     editingField: {} as Field,
     editingFieldId: '', // Used to track which field is being edited to update it later
     uploaded: false,
@@ -24,13 +25,16 @@ export const useProtocolStore = defineStore('ProtocolStore', {
       this.uploaded = false
     },
     addField(field: Field) {
-      this.fields.push(field)
+      if(this.protocol.fields === undefined) {
+        this.protocol.fields = []
+      }
+      this.protocol.fields.push(field)
     },
     deleteField(id: string) {
-      this.fields = this.fields.filter(field => field.id !== id)
+      this.protocol.fields = this.protocol.fields.filter(field => field.id !== id)
     },
     clearProtocol() {
-      this.fields = []
+      this.protocol.fields = []
       this.protocol = {} as Protocol
     },
     saveEditingField() {
@@ -39,20 +43,38 @@ export const useProtocolStore = defineStore('ProtocolStore', {
         if(this.addFieldPosition === AddFieldPosition.End) {
           this.addField(this.editingField)
         } else if(this.addFieldPosition === AddFieldPosition.Before) {
-          const index = this.fields.findIndex(field => field.id === this.addFieldPositionFieldId)
-          this.fields.splice(index, 0, this.editingField)
+          const index = this.protocol.fields.findIndex(field => field.id === this.addFieldPositionFieldId)
+          this.protocol.fields.splice(index, 0, this.editingField)
         } else if(this.addFieldPosition === AddFieldPosition.After) {
-          const index = this.fields.findIndex(field => field.id === this.addFieldPositionFieldId)
-          this.fields.splice(index + 1, 0, this.editingField)
+          const index = this.protocol.fields.findIndex(field => field.id === this.addFieldPositionFieldId)
+          this.protocol.fields.splice(index + 1, 0, this.editingField)
         }
       } else {
-        const index = this.fields.findIndex(field => field.id === this.editingFieldId)
-        this.fields[index] = this.editingField
+        const index = this.protocol.fields.findIndex(field => field.id === this.editingFieldId)
+        this.protocol.fields[index] = this.editingField
       }
-
     },
     findFieldById(id: string) {
-      return this.fields.find(field => field.id === id)
+      return this.protocol.fields.find(field => field.id === id)
+    },
+
+    /**
+     * Sets encapsulate flag of the field to true, and false to all other fields
+     *
+     * @param id field id to encapsulate
+     */
+    encapsulateField(id: string) {
+      const field = this.findFieldById(id)
+      if(field) {
+        field.encapsulate = true
+      }
+
+      // set all other fields to not encapsulate
+      this.protocol.fields.forEach(field => {
+        if(field.id !== id) {
+          field.encapsulate = false
+        }
+      })
     }
 
   },

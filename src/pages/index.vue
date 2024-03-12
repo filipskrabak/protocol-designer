@@ -23,7 +23,9 @@
         </v-container>
       </v-window-item>
       <v-window-item :value="3">
-
+        <v-container class="tab-container">
+          <ProtocolEncapsulation />
+        </v-container>
       </v-window-item>
     </v-window>
 
@@ -31,6 +33,8 @@
 
 <script lang="ts" setup>
 import ProtocolViewer from '@/components/ProtocolViewer.vue';
+import ProtocolProperties from '@/components/ProtocolProperties.vue';
+import ProtocolEncapsulation from '@/components/ProtocolEncapsulation.vue';
 
 import { ref } from 'vue';
 import { useProtocolStore } from '@/store/ProtocolStore';

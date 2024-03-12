@@ -39,6 +39,17 @@
           </v-dialog>
         </v-btn>
 
+        <v-btn @click.stop="libraryModal = !libraryModal">
+          <v-icon class="me-2">mdi-folder-open</v-icon>
+          Library
+
+          <LibraryModal
+            v-model="libraryModal"
+            @modal="libraryModal = !libraryModal"
+          />
+
+        </v-btn>
+
         <v-menu>
           <template v-slot:activator="{ props }">
             <v-btn
@@ -113,6 +124,7 @@
   import DefaultView from './default/View.vue'
   import LeftDrawer from '@/components/navs/LeftDrawer.vue'
   import SettingsModal from '@/components/modals/SettingsModal.vue'
+  import LibraryModal from '@/components/modals/LibraryModal.vue'
 
   import { ref } from 'vue'
 
@@ -123,6 +135,7 @@
 
   const drawerLeft = ref(false)
   const settingsModal = ref(false)
+  const libraryModal = ref(false)
   const newProtocolDialog = ref(false)
   const links = ['About', 'Contact', 'Legal']
 

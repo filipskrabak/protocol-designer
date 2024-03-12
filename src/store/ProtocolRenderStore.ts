@@ -8,6 +8,7 @@ import { useProtocolStore } from '@/store/ProtocolStore';
 import { useSettingsStore } from '@/store/SettingsStore';
 import { useNotificationStore } from './NotificationStore';
 import { LINE_HEIGHT_PX } from '../constants';
+import { v4 } from 'uuid';
 
 import { ref } from 'vue';
 
@@ -30,6 +31,8 @@ export const useProtocolRenderStore = defineStore('ProtocolRenderStore', {
     // Modals
     fieldEditModal: ref(false),
     fieldDeleteModal: ref(false),
+
+    fieldEncapsulateModal: ref(false),
   }),
 
   // Actions
@@ -69,29 +72,19 @@ export const useProtocolRenderStore = defineStore('ProtocolRenderStore', {
       // render pd:info element
       const newInfoElement = document.createElementNS(pdNamespaceURI, 'pd:info');
 
-      const newNameElement = document.createElementNS(pdNamespaceURI, 'pd:name');
-      newNameElement.textContent = this.protocolStore.protocol.name;
-      newInfoElement.appendChild(newNameElement);
+      // iterate over all properties of the protocol object
+      for(const [key, value] of Object.entries(this.protocolStore.protocol)) {
+        // Skip fields, since they are handled separately
+        if(key === 'fields') {
+          continue;
+        }
 
-      const newAuthorElement = document.createElementNS(pdNamespaceURI, 'pd:author');
-      newAuthorElement.textContent = this.protocolStore.protocol.author;
-      newInfoElement.appendChild(newAuthorElement);
+        // Create a new namespace element, set its value and append it
+        const newElement = document.createElementNS(pdNamespaceURI, `pd:${key}`);
+        newElement.textContent = String(value);
+        newInfoElement.appendChild(newElement);
 
-      const newDescriptionElement = document.createElementNS(pdNamespaceURI, 'pd:description');
-      newDescriptionElement.textContent = this.protocolStore.protocol.description;
-      newInfoElement.appendChild(newDescriptionElement);
-
-      const newVersionElement = document.createElementNS(pdNamespaceURI, 'pd:version');
-      newVersionElement.textContent = this.protocolStore.protocol.version;
-      newInfoElement.appendChild(newVersionElement);
-
-      const newLastUpdateElement = document.createElementNS(pdNamespaceURI, 'pd:last_update');
-      newLastUpdateElement.textContent = this.protocolStore.protocol.last_update;
-      newInfoElement.appendChild(newLastUpdateElement);
-
-      const newCreatedElement = document.createElementNS(pdNamespaceURI, 'pd:created');
-      newCreatedElement.textContent = this.protocolStore.protocol.created;
-      newInfoElement.appendChild(newCreatedElement);
+      }
 
       metadata.appendChild(newInfoElement);
 
@@ -102,8 +95,13 @@ export const useProtocolRenderStore = defineStore('ProtocolRenderStore', {
       let lastInnerHeight = 0;
       let lastInnerWidth = 0;
 
+      // Sometimes, the fields array is undefined
+      if(this.protocolStore.protocol.fields === undefined) {
+        this.protocolStore.protocol.fields = [];
+      }
+
       // iterate over all fields in the protocolStore
-      this.protocolStore.fields.forEach((field) => {
+      this.protocolStore.protocol.fields.forEach((field) => {
         let rendered = false;
         let totalWidthToRender = 0;
 
@@ -126,6 +124,10 @@ export const useProtocolRenderStore = defineStore('ProtocolRenderStore', {
 
         if(field.description) {
           newFieldElement.setAttribute('pd:description', field.description);
+        }
+
+        if(field.encapsulate) {
+          newFieldElement.setAttribute('pd:encapsulate', 'true');
         }
 
         // Field options
@@ -472,7 +474,8 @@ export const useProtocolRenderStore = defineStore('ProtocolRenderStore', {
 
       console.log("protocolInfo", protocolInfo)
 
-      // get element by tag name
+      // Getting all the protocol information, probably cannot be automated
+      this.protocolStore.protocol.id = protocolInfo.querySelector('id')?.textContent as unknown as typeof v4 ?? "";
       this.protocolStore.protocol.name = protocolInfo.querySelector('name')?.textContent ?? "";
       this.protocolStore.protocol.author = protocolInfo.querySelector('author')?.textContent ?? "";
       this.protocolStore.protocol.description = protocolInfo.querySelector('description')?.textContent ?? "";
@@ -520,6 +523,14 @@ export const useProtocolRenderStore = defineStore('ProtocolRenderStore', {
       this.protocolStore.editingFieldId = field.id;
 
       this.protocolStore.editingMode = EditingMode.Edit;
+
+      // If the field is encapsulated, show the encapsulate modal first
+      if(field.encapsulate) {
+        this.fieldEncapsulateModal = !this.fieldEncapsulateModal;
+
+        return;
+      }
+
       this.fieldEditModal = !this.fieldEditModal;
     },
     showFieldAddModal(relativeFieldPosition: Field | null = null, position: AddFieldPosition = AddFieldPosition.End) {
