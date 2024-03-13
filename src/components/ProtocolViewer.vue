@@ -57,7 +57,7 @@
   <!-- Append new Field -->
   <v-row class="mt-3" v-if="protocolStore.uploaded">
     <v-col cols="12" class="d-flex justify-center">
-      <v-btn @click="protocolRenderStore.showFieldAddModal(null, AddFieldPosition.After)" icon="mdi-plus" size="small">
+      <v-btn @click="protocolRenderStore.showFieldAddModal(null, AddFieldPosition.End)" icon="mdi-plus" size="small">
         <v-icon>mdi-plus</v-icon>
         <v-tooltip
         activator="parent"
