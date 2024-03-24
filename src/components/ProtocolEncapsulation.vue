@@ -191,6 +191,7 @@ import { watch } from "vue";
 import { useProtocolRenderStore } from "@/store/ProtocolRenderStore";
 
 import EncapsulationMultipleSelectModal from "@/components/modals/EncapsulationMultipleSelectModal.vue";
+import { onMounted } from "vue";
 
 // Stores
 const protocolStore = useProtocolStore();
@@ -200,16 +201,27 @@ const protocolLibraryStore = useProtocolLibraryStore();
 
 // Refs
 const fieldToEncapsulate = ref("");
-const fieldsToEncapsulate = ref([] as String[]);
-const fieldOptionsToEncapsulate = ref([] as Number[]);
 const encapsulatedProtocol = ref<typeof v4 | null>();
-const dialog = ref(false);
-const fieldOptionDialog = ref(false);
 
 const selectedProtocol = ref<EncapsulatedProtocol | null>(null);
 const selectedField = ref<Field | null>(null);
 const fieldsDialog = ref(false);
 const fieldOptionsDialog = ref(false);
+
+// Lifecycle hooks
+
+onMounted(() => {
+  watch(
+    () => protocolStore.protocol,
+    () => {
+      const field = currentEncapsulatedField.value;
+      if (field) {
+        fieldToEncapsulate.value = field.id;
+      }
+    },
+    { immediate: true },
+  );
+});
 
 function addEncapsulatedProtocol() {
   if (encapsulatedProtocol.value != null) {
@@ -256,6 +268,11 @@ function removeEncapsulatedProtocol(id: typeof v4) {
   });
 }
 
+/**
+ * Add fields to encapsulated protocol
+ *
+ * @param selectedItems Array of IDs of selected fields
+ */
 function addFieldsToEncapsulatedProtocol(selectedItems: String[]) {
   // Close dialog first
   fieldsDialog.value = false;
@@ -275,11 +292,13 @@ function addFieldsToEncapsulatedProtocol(selectedItems: String[]) {
     color: "success",
     icon: "mdi-check",
   });
-
-  // Close dialog
-  dialog.value = false;
 }
 
+/**
+ * Add field options to encapsulated protocol
+ *
+ * @param selectedItems Array of values of selected field options
+ */
 function addFieldsOptionsToEncapsulatedProtocol(selectedItems: Number[]) {
   // Close dialog first
   fieldOptionsDialog.value = false;
@@ -304,18 +323,11 @@ function addFieldsOptionsToEncapsulatedProtocol(selectedItems: Number[]) {
   });
 }
 
-function getFieldsOfProtocol() {
-  return protocolStore.protocol.fields.map((field) => {
-    return { value: field.id, title: field.display_name, to_add: false };
-  });
-}
-
-function getFieldOptionsOfField(field: FieldOption[]) {
-  return field.map((fieldOption) => {
-    return { value: fieldOption.value, title: fieldOption.name };
-  });
-}
-
+/**
+ * Set field to encapsulate inside CURRENT protocol
+ *
+ * @returns void
+ */
 function saveFieldToEncapsulate() {
   // Save encapsulated flag
 
@@ -382,19 +394,8 @@ const selectedFieldOptionsOfProtocol = computed(() => {
   );
 });
 
-// Watchers
-
-// If the dialog is closed, reset the fields to encapsulate
-watch(dialog, (value) => {
-  if (value) {
-    fieldsToEncapsulate.value = [];
-  }
-});
-
-watch(fieldOptionDialog, (value) => {
-  if (value) {
-    fieldOptionsToEncapsulate.value = [];
-  }
+const currentEncapsulatedField = computed(() => {
+  return protocolStore.protocol.fields.find((field) => field.encapsulate);
 });
 </script>
 

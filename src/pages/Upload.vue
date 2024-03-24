@@ -9,7 +9,7 @@
       >
       </v-skeleton-loader>
     </template>
-    <ProtocolUpload v-else class="mt-5" />
+    <ProtocolUpload v-else />
   </v-container>
 </template>
 
