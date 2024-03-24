@@ -2,21 +2,21 @@
   <v-app>
     <v-layout class="rounded rounded-md">
       <v-app-bar>
-        <v-app-bar-nav-icon variant="text" @click.stop="drawerLeft = !drawerLeft"></v-app-bar-nav-icon>
+        <v-app-bar-nav-icon
+          variant="text"
+          @click.stop="drawerLeft = !drawerLeft"
+        ></v-app-bar-nav-icon>
 
         <v-toolbar-title>Protocol Designer</v-toolbar-title>
         <v-btn>
           <v-icon class="me-2">mdi-plus-circle</v-icon>
           New
 
-          <v-dialog
-            v-model="newProtocolDialog"
-            activator="parent"
-            width="auto"
-          >
+          <v-dialog v-model="newProtocolDialog" activator="parent" width="auto">
             <v-card>
               <v-card-text>
-                Do you want to create a new protocol? All unsaved changes will be lost.
+                Do you want to create a new protocol? All unsaved changes will
+                be lost.
               </v-card-text>
               <v-card-actions>
                 <v-spacer></v-spacer>
@@ -30,7 +30,10 @@
                 <v-btn
                   color="blue-darken-1"
                   variant="text"
-                  @click="newProtocolDialog = false; newProtocol()"
+                  @click="
+                    newProtocolDialog = false;
+                    newProtocol();
+                  "
                 >
                   Create
                 </v-btn>
@@ -47,22 +50,20 @@
             v-model="libraryModal"
             @modal="libraryModal = !libraryModal"
           />
-
         </v-btn>
 
         <v-menu>
           <template v-slot:activator="{ props }">
-            <v-btn
-              v-bind="props"
-            >
+            <v-btn v-bind="props">
               <v-icon class="me-2">mdi-download</v-icon>
               Export
             </v-btn>
           </template>
           <v-list>
-            <v-list-item link
-            >
-              <v-list-item-title @click="protocolRenderStore.exportSVG()">Scalable Vector Graphics (.svg)</v-list-item-title>
+            <v-list-item link>
+              <v-list-item-title @click="protocolRenderStore.exportSVG()"
+                >Scalable Vector Graphics (.svg)</v-list-item-title
+              >
             </v-list-item>
           </v-list>
         </v-menu>
@@ -72,11 +73,7 @@
         </v-btn>
       </v-app-bar>
 
-
-      <v-navigation-drawer
-        v-model="drawerLeft"
-        location="left"
-      >
+      <v-navigation-drawer v-model="drawerLeft" location="left">
         <v-list>
           <LeftDrawer />
         </v-list>
@@ -87,32 +84,32 @@
         @modal="settingsModal = !settingsModal"
       />
 
-
       <DefaultView />
     </v-layout>
 
-    <v-footer class="bg-grey-lighten-4" style="max-height: 150px;">
-        <v-row justify="center" no-gutters>
-          <v-col class="text-center mt-4" cols="12">
-            {{ new Date().getFullYear() }} — <strong>Protocol Designer</strong>
-          </v-col>
-        </v-row>
-      </v-footer>
+    <v-footer class="bg-grey-lighten-4" style="max-height: 150px">
+      <v-row justify="center" no-gutters>
+        <v-col class="text-center mt-4" cols="12">
+          {{ new Date().getFullYear() }} — <strong>Protocol Designer</strong>
+        </v-col>
+      </v-row>
+    </v-footer>
 
     <v-snackbar
       v-model="notificationStore.snackbar"
       :timeout="notificationStore.notification.timeout"
       :color="notificationStore.notification.color"
     >
-      <v-icon class="mb-1" v-if="notificationStore.notification.icon" :icon="notificationStore.notification.icon"/>
+      <v-icon
+        class="mb-1"
+        v-if="notificationStore.notification.icon"
+        :icon="notificationStore.notification.icon"
+      />
 
       {{ notificationStore.notification.message }}
 
       <template v-slot:actions>
-        <v-btn
-          variant="text"
-          @click="notificationStore.snackbar = false"
-        >
+        <v-btn variant="text" @click="notificationStore.snackbar = false">
           Close
         </v-btn>
       </template>
@@ -121,30 +118,30 @@
 </template>
 
 <script lang="ts" setup>
-  import DefaultView from './default/View.vue'
-  import LeftDrawer from '@/components/navs/LeftDrawer.vue'
-  import SettingsModal from '@/components/modals/SettingsModal.vue'
-  import LibraryModal from '@/components/modals/LibraryModal.vue'
+import DefaultView from "./default/View.vue";
+import LeftDrawer from "@/components/navs/LeftDrawer.vue";
+import SettingsModal from "@/components/modals/SettingsModal.vue";
+import LibraryModal from "@/components/modals/LibraryModal.vue";
 
-  import { ref } from 'vue'
+import { ref } from "vue";
 
-  import { useProtocolStore } from '@/store/ProtocolStore'
-  import { useProtocolRenderStore } from '@/store/ProtocolRenderStore'
-  import { useNotificationStore } from '@/store/NotificationStore'
-  import router from '@/router'
+import { useProtocolStore } from "@/store/ProtocolStore";
+import { useProtocolRenderStore } from "@/store/ProtocolRenderStore";
+import { useNotificationStore } from "@/store/NotificationStore";
+import router from "@/router";
 
-  const drawerLeft = ref(false)
-  const settingsModal = ref(false)
-  const libraryModal = ref(false)
-  const newProtocolDialog = ref(false)
-  const links = ['About', 'Contact', 'Legal']
+const drawerLeft = ref(false);
+const settingsModal = ref(false);
+const libraryModal = ref(false);
+const newProtocolDialog = ref(false);
+const links = ["About", "Contact", "Legal"];
 
-  const protocolStore = useProtocolStore()
-  const protocolRenderStore = useProtocolRenderStore()
-  const notificationStore = useNotificationStore()
+const protocolStore = useProtocolStore();
+const protocolRenderStore = useProtocolRenderStore();
+const notificationStore = useNotificationStore();
 
-  function newProtocol() {
-    protocolStore.newProtocol()
-    router.push('/upload')
-  }
+function newProtocol() {
+  protocolStore.newProtocol();
+  router.push("/upload");
+}
 </script>

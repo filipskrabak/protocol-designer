@@ -1,25 +1,23 @@
-import { defineStore } from 'pinia'
-import { Notification } from '@/contracts'
+import { defineStore } from "pinia";
+import { Notification } from "@/contracts";
 
-export const useNotificationStore = defineStore('NotificationStore', {
+export const useNotificationStore = defineStore("NotificationStore", {
   // State
   state: () => ({
     snackbar: false,
-    notification: {} as Notification
+    notification: {} as Notification,
   }),
 
   // Actions
   actions: {
     showNotification(notification: Notification) {
-      this.notification = notification
-      this.snackbar = true
+      this.notification = notification;
+      this.snackbar = true;
     },
     closeNotification() {
-      this.snackbar = false
-    }
-
+      this.snackbar = false;
+    },
   },
 
   // Getters
-
-})
+});

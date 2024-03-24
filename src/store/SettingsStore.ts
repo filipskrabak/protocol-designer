@@ -1,13 +1,13 @@
-import { defineStore } from 'pinia'
-import { Field, Protocol } from '@/contracts'
+import { defineStore } from "pinia";
+import { Field, Protocol } from "@/contracts";
 
-export const useSettingsStore = defineStore('SettingsStore', {
+export const useSettingsStore = defineStore("SettingsStore", {
   // State
   state: () => ({
     bitsPerRow: 32,
     pixelsPerBit: 32,
     showScale: true,
-    truncateVariableLengthFields: true
+    truncateVariableLengthFields: true,
   }),
 
   // Actions
@@ -16,5 +16,4 @@ export const useSettingsStore = defineStore('SettingsStore', {
   },
 
   // Getters
-
-})
+});

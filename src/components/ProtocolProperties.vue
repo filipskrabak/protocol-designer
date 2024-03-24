@@ -1,13 +1,11 @@
 <template>
   <v-container>
     <div class="d-flex mb-3" v-if="protocolStore.uploaded">
-        <h1>{{ protocolStore.protocol.name }}</h1>
+      <h1>{{ protocolStore.protocol.name }}</h1>
     </div>
 
     <v-row>
-      <v-col
-        md="6"
-      >
+      <v-col md="6">
         <v-text-field
           label="Protocol Name*"
           required
@@ -15,9 +13,7 @@
           hint="Name of the protocol (ex. TCP)"
         ></v-text-field>
       </v-col>
-      <v-col
-        md="6"
-      >
+      <v-col md="6">
         <v-text-field
           label="Author*"
           required
@@ -47,9 +43,7 @@
     </v-row>
 
     <v-row>
-      <v-col
-        md="6"
-      >
+      <v-col md="6">
         <v-text-field
           label="Version*"
           required
@@ -59,9 +53,7 @@
       </v-col>
     </v-row>
     <v-row>
-      <v-col
-        md="12"
-      >
+      <v-col md="12">
         <v-textarea
           label="Description*"
           auto-grow
@@ -72,26 +64,18 @@
     </v-row>
 
     <v-row>
-      <v-col
-        md="12"
-      >
-        <v-btn
-          color="primary"
-          @click="save()"
-          :loading="loading"
-        >
-          Save
-        </v-btn>
+      <v-col md="12">
+        <v-btn color="primary" @click="save()" :loading="loading"> Save </v-btn>
       </v-col>
     </v-row>
   </v-container>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import { useProtocolStore } from '@/store/ProtocolStore';
-import { useProtocolRenderStore } from '@/store/ProtocolRenderStore';
-import { useNotificationStore } from '@/store/NotificationStore';
+import { ref } from "vue";
+import { useProtocolStore } from "@/store/ProtocolStore";
+import { useProtocolRenderStore } from "@/store/ProtocolRenderStore";
+import { useNotificationStore } from "@/store/NotificationStore";
 
 // Stores
 const protocolStore = useProtocolStore();
@@ -101,22 +85,18 @@ const notificationStore = useNotificationStore();
 // Refs
 const loading = ref(false);
 
-
 function save() {
   loading.value = true;
   protocolRenderStore.initialize();
   loading.value = false;
 
   notificationStore.showNotification({
-    message: 'Changes have been saved',
+    message: "Changes have been saved",
     timeout: 3000,
-    color: 'success',
-    icon: 'mdi-check'
+    color: "success",
+    icon: "mdi-check",
   });
-
 }
-
 </script>
 
-<style>
-</style>
+<style></style>

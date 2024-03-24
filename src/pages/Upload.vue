@@ -1,7 +1,12 @@
 <template>
   <v-container class="tab-container">
     <template v-if="protocolStore.uploaded">
-      <v-skeleton-loader type="table-row, table-row, table-row, table-row" height="240" width="380" v-if="protocolRenderStore.loading">
+      <v-skeleton-loader
+        type="table-row, table-row, table-row, table-row"
+        height="240"
+        width="380"
+        v-if="protocolRenderStore.loading"
+      >
       </v-skeleton-loader>
     </template>
     <ProtocolUpload v-else class="mt-5" />
@@ -9,15 +14,14 @@
 </template>
 
 <script lang="ts" setup>
-import ProtocolUpload from '@/components/ProtocolUpload.vue';
+import ProtocolUpload from "@/components/ProtocolUpload.vue";
 
-import { ref } from 'vue';
-import { useProtocolStore } from '@/store/ProtocolStore';
-import { useProtocolRenderStore } from '@/store/ProtocolRenderStore';
+import { ref } from "vue";
+import { useProtocolStore } from "@/store/ProtocolStore";
+import { useProtocolRenderStore } from "@/store/ProtocolRenderStore";
 
 const protocolStore = useProtocolStore();
 const protocolRenderStore = useProtocolRenderStore();
-
 </script>
 
 <style scoped>

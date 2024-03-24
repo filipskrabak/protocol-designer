@@ -13,7 +13,11 @@
         <template v-slot:actions>
           <v-spacer></v-spacer>
 
-          <v-btn @click="protocolRenderStore.fieldDeleteModal = false" color="blue darken-1" dark>
+          <v-btn
+            @click="protocolRenderStore.fieldDeleteModal = false"
+            color="blue darken-1"
+            dark
+          >
             Cancel
           </v-btn>
 
@@ -27,9 +31,9 @@
 </template>
 
 <script setup lang="ts">
-import { useProtocolStore } from '@/store/ProtocolStore';
-import { useProtocolRenderStore } from '@/store/ProtocolRenderStore';
-import { useNotificationStore } from '@/store/NotificationStore';
+import { useProtocolStore } from "@/store/ProtocolStore";
+import { useProtocolRenderStore } from "@/store/ProtocolRenderStore";
+import { useNotificationStore } from "@/store/NotificationStore";
 
 // Stores
 const protocolStore = useProtocolStore();
@@ -44,9 +48,8 @@ function deleteField() {
   notificationStore.showNotification({
     message: `Field ${protocolStore.editingField.display_name} has been deleted`,
     timeout: 3000,
-    color: 'green',
-    icon: 'mdi-check',
+    color: "green",
+    icon: "mdi-check",
   });
 }
-
 </script>

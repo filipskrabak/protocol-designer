@@ -1,13 +1,14 @@
-import { Endian } from "./enums"
+import { Endian } from "./enums";
 import { v4 } from "uuid";
 
-export interface FieldOptions {
+export interface FieldOption {
   name: string;
   value: number;
+  used_for_encapsulation?: boolean; // used to indicate if this field option is used for encapsulation
 }
 
 export interface Field {
-  field_options: FieldOptions[];
+  field_options: FieldOption[];
   length: number;
   max_length: number;
   is_variable_length: boolean;
@@ -15,7 +16,7 @@ export interface Field {
   display_name: string;
   id: string;
   description: string;
-  encapsulate: boolean;
+  encapsulate: boolean; // used to indicate if this protocol contains a child protocol
 }
 
 export interface Protocol {
@@ -27,6 +28,11 @@ export interface Protocol {
   last_update: string; // timestamp
   created: string; // timestamp
   fields: Field[];
+}
+
+export interface EncapsulatedProtocol {
+  protocol: Protocol;
+  used_for_encapsulation_fields: Field[];
 }
 
 export interface Notification {

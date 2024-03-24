@@ -17,10 +17,16 @@
             icon="mdi-alert"
             class="mb-4"
           >
-            <strong>Encapsulation Warning:</strong> This field contains child protocols. You can select a protocol to load it and edit it, or you can edit this field directly.
+            <strong>Encapsulation Warning:</strong> This field contains child
+            protocols. You can select a protocol to load it and edit it, or you
+            can edit this field directly.
           </v-alert>
 
-          <v-list v-for="protocol in allEncapsulatedProtocols" :key="protocol.id" elevation="2">
+          <v-list
+            v-for="protocol in allEncapsulatedProtocols"
+            :key="protocol.id"
+            elevation="2"
+          >
             <v-list-item @click="selectProtocol(protocol)">
               <template v-slot:append>
                 <v-icon color="red darken-1">mdi-folder-open</v-icon>
@@ -29,8 +35,6 @@
               <v-list-item-title>{{ protocol.name }}</v-list-item-title>
             </v-list-item>
           </v-list>
-
-
         </v-card-text>
 
         <!-- OR just edit the field -->
@@ -40,7 +44,10 @@
         <v-btn
           color="blue-darken-1"
           variant="text"
-          @click="protocolRenderStore.fieldEditModal = true; protocolRenderStore.fieldEncapsulateModal = false"
+          @click="
+            protocolRenderStore.fieldEditModal = true;
+            protocolRenderStore.fieldEncapsulateModal = false;
+          "
           prepend-icon="mdi-pencil"
         >
           Edit Field Instead
@@ -49,7 +56,11 @@
         <template v-slot:actions>
           <v-spacer></v-spacer>
 
-          <v-btn @click="protocolRenderStore.fieldEncapsulateModal = false" color="blue darken-1" dark>
+          <v-btn
+            @click="protocolRenderStore.fieldEncapsulateModal = false"
+            color="blue darken-1"
+            dark
+          >
             Cancel
           </v-btn>
         </template>
@@ -59,14 +70,14 @@
 </template>
 
 <script setup lang="ts">
-import { useProtocolStore } from '@/store/ProtocolStore';
-import { useProtocolRenderStore } from '@/store/ProtocolRenderStore';
-import { useProtocolLibraryStore } from '@/store/ProtocolLibraryStore';
-import { useNotificationStore } from '@/store/NotificationStore';
-import { Protocol } from '@/contracts';
-import { computed } from 'vue';
-import { v4 } from 'uuid';
-import _ from 'lodash';
+import { useProtocolStore } from "@/store/ProtocolStore";
+import { useProtocolRenderStore } from "@/store/ProtocolRenderStore";
+import { useProtocolLibraryStore } from "@/store/ProtocolLibraryStore";
+import { useNotificationStore } from "@/store/NotificationStore";
+import { Protocol } from "@/contracts";
+import { computed } from "vue";
+import { v4 } from "uuid";
+import _ from "lodash";
 
 // Stores
 const protocolStore = useProtocolStore();
@@ -83,8 +94,8 @@ function selectProtocol(protocol: Protocol) {
   notificationStore.showNotification({
     message: `Protocol ${protocol.name} has been loaded`,
     timeout: 3000,
-    color: 'success',
-    icon: 'mdi-check',
+    color: "success",
+    icon: "mdi-check",
   });
 }
 
@@ -92,11 +103,11 @@ function libraryProtocolById(id: typeof v4) {
   return protocolLibraryStore.protocols.find((protocol) => protocol.id === id);
 }
 
-
 const allEncapsulatedProtocols = computed(() => {
-  return protocolStore.encapsulated_protocols.map((protocol) => {
-    return libraryProtocolById(protocol);
-  }).filter((protocol) => protocol !== undefined) as Protocol[];
+  return protocolStore.encapsulatedProtocols
+    .map((protocol) => {
+      return libraryProtocolById(protocol.protocol.id);
+    })
+    .filter((protocol) => protocol !== undefined) as Protocol[];
 });
-
 </script>
