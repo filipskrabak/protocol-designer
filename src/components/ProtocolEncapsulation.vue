@@ -1,9 +1,18 @@
 <template>
   <v-container>
     <v-row>
-      <v-col md="6">
+      <v-col md="12">
         <h2 class="mb-4">Encapsulated field</h2>
 
+        <v-alert
+          text="Choose the field that contains child protocols. It's usually the 'data' field"
+          title="Field used for encapsulation"
+          type="info"
+          closable
+          class="mb-4"
+        ></v-alert>
+      </v-col>
+      <v-col md="6">
         <v-autocomplete
           :items="
             protocolStore.protocol.fields
@@ -25,6 +34,14 @@
     <v-row>
       <v-col md="12">
         <h2 class="mb-4">Encapsulated protocols</h2>
+
+        <v-alert
+          text="Choose the protocols that are encapsulated in the selected field. For example, HTTP is encapsulated in TCP"
+          title="Encapsulated protocols"
+          type="info"
+          closable
+          class="mb-4"
+        ></v-alert>
 
         <v-autocomplete
           :items="protocolsArrayItemsNotEncapsulated"

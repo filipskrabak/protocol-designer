@@ -5,34 +5,34 @@
 // Read more: https://github.com/vuejs/core/pull/3399
 export {}
 
-declare module "vue" {
+declare module 'vue' {
   export interface GlobalComponents {
-    AddFieldModal: (typeof import("./src/components/modals/AddFieldModal.vue"))["default"];
-    copy: (typeof import("./src/components/modals/FieldEditModal copy.vue"))["default"];
-    EncapsulationMultipleSelectModal: (typeof import("./src/components/modals/EncapsulationMultipleSelectModal.vue"))["default"];
-    EncapsulationSelectField: (typeof import("./src/components/modals/EncapsulationSelectField.vue"))["default"];
-    EncapsulationSelectFieldOptions: (typeof import("./src/components/modals/EncapsulationSelectFieldOptions.vue"))["default"];
-    EncapsulationSelectFields: (typeof import("./src/components/modals/EncapsulationSelectFields.vue"))["default"];
-    FieldDeleteModal: (typeof import("./src/components/modals/FieldDeleteModal.vue"))["default"];
-    FieldEditModal: (typeof import("./src/components/modals/FieldEditModal.vue"))["default"];
-    FieldEncapsulateModal: (typeof import("./src/components/modals/FieldEncapsulateModal.vue"))["default"];
-    FieldsTab: (typeof import("./src/components/modals/fieldedittabs/FieldsTab.vue"))["default"];
-    FieldTab: (typeof import("./src/components/modals/fieldedittabs/FieldTab.vue"))["default"];
-    GenericTab: (typeof import("./src/components/modals/settingstabs/GenericTab.vue"))["default"];
-    HelloWorld: (typeof import("./src/components/HelloWorld.vue"))["default"];
-    LeftDrawer: (typeof import("./src/components/navs/LeftDrawer.vue"))["default"];
-    LibraryModal: (typeof import("./src/components/modals/LibraryModal.vue"))["default"];
-    OptionTab: (typeof import("./src/components/modals/fieldedittabs/OptionTab.vue"))["default"];
-    ProtocolEditModal: (typeof import("./src/components/modals/ProtocolEditModal.vue"))["default"];
-    ProtocolEncapsulation: (typeof import("./src/components/ProtocolEncapsulation.vue"))["default"];
-    ProtocolInfoModal: (typeof import("./src/components/modals/ProtocolInfoModal.vue"))["default"];
-    ProtocolProperties: (typeof import("./src/components/ProtocolProperties.vue"))["default"];
-    ProtocolUpload: (typeof import("./src/components/ProtocolUpload.vue"))["default"];
-    ProtocolViewer: (typeof import("./src/components/ProtocolViewer.vue"))["default"];
-    RightDrawer: (typeof import("./src/components/navs/RightDrawer.vue"))["default"];
-    RouterLink: (typeof import("vue-router"))["RouterLink"];
-    RouterView: (typeof import("vue-router"))["RouterView"];
-    SettingsModal: (typeof import("./src/components/modals/SettingsModal.vue"))["default"];
-    ValueTab: (typeof import("./src/components/modals/fieldedittabs/ValueTab.vue"))["default"];
+    AddFieldModal: (typeof import("./src/components/modals/AddFieldModal.vue"))["default"]
+    copy: (typeof import("./src/components/modals/FieldEditModal copy.vue"))["default"]
+    EncapsulationMultipleSelectModal: typeof import('./src/components/modals/EncapsulationMultipleSelectModal.vue')['default']
+    EncapsulationSelectField: (typeof import("./src/components/modals/EncapsulationSelectField.vue"))["default"]
+    EncapsulationSelectFieldOptions: (typeof import("./src/components/modals/EncapsulationSelectFieldOptions.vue"))["default"]
+    EncapsulationSelectFields: (typeof import("./src/components/modals/EncapsulationSelectFields.vue"))["default"]
+    FieldDeleteModal: typeof import('./src/components/modals/FieldDeleteModal.vue')['default']
+    FieldEditModal: typeof import('./src/components/modals/FieldEditModal.vue')['default']
+    FieldEncapsulateModal: typeof import('./src/components/modals/FieldEncapsulateModal.vue')['default']
+    FieldsTab: (typeof import("./src/components/modals/fieldedittabs/FieldsTab.vue"))["default"]
+    FieldTab: typeof import('./src/components/modals/fieldedittabs/FieldTab.vue')['default']
+    GenericTab: typeof import('./src/components/modals/settingstabs/GenericTab.vue')['default']
+    HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
+    LeftDrawer: typeof import('./src/components/navs/LeftDrawer.vue')['default']
+    LibraryModal: typeof import('./src/components/modals/LibraryModal.vue')['default']
+    OptionTab: typeof import('./src/components/modals/fieldedittabs/OptionTab.vue')['default']
+    ProtocolEditModal: (typeof import("./src/components/modals/ProtocolEditModal.vue"))["default"]
+    ProtocolEncapsulation: typeof import('./src/components/ProtocolEncapsulation.vue')['default']
+    ProtocolInfoModal: (typeof import("./src/components/modals/ProtocolInfoModal.vue"))["default"]
+    ProtocolProperties: typeof import('./src/components/ProtocolProperties.vue')['default']
+    ProtocolUpload: typeof import('./src/components/ProtocolUpload.vue')['default']
+    ProtocolViewer: typeof import('./src/components/ProtocolViewer.vue')['default']
+    RightDrawer: (typeof import("./src/components/navs/RightDrawer.vue"))["default"]
+    RouterLink: typeof import('vue-router')['RouterLink']
+    RouterView: typeof import('vue-router')['RouterView']
+    SettingsModal: typeof import('./src/components/modals/SettingsModal.vue')['default']
+    ValueTab: (typeof import("./src/components/modals/fieldedittabs/ValueTab.vue"))["default"]
   }
 }
