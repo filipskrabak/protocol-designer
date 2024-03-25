@@ -48,3 +48,8 @@ export interface FloatingFieldWindow {
   y: number;
   field: Field;
 }
+
+export interface User {
+  id: number;
+  email: string;
+}

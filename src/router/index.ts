@@ -8,6 +8,7 @@
 import { createRouter, createWebHistory } from "vue-router/auto";
 import { setupLayouts } from "virtual:generated-layouts";
 import { useProtocolStore } from "@/store/ProtocolStore";
+import { useAuthStore } from "@/store/AuthStore";
 import { RouteLocationNormalized } from "vue-router";
 
 /*
@@ -26,6 +27,10 @@ const router = createRouter({
 
 router.beforeEach(
   async (to: RouteLocationNormalized, from: RouteLocationNormalized) => {
+    if (to.path !== "/login" && !useAuthStore().authenticated) {
+      return { path: "/login" };
+    }
+
     if (to.path === "/" && useProtocolStore().uploaded == false) {
       return { path: "/upload" };
     }
