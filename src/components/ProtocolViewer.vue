@@ -35,63 +35,68 @@
     </div>
 
     <!-- Single Field Context Menu -->
-    <v-menu
-      v-model="protocolRenderStore.fieldContextMenu.show"
-      offset-y
-      absolute
-      location-strategy="static"
-      :style="{
-        top: protocolRenderStore.fieldContextMenu.y + 'px',
-        left: protocolRenderStore.fieldContextMenu.x + 'px',
-      }"
-    >
-      <v-list>
-        <v-list-item
-          prepend-icon="mdi-pencil"
-          @click="
-            protocolRenderStore.showFieldEditModal(
-              protocolRenderStore.fieldTooltip.field,
-            )
-          "
-        >
-          <v-list-item-title>Edit Field</v-list-item-title>
-        </v-list-item>
-        <!-- Add to the left -->
-        <v-list-item
-          prepend-icon="mdi-arrow-left-thick"
-          @click="
-            protocolRenderStore.showFieldAddModal(
-              protocolRenderStore.fieldTooltip.field,
-              AddFieldPosition.Before,
-            )
-          "
-        >
-          <v-list-item-title>Add new Field before</v-list-item-title>
-        </v-list-item>
-        <!-- Add to the right -->
-        <v-list-item
-          prepend-icon="mdi-arrow-right-thick"
-          @click="
-            protocolRenderStore.showFieldAddModal(
-              protocolRenderStore.fieldTooltip.field,
-              AddFieldPosition.After,
-            )
-          "
-        >
-          <v-list-item-title>Add new Field after</v-list-item-title>
-        </v-list-item>
-        <v-list-item
-          prepend-icon="mdi-delete"
-          @click="
-            protocolRenderStore.showFieldDeleteModal(
-              protocolRenderStore.fieldTooltip.field,
-            )
-          "
-        >
-          <v-list-item-title>Delete Field</v-list-item-title>
-        </v-list-item>
-      </v-list>
-    </v-menu>
+    <v-overlay v-model="protocolRenderStore.fieldContextMenu.show">
+      <v-menu
+        v-model="protocolRenderStore.fieldContextMenu.show"
+        offset-y
+        absolute
+        location-strategy="static"
+        :style="{
+          top: protocolRenderStore.fieldContextMenu.y + 'px',
+          left: protocolRenderStore.fieldContextMenu.x + 'px',
+        }"
+      >
+        <v-list>
+          <v-list-subheader>{{
+            protocolRenderStore.fieldTooltip.field.display_name
+          }}</v-list-subheader>
+          <v-list-item
+            prepend-icon="mdi-pencil"
+            @click="
+              protocolRenderStore.showFieldEditModal(
+                protocolRenderStore.fieldTooltip.field,
+              )
+            "
+          >
+            <v-list-item-title>Edit Field</v-list-item-title>
+          </v-list-item>
+          <!-- Add to the left -->
+          <v-list-item
+            prepend-icon="mdi-arrow-left-thick"
+            @click="
+              protocolRenderStore.showFieldAddModal(
+                protocolRenderStore.fieldTooltip.field,
+                AddFieldPosition.Before,
+              )
+            "
+          >
+            <v-list-item-title>Add new Field before</v-list-item-title>
+          </v-list-item>
+          <!-- Add to the right -->
+          <v-list-item
+            prepend-icon="mdi-arrow-right-thick"
+            @click="
+              protocolRenderStore.showFieldAddModal(
+                protocolRenderStore.fieldTooltip.field,
+                AddFieldPosition.After,
+              )
+            "
+          >
+            <v-list-item-title>Add new Field after</v-list-item-title>
+          </v-list-item>
+          <v-list-item
+            prepend-icon="mdi-delete"
+            @click="
+              protocolRenderStore.showFieldDeleteModal(
+                protocolRenderStore.fieldTooltip.field,
+              )
+            "
+          >
+            <v-list-item-title>Delete Field</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-menu>
+    </v-overlay>
   </div>
 
   <!-- Append new Field -->

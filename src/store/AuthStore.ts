@@ -1,6 +1,7 @@
 import { User } from "@/contracts";
 import { defineStore } from "pinia";
 import axios from "axios";
+import { useNotificationStore } from "./NotificationStore";
 
 export const useAuthStore = defineStore("AuthStore", {
   // State
@@ -22,11 +23,25 @@ export const useAuthStore = defineStore("AuthStore", {
         );
       } catch (error) {
         console.error(error);
+
+        useNotificationStore().showNotification({
+          message: "Invalid email or password",
+          timeout: 5000,
+          color: "error",
+          icon: "mdi-alert-circle",
+        });
         return;
       }
 
       this.authenticated = true;
       this.user = response.data;
+
+      useNotificationStore().showNotification({
+        message: "Logged in successfully",
+        timeout: 5000,
+        color: "success",
+        icon: "mdi-check-circle",
+      });
 
       return response;
     },
