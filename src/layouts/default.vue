@@ -71,6 +71,43 @@
         <v-btn icon @click.stop="settingsModal = !settingsModal">
           <v-icon>mdi-cog</v-icon>
         </v-btn>
+
+        <v-menu
+          v-model="profileMenu"
+          :close-on-content-click="false"
+          location="end"
+        >
+          <template v-slot:activator="{ props }">
+            <v-btn icon v-bind="props">
+              <v-icon>mdi-account-circle</v-icon>
+            </v-btn>
+          </template>
+
+          <v-card min-width="300">
+            <v-list>
+              <v-list-item
+                prepend-avatar="https://cdn.vuetifyjs.com/images/john.jpg"
+                :subtitle="authStore.user?.email"
+                title="Username"
+              >
+                <template v-slot:append>
+                  <v-btn
+                    icon="mdi-logout-variant"
+                    variant="text"
+                    @click="logOut"
+                  ></v-btn>
+                </template>
+              </v-list-item>
+            </v-list>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+
+              <v-btn variant="text" @click="profileMenu = false">
+                Cancel
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-menu>
       </v-app-bar>
 
       <v-navigation-drawer v-model="drawerLeft" location="left">
@@ -127,6 +164,7 @@ import { ref } from "vue";
 
 import { useProtocolStore } from "@/store/ProtocolStore";
 import { useProtocolRenderStore } from "@/store/ProtocolRenderStore";
+import { useAuthStore } from "@/store/AuthStore";
 import { useNotificationStore } from "@/store/NotificationStore";
 import router from "@/router";
 
@@ -134,14 +172,21 @@ const drawerLeft = ref(false);
 const settingsModal = ref(false);
 const libraryModal = ref(false);
 const newProtocolDialog = ref(false);
-const links = ["About", "Contact", "Legal"];
+const profileMenu = ref(false);
 
 const protocolStore = useProtocolStore();
 const protocolRenderStore = useProtocolRenderStore();
 const notificationStore = useNotificationStore();
+const authStore = useAuthStore();
 
 function newProtocol() {
   protocolStore.newProtocol();
   router.push("/upload");
+}
+
+function logOut() {
+  // TODO: bug, cookie is not removed
+  authStore.logout();
+  router.push("/login");
 }
 </script>

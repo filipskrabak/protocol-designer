@@ -27,7 +27,7 @@ const router = createRouter({
 
 router.beforeEach(
   async (to: RouteLocationNormalized, from: RouteLocationNormalized) => {
-    if (to.path !== "/login" && !useAuthStore().authenticated) {
+    if (to.path !== "/login" && !(await useAuthStore().isAuthenticated)) {
       return { path: "/login" };
     }
 

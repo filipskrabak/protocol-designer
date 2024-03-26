@@ -6,7 +6,7 @@ import { useNotificationStore } from "./NotificationStore";
 export const useAuthStore = defineStore("AuthStore", {
   // State
   state: () => ({
-    authenticated: false,
+    _authenticated: false,
     user: {} as User,
   }),
 
@@ -33,8 +33,7 @@ export const useAuthStore = defineStore("AuthStore", {
         return;
       }
 
-      this.authenticated = true;
-      this.user = response.data;
+      await this.isAuthenticated;
 
       useNotificationStore().showNotification({
         message: "Logged in successfully",
@@ -46,11 +45,43 @@ export const useAuthStore = defineStore("AuthStore", {
       return response;
     },
     logout() {
-      // Call the API to logout
-      this.authenticated = false;
+      this._authenticated = false;
       this.user = {} as User;
+
+      useNotificationStore().showNotification({
+        message: "Logged out successfully",
+        timeout: 5000,
+        color: "success",
+        icon: "mdi-check-circle",
+      });
     },
   },
 
   // Getters
+  getters: {
+    async isAuthenticated() {
+      /*if (this._authenticated) {
+        return true;
+      } else {*/
+      // Try authenticate
+
+      let response;
+      try {
+        response = await axios.get("/users/whoami");
+      } catch (error) {
+        console.error(error);
+        return false;
+      }
+
+      console.log("SUCCESS!");
+      console.log(response.data);
+
+      this.user = response.data;
+
+      this._authenticated = true;
+      //this.user = response.data;
+      return true;
+      //}
+    },
+  },
 });
