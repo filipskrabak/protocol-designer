@@ -25,8 +25,8 @@ export interface Protocol {
   author: string;
   description: string;
   version: string;
-  last_update: string; // timestamp
-  created: string; // timestamp
+  updated_at: string; // timestamp
+  created_at: string; // timestamp
   fields: Field[];
 }
 

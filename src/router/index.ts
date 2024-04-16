@@ -5,24 +5,51 @@
  */
 
 // Composables
-import { createRouter, createWebHistory } from "vue-router/auto";
-import { setupLayouts } from "virtual:generated-layouts";
+
 import { useProtocolStore } from "@/store/ProtocolStore";
 import { useAuthStore } from "@/store/AuthStore";
+import { useProtocolLibraryStore } from "@/store/ProtocolLibraryStore";
 import { RouteLocationNormalized } from "vue-router";
+import { createRouter, createWebHistory } from "vue-router";
 
-/*
 const routes = [
   {
-    path: '/upload',
-    component: () => import('../pages/Upload.vue'),
+    path: "/",
+    component: () => import("@/layouts/default.vue"),
+    children: [
+      {
+        path: "",
+        component: () => import("@/pages/index.vue"),
+      },
+      {
+        path: "upload",
+        component: () => import("@/pages/upload.vue"),
+      },
+      {
+        path: "protocols",
+        component: () => import("@/pages/index.vue"),
+      },
+      {
+        path: "protocols/:id",
+        component: () => import("@/pages/index.vue"),
+      },
+    ],
   },
-]*/
+  {
+    path: "/login",
+    component: () => import("@/layouts/guest.vue"),
+    children: [
+      {
+        path: "",
+        component: () => import("@/pages/login.vue"),
+      },
+    ],
+  },
+];
 
 const router = createRouter({
-  history: createWebHistory(process.env.BASE_URL),
-  extendRoutes: setupLayouts,
-  //routes,
+  history: createWebHistory(),
+  routes,
 });
 
 router.beforeEach(
@@ -34,6 +61,8 @@ router.beforeEach(
     if (to.path === "/" && useProtocolStore().uploaded == false) {
       return { path: "/upload" };
     }
+
+    useProtocolLibraryStore().loadAllProtocols();
   },
 );
 

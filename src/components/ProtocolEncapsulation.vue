@@ -181,12 +181,7 @@ import { useProtocolStore } from "@/store/ProtocolStore";
 import { useProtocolLibraryStore } from "@/store/ProtocolLibraryStore";
 import { useNotificationStore } from "@/store/NotificationStore";
 import { v4 } from "uuid";
-import {
-  EncapsulatedProtocol,
-  Field,
-  FieldOption,
-  Protocol,
-} from "@/contracts";
+import { EncapsulatedProtocol, Field } from "@/contracts";
 import { watch } from "vue";
 import { useProtocolRenderStore } from "@/store/ProtocolRenderStore";
 

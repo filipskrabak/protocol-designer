@@ -16,7 +16,6 @@
 <script lang="ts" setup>
 import ProtocolUpload from "@/components/ProtocolUpload.vue";
 
-import { ref } from "vue";
 import { useProtocolStore } from "@/store/ProtocolStore";
 import { useProtocolRenderStore } from "@/store/ProtocolRenderStore";
 

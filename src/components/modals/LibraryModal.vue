@@ -6,16 +6,6 @@
       </v-card-title>
 
       <v-card-text>
-        <!-- Save Current Protocol -->
-
-        <v-row>
-          <v-col md="12">
-            <v-btn color="primary" @click="saveCurrentProtocol()">
-              Save Current Protocol
-            </v-btn>
-          </v-col>
-        </v-row>
-
         <v-row>
           <v-col md="12">
             <v-divider></v-divider>
@@ -67,7 +57,7 @@
 </template>
 
 <script lang="ts" setup>
-import { defineProps, defineEmits, computed, ref } from "vue";
+import { defineProps, defineEmits, computed } from "vue";
 import { useProtocolRenderStore } from "@/store/ProtocolRenderStore";
 import { useNotificationStore } from "@/store/NotificationStore";
 import { useProtocolLibraryStore } from "@/store/ProtocolLibraryStore";
@@ -97,28 +87,6 @@ const modalRef = computed({
 
 function close() {
   modalRef.value = false;
-}
-
-function saveCurrentProtocol() {
-  let result = protocolLibraryStore.addProtocol(
-    _.cloneDeep(protocolStore.protocol),
-  );
-
-  if (result) {
-    notificationStore.showNotification({
-      message: "Protocol saved to library",
-      color: "success",
-      icon: "mdi-check",
-      timeout: 3000,
-    });
-  } else {
-    notificationStore.showNotification({
-      message: "Protocol has been updated",
-      color: "success",
-      icon: "mdi-check",
-      timeout: 3000,
-    });
-  }
 }
 
 function loadProtocol(protocol: Protocol) {

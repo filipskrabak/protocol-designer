@@ -6,7 +6,6 @@ import {
   AddFieldPosition,
   EncapsulatedProtocol,
 } from "@/contracts";
-import { v4 } from "uuid";
 
 export const useProtocolStore = defineStore("ProtocolStore", {
   // State

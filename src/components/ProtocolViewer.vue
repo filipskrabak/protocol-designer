@@ -130,13 +130,11 @@ import { ref } from "vue";
 import FieldEditModal from "./modals/FieldEditModal.vue";
 import FieldDeleteModal from "./modals/FieldDeleteModal.vue";
 import FieldEncapsulateModal from "./modals/FieldEncapsulateModal.vue";
-import ProtocolUpload from "./ProtocolUpload.vue";
 
 import { useProtocolRenderStore } from "@/store/ProtocolRenderStore";
 import { onMounted } from "vue";
 import { useProtocolStore } from "@/store/ProtocolStore";
 import { watch } from "vue";
-import { onUpdated } from "vue";
 
 import { AddFieldPosition } from "@/contracts";
 
@@ -152,7 +150,7 @@ onMounted(() => {
     protocolRenderStore.svgWrapper = svgWrapper.value;
   }
 
-  protocolRenderStore.protocolData(protocolRenderStore.rawProtocolData);
+  protocolRenderStore.protocolData();
   protocolRenderStore.loading = false;
 });
 

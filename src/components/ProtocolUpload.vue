@@ -74,7 +74,9 @@ async function uploadProtocol($event: Event) {
 }
 
 async function newProject() {
-  const response = await axios.get("/protocols/default.svg");
+  const response = await axios.get(
+    "http://localhost:3000/protocols/default.svg",
+  );
 
   // replace %CURRENT_DATE% with current date (format DD.MM.YYYY)
   const currentDate = new Date().toLocaleDateString("sk-SK");

@@ -13,10 +13,13 @@ import { Endian } from "../contracts";
 import { useProtocolStore } from "@/store/ProtocolStore";
 import { useSettingsStore } from "@/store/SettingsStore";
 import { useNotificationStore } from "./NotificationStore";
+import { useProtocolLibraryStore } from "./ProtocolLibraryStore";
 import { LINE_HEIGHT_PX } from "../constants";
 import { v4 } from "uuid";
 
 import { ref } from "vue";
+
+import router from "@/router";
 
 export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
   // State
@@ -29,6 +32,7 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
     protocolStore: useProtocolStore(),
     settingsStore: useSettingsStore(),
     notificationStore: useNotificationStore(),
+    protocolLibraryStore: useProtocolLibraryStore(),
 
     fieldTooltip: {} as FloatingFieldWindow,
     fieldContextMenu: {} as FloatingFieldWindow,
@@ -42,11 +46,41 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
 
   // Actions
   actions: {
-    initialize() {
+    async initialize() {
+      // Check if the protocol has fields
+      if (
+        this.protocolStore.protocol.fields === undefined &&
+        this.protocolStore.protocol.name != "Protocol Name"
+      ) {
+        const encodedSvg =
+          await this.protocolLibraryStore.downloadProtocolFileFromServer(
+            this.protocolStore.protocol,
+          );
+
+        if (encodedSvg) {
+          console.log("ENCODED SVG!!!");
+          this.rawProtocolData = encodedSvg;
+          this.protocolData();
+        } else {
+          this.notificationStore.showNotification({
+            message: "Protocol could not be loaded from the server",
+            color: "error",
+            icon: "mdi-alert",
+            timeout: 3000,
+          });
+
+          router.push("/upload");
+        }
+        return;
+      }
+
       this.renderSVG();
       this.renderScale();
       this.setSvgSize();
       this.getMetadata();
+      this.saveCurrentProtocol();
+
+      router.push("/protocols/" + this.protocolStore.protocol.id);
     },
 
     /**
@@ -504,8 +538,8 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
 
       // elements with same attribute "data-id" will be highlighted
       for (let i = 0; i < dataElements.length; i++) {
-        let that = this;
-        dataElements[i].addEventListener("mouseover", function (event) {
+        const that = this;
+        dataElements[i].addEventListener("mouseover", function () {
           const dataId = dataElements[i].getAttribute("data-id");
           const elementsToHighlight = d3.selectAll(`[data-id="${dataId}"]`);
 
@@ -515,13 +549,13 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
 
           // Tooltip stuff
 
-          let field = that.protocolStore.findFieldById(dataId);
+          const field = that.protocolStore.findFieldById(dataId);
 
           if (!field) {
             return;
           }
 
-          let firstHighlightedEl = elementsToHighlight.nodes()[0];
+          const firstHighlightedEl = elementsToHighlight.nodes()[0];
 
           if (
             !firstHighlightedEl ||
@@ -531,11 +565,11 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
           }
 
           // Calculate X based in field position
-          let x =
+          const x =
             firstHighlightedEl.getBoundingClientRect().left +
             firstHighlightedEl.getBoundingClientRect().width / 2 -
             100;
-          let y =
+          const y =
             firstHighlightedEl.getBoundingClientRect().top -
             firstHighlightedEl.getBoundingClientRect().height -
             30;
@@ -588,20 +622,86 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
         protocolInfo.querySelector("description")?.textContent ?? "";
       this.protocolStore.protocol.version =
         protocolInfo.querySelector("version")?.textContent ?? "";
-      this.protocolStore.protocol.last_update =
+      this.protocolStore.protocol.updated_at =
         protocolInfo.querySelector("last_update")?.textContent ?? "";
-      this.protocolStore.protocol.created =
+      this.protocolStore.protocol.created_at =
         protocolInfo.querySelector("created")?.textContent ?? "";
+
+      // set rawProtocolData
+
+      this.rawProtocolData = document.querySelector("svg")?.outerHTML ?? "";
 
       console.log("protocolStore", this.protocolStore.protocol);
     },
 
     /**
-     * Handles uploading a protocol file (.svg) and subsequently calls getMetadata()
-     * @param data Base64 encoded SVG string
+     * Wrapper function to save the current protocol to the library
+     *
+     * @returns void
      */
-    protocolData(data: string) {
-      console.log("protocolData", data);
+    async saveCurrentProtocol() {
+      // Maybe the protocol is already in the library (it's UUID)
+      if (
+        useProtocolLibraryStore().getProtocolById(
+          useProtocolStore().protocol.id,
+        )
+      ) {
+        const result = await useProtocolLibraryStore().updateProtocol(
+          useProtocolStore().protocol,
+        );
+
+        if (!result) {
+          useNotificationStore().showNotification({
+            message: "Protocol could not be updated to the server",
+            color: "error",
+            icon: "mdi-alert",
+            timeout: 3000,
+          });
+        }
+
+        const protocolFile: File = new File(
+          [useProtocolRenderStore().rawProtocolData],
+          `${useProtocolStore().protocol.id}.svg`,
+        );
+
+        useProtocolLibraryStore().uploadProtocolToFileServer(
+          protocolFile,
+          useProtocolStore().protocol,
+        );
+
+        return;
+      }
+
+      // Otherwise let's add it
+      const result = await useProtocolLibraryStore().addProtocol(
+        useProtocolStore().protocol,
+      );
+
+      const protocolFile: File = new File(
+        [useProtocolRenderStore().rawProtocolData],
+        `${useProtocolStore().protocol.id}.svg`,
+      );
+
+      useProtocolLibraryStore().uploadProtocolToFileServer(
+        protocolFile,
+        useProtocolStore().protocol,
+      );
+
+      if (!result) {
+        useNotificationStore().showNotification({
+          message: "Protocol could not be saved to the server",
+          color: "error",
+          icon: "mdi-alert",
+          timeout: 3000,
+        });
+      }
+    },
+
+    /**
+     * Handles uploading a protocol file (.svg) and subsequently calls getMetadata()
+     */
+    protocolData() {
+      console.log("protocolData", this.rawProtocolData);
       if (!this.svgWrapper) {
         throw new Error("svgWrapper is not defined");
       }
@@ -611,15 +711,24 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
       // create D3 namespace for pd
       d3.namespaces["pd"] = "http://www.protocoldescription.com";
 
+      const svgNode = svg.node();
+
+      if (!svgNode) {
+        throw new Error("svgNode is not defined");
+      }
+
+      // First clear the SVG
+      svgNode.innerHTML = "";
+
       // Decode the base64 string
-      svg
-        .node()
-        ?.append(
-          new DOMParser().parseFromString(
-            Buffer.from(data.split(",")[1], "base64").toString("utf-8"),
-            "image/svg+xml",
-          ).documentElement,
-        );
+      svgNode?.append(
+        new DOMParser().parseFromString(
+          Buffer.from(this.rawProtocolData.split(",")[1], "base64").toString(
+            "utf-8",
+          ),
+          "image/svg+xml",
+        ).documentElement,
+      );
 
       this.getMetadata();
 

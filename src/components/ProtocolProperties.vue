@@ -27,7 +27,7 @@
       <v-col md="6">
         <v-text-field
           label="Created"
-          v-model="protocolStore.protocol.created"
+          v-model="protocolStore.protocol.created_at"
           hint="Date of the protocol creation"
           disabled
         ></v-text-field>
@@ -35,7 +35,7 @@
       <v-col md="6">
         <v-text-field
           label="Last Update"
-          v-model="protocolStore.protocol.last_update"
+          v-model="protocolStore.protocol.updated_at"
           hint="Date of the last modification"
           disabled
         ></v-text-field>
