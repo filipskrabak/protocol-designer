@@ -150,14 +150,26 @@ export const useProtocolLibraryStore = defineStore("ProtocolLibraryStore", {
     },
 
     /**
-     * Delete a protocol from the library
+     * Delete a protocol from the library and API
      *
      * @param id protocol name to delete
      */
-    deleteProtocol(id: string) {
-      this.protocols = this.protocols.filter(
-        (protocol) => protocol.name !== id,
-      );
+    async deleteProtocol(protocol: Protocol) {
+      try {
+        const result = await axios.delete(`/protocols/${protocol.id}`);
+
+        if (result.status !== 200) {
+          console.error(result);
+          return false;
+        }
+      } catch (error) {
+        console.error(error);
+        return false;
+      }
+
+      this.protocols = this.protocols.filter((p) => p.id !== protocol.id);
+
+      return true;
     },
   },
 

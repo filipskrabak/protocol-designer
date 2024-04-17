@@ -84,7 +84,7 @@ async function login() {
   loading.value = true;
   await authStore.login(form.value.email, form.value.password);
 
-  if (await authStore.isAuthenticated) {
+  if (await authStore.isAuthenticated()) {
     // Redirect to the dashboard
     router.push("/upload");
   } else {

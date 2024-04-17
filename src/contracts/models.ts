@@ -52,4 +52,5 @@ export interface FloatingFieldWindow {
 export interface User {
   id: number;
   email: string;
+  name: string;
 }

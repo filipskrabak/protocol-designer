@@ -88,7 +88,7 @@
               <v-list-item
                 prepend-avatar="https://cdn.vuetifyjs.com/images/john.jpg"
                 :subtitle="authStore.user?.email"
-                title="Username"
+                :title="authStore.user?.name"
               >
                 <template v-slot:append>
                   <v-btn

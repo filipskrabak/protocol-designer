@@ -33,7 +33,7 @@ export const useAuthStore = defineStore("AuthStore", {
         return;
       }
 
-      await this.isAuthenticated;
+      await this.isAuthenticated();
 
       useNotificationStore().showNotification({
         message: "Logged in successfully",
@@ -55,10 +55,6 @@ export const useAuthStore = defineStore("AuthStore", {
         icon: "mdi-check-circle",
       });
     },
-  },
-
-  // Getters
-  getters: {
     async isAuthenticated() {
       /*if (this._authenticated) {
         return true;
@@ -84,4 +80,7 @@ export const useAuthStore = defineStore("AuthStore", {
       //}
     },
   },
+
+  // Getters
+  getters: {},
 });

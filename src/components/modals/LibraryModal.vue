@@ -105,13 +105,22 @@ function loadProtocol(protocol: Protocol) {
 }
 
 function deleteProtocol(protocol: Protocol) {
-  protocolLibraryStore.deleteProtocol(protocol.name);
+  const result = protocolLibraryStore.deleteProtocol(protocol);
 
-  notificationStore.showNotification({
-    message: `Protocol ${protocol.name} deleted`,
-    color: "success",
-    icon: "mdi-check",
-    timeout: 3000,
-  });
+  if (!result) {
+    notificationStore.showNotification({
+      message: `Protocol ${protocol.name} could not be deleted`,
+      color: "error",
+      icon: "mdi-alert",
+      timeout: 3000,
+    });
+  } else {
+    notificationStore.showNotification({
+      message: `Protocol ${protocol.name} deleted`,
+      color: "success",
+      icon: "mdi-check",
+      timeout: 3000,
+    });
+  }
 }
 </script>
