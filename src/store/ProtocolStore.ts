@@ -42,6 +42,7 @@ export const useProtocolStore = defineStore("ProtocolStore", {
     clearProtocol() {
       this.protocol.fields = [];
       this.protocol = {} as Protocol;
+      this.uploaded = false;
     },
     saveEditingField() {
       // replace the field being edited with the new one

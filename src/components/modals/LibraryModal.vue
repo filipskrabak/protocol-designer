@@ -65,6 +65,7 @@ import { useProtocolStore } from "@/store/ProtocolStore";
 
 import { Protocol } from "@/contracts";
 import _ from "lodash";
+import router from "@/router";
 
 const protocolRenderStore = useProtocolRenderStore();
 const notificationStore = useNotificationStore();
@@ -89,11 +90,14 @@ function close() {
   modalRef.value = false;
 }
 
-function loadProtocol(protocol: Protocol) {
+async function loadProtocol(protocol: Protocol) {
   protocolStore.uploaded = true;
   protocolStore.protocol = _.cloneDeep(protocol);
 
-  protocolRenderStore.initialize();
+  await router.push({ path: "/protocols/" + protocol.id });
+
+  protocolRenderStore.rawProtocolData = "";
+  protocolRenderStore.protocolData();
   close();
 
   notificationStore.showNotification({

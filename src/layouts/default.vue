@@ -52,25 +52,27 @@
           />
         </v-btn>
 
-        <v-menu>
-          <template v-slot:activator="{ props }">
-            <v-btn v-bind="props">
-              <v-icon class="me-2">mdi-download</v-icon>
-              Export
-            </v-btn>
-          </template>
-          <v-list>
-            <v-list-item link>
-              <v-list-item-title @click="protocolRenderStore.exportSVG()"
-                >Scalable Vector Graphics (.svg)</v-list-item-title
-              >
-            </v-list-item>
-          </v-list>
-        </v-menu>
+        <template v-if="protocolStore.uploaded">
+          <v-menu>
+            <template v-slot:activator="{ props }">
+              <v-btn v-bind="props">
+                <v-icon class="me-2">mdi-download</v-icon>
+                Export
+              </v-btn>
+            </template>
+            <v-list>
+              <v-list-item link>
+                <v-list-item-title @click="protocolRenderStore.exportSVG()"
+                  >Scalable Vector Graphics (.svg)</v-list-item-title
+                >
+              </v-list-item>
+            </v-list>
+          </v-menu>
 
-        <v-btn icon @click.stop="settingsModal = !settingsModal">
-          <v-icon>mdi-cog</v-icon>
-        </v-btn>
+          <v-btn icon @click.stop="settingsModal = !settingsModal">
+            <v-icon>mdi-cog</v-icon>
+          </v-btn>
+        </template>
 
         <v-menu
           v-model="profileMenu"

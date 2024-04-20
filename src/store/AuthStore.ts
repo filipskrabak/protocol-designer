@@ -1,6 +1,6 @@
 import { User } from "@/contracts";
 import { defineStore } from "pinia";
-import axios from "axios";
+import axios, { Axios, AxiosError } from "axios";
 import { useNotificationStore } from "./NotificationStore";
 
 export const useAuthStore = defineStore("AuthStore", {
@@ -43,6 +43,37 @@ export const useAuthStore = defineStore("AuthStore", {
       });
 
       return response;
+    },
+    async register(email: string, name: string, password: string) {
+      // Call the API to register
+      let response;
+
+      try {
+        response = await axios.post("/register", {
+          email: email,
+          name: name,
+          password: password,
+        });
+      } catch (error: any) {
+        console.error(error);
+
+        useNotificationStore().showNotification({
+          message: "Failed to register",
+          timeout: 5000,
+          color: "error",
+          icon: "mdi-alert-circle",
+        });
+        return error.response;
+      }
+
+      useNotificationStore().showNotification({
+        message: "Registered successfully",
+        timeout: 5000,
+        color: "success",
+        icon: "mdi-check-circle",
+      });
+
+      return true;
     },
     logout() {
       this._authenticated = false;

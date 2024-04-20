@@ -44,14 +44,14 @@
           </v-btn>
 
           <v-card-text class="text-center">
-            <a
+            <router-link
               class="text-black text-decoration-none"
-              href="#"
+              :to="{ path: '/register' }"
               rel="noopener noreferrer"
-              target="_blank"
-            >
+              >
               Sign up now <v-icon icon="mdi-chevron-right"></v-icon>
-            </a>
+            </router-link>
+
           </v-card-text>
         </v-card>
       </v-col>
@@ -68,6 +68,7 @@ meta:
 import { ref } from "vue";
 import { useAuthStore } from "@/store/AuthStore";
 import router from "@/router";
+import { path } from "d3";
 
 const visible = ref(false);
 const loading = ref(false);

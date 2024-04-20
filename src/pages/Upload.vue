@@ -18,9 +18,17 @@ import ProtocolUpload from "@/components/ProtocolUpload.vue";
 
 import { useProtocolStore } from "@/store/ProtocolStore";
 import { useProtocolRenderStore } from "@/store/ProtocolRenderStore";
+import { onMounted } from "vue";
 
 const protocolStore = useProtocolStore();
 const protocolRenderStore = useProtocolRenderStore();
+
+// onmounted
+
+onMounted(() => {
+  protocolStore.clearProtocol();
+});
+
 </script>
 
 <style scoped>

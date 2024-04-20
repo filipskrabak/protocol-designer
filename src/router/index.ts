@@ -11,6 +11,7 @@ import { useAuthStore } from "@/store/AuthStore";
 import { useProtocolLibraryStore } from "@/store/ProtocolLibraryStore";
 import { RouteLocationNormalized } from "vue-router";
 import { createRouter, createWebHistory } from "vue-router";
+import { useProtocolRenderStore } from "@/store/ProtocolRenderStore";
 
 const routes = [
   {
@@ -31,6 +32,7 @@ const routes = [
       },
       {
         path: "protocols/:id",
+        name: "protocol",
         component: () => import("@/pages/index.vue"),
       },
     ],
@@ -45,6 +47,16 @@ const routes = [
       },
     ],
   },
+  {
+    path: "/register",
+    component: () => import("@/layouts/guest.vue"),
+    children: [
+      {
+        path: "",
+        component: () => import("@/pages/register.vue"),
+      },
+    ],
+  }
 ];
 
 const router = createRouter({
@@ -54,7 +66,7 @@ const router = createRouter({
 
 router.beforeEach(
   async (to: RouteLocationNormalized, from: RouteLocationNormalized) => {
-    if (to.path !== "/login" && !(await useAuthStore().isAuthenticated())) {
+    if (to.path !== "/login" && to.path !== "/register" && !(await useAuthStore().isAuthenticated())) {
       return { path: "/login" };
     }
 

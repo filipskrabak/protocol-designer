@@ -47,33 +47,6 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
   // Actions
   actions: {
     async initialize() {
-      // Check if the protocol has fields
-      if (
-        this.protocolStore.protocol.fields === undefined &&
-        this.protocolStore.protocol.name != "Protocol Name"
-      ) {
-        const encodedSvg =
-          await this.protocolLibraryStore.downloadProtocolFileFromServer(
-            this.protocolStore.protocol,
-          );
-
-        if (encodedSvg) {
-          console.log("ENCODED SVG!!!");
-          this.rawProtocolData = encodedSvg;
-          this.protocolData();
-        } else {
-          this.notificationStore.showNotification({
-            message: "Protocol could not be loaded from the server",
-            color: "error",
-            icon: "mdi-alert",
-            timeout: 3000,
-          });
-
-          router.push("/upload");
-        }
-        return;
-      }
-
       this.renderSVG();
       this.renderScale();
       this.setSvgSize();
@@ -427,6 +400,8 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
       // Clear protocolStore fields array
       this.protocolStore.clearProtocol();
 
+      this.protocolStore.uploaded = true;
+
       this.setSvgSize();
 
       const metadata = d3.select("metadata").node() as HTMLElement;
@@ -700,7 +675,7 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
     /**
      * Handles uploading a protocol file (.svg) and subsequently calls getMetadata()
      */
-    protocolData() {
+    async protocolData() {
       console.log("protocolData", this.rawProtocolData);
       if (!this.svgWrapper) {
         throw new Error("svgWrapper is not defined");
@@ -719,6 +694,30 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
 
       // First clear the SVG
       svgNode.innerHTML = "";
+
+      // Check if rawProtocolData is empty
+      if (this.rawProtocolData === "") {
+        // Get protocol from API
+        // Get ID from URL
+        const id = router.currentRoute.value.params.id;
+
+        const encodedSvg = await this.protocolLibraryStore.downloadProtocolFileFromServer(id as unknown as typeof v4);
+
+        if (encodedSvg) {
+          this.rawProtocolData = encodedSvg;
+          this.protocolStore.uploaded = true;
+        } else {
+          this.notificationStore.showNotification({
+            message: "Protocol could not be loaded from the server",
+            color: "error",
+            icon: "mdi-alert",
+            timeout: 3000,
+          });
+
+          router.push("/upload");
+        }
+
+      }
 
       // Decode the base64 string
       svgNode?.append(

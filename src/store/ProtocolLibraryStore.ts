@@ -119,9 +119,9 @@ export const useProtocolLibraryStore = defineStore("ProtocolLibraryStore", {
      * @param protocol
      * @returns base64 encoded string of the file | null
      */
-    async downloadProtocolFileFromServer(protocol: Protocol) {
+    async downloadProtocolFileFromServer(protocol_id: typeof v4) {
       try {
-        const result = await axios.get(`/static/${protocol.id}.svg`);
+        const result = await axios.get(`/static/${protocol_id}.svg`);
 
         console.log(result.data);
 

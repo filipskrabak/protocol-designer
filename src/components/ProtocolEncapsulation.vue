@@ -187,6 +187,7 @@ import { useProtocolRenderStore } from "@/store/ProtocolRenderStore";
 
 import EncapsulationMultipleSelectModal from "@/components/modals/EncapsulationMultipleSelectModal.vue";
 import { onMounted } from "vue";
+import axios from "axios";
 
 // Stores
 const protocolStore = useProtocolStore();
@@ -218,7 +219,7 @@ onMounted(() => {
   );
 });
 
-function addEncapsulatedProtocol() {
+async function addEncapsulatedProtocol() {
   if (encapsulatedProtocol.value != null) {
     const protocol = protocolLibraryStore.getProtocolById(
       encapsulatedProtocol.value,
@@ -231,6 +232,22 @@ function addEncapsulatedProtocol() {
         color: "error",
         icon: "mdi-alert-circle",
       });
+      return;
+    }
+
+    try {
+      let result = await axios.post("/protocol-encapsulation", {
+        protocol_id: protocol.id,
+        parent_protocol_id: protocolStore.protocol.id,
+      });
+    } catch (error) {
+      notificationStore.showNotification({
+        message: "Error adding encapsulated protocol",
+        timeout: 3000,
+        color: "error",
+        icon: "mdi-alert-circle",
+      });
+      console.log(error);
       return;
     }
 
