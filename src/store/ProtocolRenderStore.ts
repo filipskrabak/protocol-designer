@@ -696,12 +696,15 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
       svgNode.innerHTML = "";
 
       // Check if rawProtocolData is empty
-      if (this.rawProtocolData === "") {
+      if (this.rawProtocolData == "") {
         // Get protocol from API
         // Get ID from URL
         const id = router.currentRoute.value.params.id;
 
-        const encodedSvg = await this.protocolLibraryStore.downloadProtocolFileFromServer(id as unknown as typeof v4);
+        const encodedSvg =
+          await this.protocolLibraryStore.downloadProtocolFileFromServer(
+            id as unknown as typeof v4,
+          );
 
         if (encodedSvg) {
           this.rawProtocolData = encodedSvg;
@@ -716,7 +719,6 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
 
           router.push("/upload");
         }
-
       }
 
       // Decode the base64 string

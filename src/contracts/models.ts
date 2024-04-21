@@ -31,6 +31,7 @@ export interface Protocol {
 }
 
 export interface EncapsulatedProtocol {
+  id: typeof v4;
   protocol: Protocol;
   used_for_encapsulation_fields: Field[];
 }

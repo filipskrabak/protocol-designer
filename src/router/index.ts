@@ -56,7 +56,7 @@ const routes = [
         component: () => import("@/pages/register.vue"),
       },
     ],
-  }
+  },
 ];
 
 const router = createRouter({
@@ -66,7 +66,11 @@ const router = createRouter({
 
 router.beforeEach(
   async (to: RouteLocationNormalized, from: RouteLocationNormalized) => {
-    if (to.path !== "/login" && to.path !== "/register" && !(await useAuthStore().isAuthenticated())) {
+    if (
+      to.path !== "/login" &&
+      to.path !== "/register" &&
+      !(await useAuthStore().isAuthenticated())
+    ) {
       return { path: "/login" };
     }
 

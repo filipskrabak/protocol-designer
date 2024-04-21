@@ -78,6 +78,7 @@ import { Protocol } from "@/contracts";
 import { computed } from "vue";
 import { v4 } from "uuid";
 import _ from "lodash";
+import router from "@/router";
 
 // Stores
 const protocolStore = useProtocolStore();
@@ -85,9 +86,14 @@ const protocolRenderStore = useProtocolRenderStore();
 const notificationStore = useNotificationStore();
 const protocolLibraryStore = useProtocolLibraryStore();
 
-function selectProtocol(protocol: Protocol) {
+async function selectProtocol(protocol: Protocol) {
+  protocolStore.uploaded = true;
   protocolStore.protocol = _.cloneDeep(protocol);
-  protocolRenderStore.initialize();
+
+  await router.push({ path: "/protocols/" + protocol.id });
+
+  protocolRenderStore.rawProtocolData = "";
+  await protocolRenderStore.protocolData();
 
   protocolRenderStore.fieldEncapsulateModal = false;
 

@@ -97,7 +97,7 @@ async function loadProtocol(protocol: Protocol) {
   await router.push({ path: "/protocols/" + protocol.id });
 
   protocolRenderStore.rawProtocolData = "";
-  protocolRenderStore.protocolData();
+  await protocolRenderStore.protocolData();
   close();
 
   notificationStore.showNotification({

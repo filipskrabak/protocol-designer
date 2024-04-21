@@ -15,8 +15,8 @@
       <v-col md="6">
         <v-autocomplete
           :items="
-            protocolStore.protocol.fields
-              .filter((field) => !field.encapsulate)
+            protocolStore.protocol?.fields
+              ?.filter((field) => !field.encapsulate)
               .map((field) => {
                 return { value: field.id, title: field.display_name };
               })
@@ -149,7 +149,7 @@
           Add a field
         </v-btn>
         <v-btn
-          @click="removeEncapsulatedProtocol(encapsulatedProtocol.protocol.id)"
+          @click="removeEncapsulatedProtocol(encapsulatedProtocol.id)"
           prepend-icon="mdi-delete"
           color="error"
         >
@@ -204,21 +204,6 @@ const selectedField = ref<Field | null>(null);
 const fieldsDialog = ref(false);
 const fieldOptionsDialog = ref(false);
 
-// Lifecycle hooks
-
-onMounted(() => {
-  watch(
-    () => protocolStore.protocol,
-    () => {
-      const field = currentEncapsulatedField.value;
-      if (field) {
-        fieldToEncapsulate.value = field.id;
-      }
-    },
-    { immediate: true },
-  );
-});
-
 async function addEncapsulatedProtocol() {
   if (encapsulatedProtocol.value != null) {
     const protocol = protocolLibraryStore.getProtocolById(
@@ -236,9 +221,24 @@ async function addEncapsulatedProtocol() {
     }
 
     try {
-      let result = await axios.post("/protocol-encapsulation", {
+      const result = await axios.post("/protocol-encapsulations", {
         protocol_id: protocol.id,
         parent_protocol_id: protocolStore.protocol.id,
+      });
+
+      protocolStore.encapsulatedProtocols.push({
+        id: result.data.id,
+        protocol: protocol,
+        used_for_encapsulation_fields: [],
+      });
+
+      encapsulatedProtocol.value = null;
+
+      notificationStore.showNotification({
+        message: "Protocol has been added",
+        timeout: 3000,
+        color: "success",
+        icon: "mdi-check",
       });
     } catch (error) {
       notificationStore.showNotification({
@@ -250,34 +250,32 @@ async function addEncapsulatedProtocol() {
       console.log(error);
       return;
     }
+  }
+}
 
-    protocolStore.encapsulatedProtocols.push({
-      protocol: protocol,
-      used_for_encapsulation_fields: [],
-    });
+async function removeEncapsulatedProtocol(id: typeof v4) {
+  try {
+    const result = await axios.delete(`/protocol-encapsulations/${id}`);
 
-    encapsulatedProtocol.value = null;
+    protocolStore.encapsulatedProtocols =
+      protocolStore.encapsulatedProtocols.filter(
+        (protocol) => protocol.id !== id,
+      );
 
     notificationStore.showNotification({
-      message: "Protocol has been added",
+      message: "This protocol is no longer encapsulated",
       timeout: 3000,
       color: "success",
       icon: "mdi-check",
     });
+  } catch {
+    notificationStore.showNotification({
+      message: "Error removing encapsulated protocol",
+      timeout: 3000,
+      color: "error",
+      icon: "mdi-alert-circle",
+    });
   }
-}
-
-function removeEncapsulatedProtocol(id: typeof v4) {
-  protocolStore.encapsulatedProtocols =
-    protocolStore.encapsulatedProtocols.filter(
-      (protocol) => protocol.protocol.id !== id,
-    );
-  notificationStore.showNotification({
-    message: "This protocol is no longer encapsulated",
-    timeout: 3000,
-    color: "success",
-    icon: "mdi-check",
-  });
 }
 
 /**
@@ -285,7 +283,7 @@ function removeEncapsulatedProtocol(id: typeof v4) {
  *
  * @param selectedItems Array of IDs of selected fields
  */
-function addFieldsToEncapsulatedProtocol(selectedItems: String[]) {
+async function addFieldsToEncapsulatedProtocol(selectedItems: String[]) {
   // Close dialog first
   fieldsDialog.value = false;
 
@@ -297,6 +295,16 @@ function addFieldsToEncapsulatedProtocol(selectedItems: String[]) {
     protocolStore.protocol.fields.filter((field) =>
       selectedItems.includes(field.id),
     );
+
+  if (!(await saveFieldsToAPI())) {
+    notificationStore.showNotification({
+      message: "Error saving field options to API",
+      timeout: 3000,
+      color: "error",
+      icon: "mdi-alert-circle",
+    });
+    return;
+  }
 
   notificationStore.showNotification({
     message: "Field have been set",
@@ -311,7 +319,7 @@ function addFieldsToEncapsulatedProtocol(selectedItems: String[]) {
  *
  * @param selectedItems Array of values of selected field options
  */
-function addFieldsOptionsToEncapsulatedProtocol(selectedItems: Number[]) {
+async function addFieldsOptionsToEncapsulatedProtocol(selectedItems: Number[]) {
   // Close dialog first
   fieldOptionsDialog.value = false;
 
@@ -327,12 +335,51 @@ function addFieldsOptionsToEncapsulatedProtocol(selectedItems: Number[]) {
     );
   });
 
+  if (!(await saveFieldsToAPI())) {
+    notificationStore.showNotification({
+      message: "Error saving field options to API",
+      timeout: 3000,
+      color: "error",
+      icon: "mdi-alert-circle",
+    });
+    return;
+  }
+
   notificationStore.showNotification({
     message: "Field options have been set",
     timeout: 3000,
     color: "success",
     icon: "mdi-check",
   });
+}
+
+/**
+ * Saves fields and field options for encapsulation to API
+ */
+async function saveFieldsToAPI() {
+  if (!selectedProtocol.value) {
+    throw new Error("No protocol selected");
+  }
+
+  // URL: /protocol-encapsulations/{id}
+  try {
+    const result = await axios.put(
+      `/protocol-encapsulations/${selectedProtocol.value.id}`,
+      {
+        fields: JSON.stringify(
+          selectedProtocol.value.used_for_encapsulation_fields,
+        ),
+      },
+    );
+
+    console.log("SAVED FIELDS TO API - SUCCESS");
+    console.log(result.data);
+
+    return true;
+  } catch (error) {
+    console.log(error);
+  }
+  return false;
 }
 
 /**
@@ -366,9 +413,11 @@ function saveFieldToEncapsulate() {
 const protocolsArrayItemsNotEncapsulated = computed(() => {
   return protocolLibraryStore.protocols
     .filter((protocol) => {
-      return !protocolStore.encapsulatedProtocols.some(
-        (encapsulatedProtocol) =>
-          encapsulatedProtocol.protocol.id === protocol.id,
+      return (
+        !protocolStore.encapsulatedProtocols.some(
+          (encapsulatedProtocol) =>
+            encapsulatedProtocol.protocol.id === protocol.id,
+        ) && protocol.id !== protocolStore.protocol.id
       );
     })
     .map((protocol) => {
@@ -377,7 +426,7 @@ const protocolsArrayItemsNotEncapsulated = computed(() => {
 });
 
 const fieldsOfProtocol = computed(() => {
-  return protocolStore.protocol.fields.map((field) => {
+  return protocolStore.protocol?.fields?.map((field) => {
     return { value: field.id, title: field.display_name };
   });
 });
@@ -407,8 +456,55 @@ const selectedFieldOptionsOfProtocol = computed(() => {
 });
 
 const currentEncapsulatedField = computed(() => {
-  return protocolStore.protocol.fields.find((field) => field.encapsulate);
+  return protocolStore.protocol?.fields?.find((field) => field.encapsulate);
 });
+
+watch(
+  () => protocolStore.protocol,
+  (old, current) => {
+    if (protocolStore.protocol?.fields?.length === 0) {
+      return;
+    }
+    console.log("CURRENT");
+    console.log(current);
+    console.log("OLD");
+    console.log(old);
+    onProtocolChange(old.id !== current?.id);
+  },
+  { immediate: true },
+);
+
+async function onProtocolChange(newProtocol: boolean = false) {
+  const field = currentEncapsulatedField.value;
+
+  if (field) {
+    fieldToEncapsulate.value = field.id;
+  } else {
+    fieldToEncapsulate.value = "";
+  }
+
+  if (newProtocol) {
+    protocolStore.encapsulatedProtocols = [] as EncapsulatedProtocol[];
+
+    try {
+      const result = await axios.get(
+        `/protocol-encapsulations/${protocolStore.protocol.id}`,
+      );
+
+      console.log(result.data);
+
+      result.data.forEach((encapsulation: any) => {
+        protocolStore.encapsulatedProtocols.push({
+          id: encapsulation.id,
+          protocol: encapsulation.protocol,
+          used_for_encapsulation_fields: encapsulation.fields,
+        });
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+}
 </script>
 
 <style></style>

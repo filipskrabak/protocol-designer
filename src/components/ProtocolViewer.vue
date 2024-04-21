@@ -145,12 +145,12 @@ const protocolStore = useProtocolStore();
 // Refs
 const svgWrapper = ref<HTMLElement>();
 
-onMounted(() => {
+onMounted(async () => {
   if (svgWrapper.value) {
     protocolRenderStore.svgWrapper = svgWrapper.value;
   }
 
-  protocolRenderStore.protocolData();
+  await protocolRenderStore.protocolData();
   protocolRenderStore.loading = false;
 });
 
