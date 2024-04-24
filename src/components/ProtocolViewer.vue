@@ -1,4 +1,5 @@
 <template>
+  <ProtocolBreadcrumbs />
   <div class="d-flex justify-center mb-3" v-if="protocolStore.uploaded">
     <h1>{{ protocolStore.protocol.name }}</h1>
   </div>
@@ -137,6 +138,8 @@ import { useProtocolStore } from "@/store/ProtocolStore";
 import { watch } from "vue";
 
 import { AddFieldPosition } from "@/contracts";
+import axios from "axios";
+import ProtocolBreadcrumbs from "./ProtocolBreadcrumbs.vue";
 
 // Stores
 const protocolRenderStore = useProtocolRenderStore();

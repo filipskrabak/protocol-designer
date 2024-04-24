@@ -111,6 +111,7 @@
 
             <v-chip
               v-if="
+                !encapsulatedProtocol.used_for_encapsulation_fields ||
                 encapsulatedProtocol.used_for_encapsulation_fields.length === 0
               "
               color="error"
@@ -146,7 +147,7 @@
                   </v-list>
             -->
 
-          Add a field
+          Manage fields
         </v-btn>
         <v-btn
           @click="removeEncapsulatedProtocol(encapsulatedProtocol.id)"
@@ -186,7 +187,6 @@ import { watch } from "vue";
 import { useProtocolRenderStore } from "@/store/ProtocolRenderStore";
 
 import EncapsulationMultipleSelectModal from "@/components/modals/EncapsulationMultipleSelectModal.vue";
-import { onMounted } from "vue";
 import axios from "axios";
 
 // Stores
@@ -497,7 +497,7 @@ async function onProtocolChange(newProtocol: boolean = false) {
         protocolStore.encapsulatedProtocols.push({
           id: encapsulation.id,
           protocol: encapsulation.protocol,
-          used_for_encapsulation_fields: encapsulation.fields,
+          used_for_encapsulation_fields: encapsulation.fields ?? [],
         });
       });
     } catch (error) {
