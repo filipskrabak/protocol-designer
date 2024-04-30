@@ -153,7 +153,7 @@ onMounted(async () => {
     protocolRenderStore.svgWrapper = svgWrapper.value;
   }
 
-  await protocolRenderStore.protocolData();
+  await protocolRenderStore.initializeProtocolRaw();
   protocolRenderStore.loading = false;
 });
 

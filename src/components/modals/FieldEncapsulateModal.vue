@@ -93,7 +93,7 @@ async function selectProtocol(protocol: Protocol) {
   await router.push({ path: "/protocols/" + protocol.id });
 
   protocolRenderStore.rawProtocolData = "";
-  await protocolRenderStore.protocolData();
+  await protocolRenderStore.initializeProtocolRaw();
 
   protocolRenderStore.fieldEncapsulateModal = false;
 

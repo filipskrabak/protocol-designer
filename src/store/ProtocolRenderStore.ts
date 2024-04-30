@@ -20,6 +20,7 @@ import { v4 } from "uuid";
 import { ref } from "vue";
 
 import router from "@/router";
+import _ from "lodash";
 
 export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
   // State
@@ -65,6 +66,9 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
       if (!this.svgWrapper) {
         throw new Error("svgWrapper is not defined");
       }
+
+      console.log("rendering SVG");
+      console.log("protocol fields", this.protocolStore.protocol.fields);
 
       const svg = d3.select(this.svgWrapper);
       const metadata = d3.select("metadata").node();
@@ -675,7 +679,7 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
     /**
      * Handles uploading a protocol file (.svg) and subsequently calls getMetadata()
      */
-    async protocolData() {
+    async initializeProtocolRaw() {
       console.log("protocolData", this.rawProtocolData);
       if (!this.svgWrapper) {
         throw new Error("svgWrapper is not defined");
@@ -745,7 +749,7 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
 
     // Modal stuff
     showFieldEditModal(field: Field) {
-      this.protocolStore.editingField = field;
+      this.protocolStore.editingField = _.cloneDeep(field);
       this.protocolStore.editingFieldId = field.id;
 
       this.protocolStore.editingMode = EditingMode.Edit;
@@ -787,7 +791,7 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
       this.fieldEditModal = !this.fieldEditModal;
     },
     showFieldDeleteModal(field: Field) {
-      this.protocolStore.editingField = field;
+      this.protocolStore.editingField = _.cloneDeep(field);
       this.protocolStore.editingFieldId = field.id;
 
       this.protocolStore.editingMode = EditingMode.Edit;

@@ -9,6 +9,7 @@
               required
               v-model="protocolStore.editingField.display_name"
               hint="Name displayed to the user (ex. Destination Port)"
+              :rules="[(v) => !!v || 'Display name is required']"
             ></v-text-field>
           </v-col>
           <v-col md="6">
@@ -17,6 +18,10 @@
               required
               v-model="protocolStore.editingField.id"
               hint="Name used in the protocol definition (ex. dst_port)"
+              :rules="[
+                (v) => !!v || 'ID is required',
+                (v) => /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(v) || 'Invalid ID',
+              ]"
             ></v-text-field>
           </v-col>
           <v-col md="12" class="py-0">
@@ -35,8 +40,9 @@
                   : 'Length*'
               "
               required
-              v-model="protocolStore.editingField.length"
+              v-model.number="protocolStore.editingField.length"
               hint="If variable length is enabled, this is the minimum length"
+              :rules="minimumLengthRules"
               suffix="bits"
             ></v-text-field>
           </v-col>
@@ -45,8 +51,9 @@
               v-if="protocolStore.editingField.is_variable_length"
               label="Maximum length*"
               required
-              v-model="protocolStore.editingField.max_length"
+              v-model.number="protocolStore.editingField.max_length"
               hint="Maximum possible length"
+              :rules="maximumLengthRules"
               suffix="bits"
             ></v-text-field>
           </v-col>
@@ -55,6 +62,7 @@
               :items="[Endian.Big, Endian.Little]"
               label="Endianity*"
               v-model="protocolStore.editingField.endian"
+              :rules="[(v) => !!v || 'Endianity is required']"
               required
             ></v-select>
           </v-col>
@@ -78,6 +86,26 @@ import { EditingMode, Endian } from "@/contracts";
 import { useProtocolStore } from "@/store/ProtocolStore";
 
 const protocolStore = useProtocolStore();
+
+// Rules
+
+let minimumLengthRules = [
+  (v: number) => v === 0 || !!v || "Length is required",
+  (v: number) => v >= 0 || "Must be a positive number",
+  (v: number) =>
+    (v && v > 0) ||
+    protocolStore.editingField.is_variable_length ||
+    "Must be greater than 0",
+];
+
+let maximumLengthRules = [
+  (v: number) => v === 0 || !!v || "Maximum length is required",
+  (v: number) => v >= 0 || "Maximum length must be a positive number",
+  // Must be equal or greater than minimum length
+  (v: number) =>
+    v >= protocolStore.editingField.length ||
+    "Maximum length must be equal or greater than minimum length",
+];
 </script>
 
 <style></style>

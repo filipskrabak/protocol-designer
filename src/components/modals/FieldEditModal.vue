@@ -18,27 +18,28 @@
         <v-tab value="one">Field</v-tab>
         <v-tab value="two">Options and Values</v-tab>
       </v-tabs>
+      <v-form @submit.prevent="saveEdit()" v-model="form">
+        <v-card-text>
+          <v-window v-model="tab">
+            <v-window-item value="one">
+              <FieldTab />
+            </v-window-item>
 
-      <v-card-text>
-        <v-window v-model="tab">
-          <v-window-item value="one">
-            <FieldTab />
-          </v-window-item>
-
-          <v-window-item value="two">
-            <OptionTab />
-          </v-window-item>
-        </v-window>
-      </v-card-text>
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn color="blue-darken-1" variant="text" @click="modalRef = false">
-          Close
-        </v-btn>
-        <v-btn color="blue-darken-1" variant="text" @click="saveEdit()">
-          Save
-        </v-btn>
-      </v-card-actions>
+            <v-window-item value="two">
+              <OptionTab />
+            </v-window-item>
+          </v-window>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="blue-darken-1" variant="text" @click="modalRef = false">
+            Close
+          </v-btn>
+          <v-btn color="blue-darken-1" variant="text" type="submit">
+            Save
+          </v-btn>
+        </v-card-actions>
+      </v-form>
     </v-card>
   </v-dialog>
 </template>
@@ -60,6 +61,8 @@ const props = defineProps({
   fieldEditModal: Boolean,
 });
 
+const form = ref(false);
+
 const emit = defineEmits(["modal", "save"]);
 
 // Send info about the modal to the parent component
@@ -72,6 +75,17 @@ const modalRef = computed({
 
 // Save edit
 function saveEdit() {
+  if (!form.value) {
+    notificationStore.showNotification({
+      message: "Please fix the errors before saving",
+      timeout: 3000,
+      color: "error",
+      icon: "mdi-alert",
+    });
+
+    return;
+  }
+
   protocolStore.saveEditingField();
   emit("save");
   modalRef.value = false;
