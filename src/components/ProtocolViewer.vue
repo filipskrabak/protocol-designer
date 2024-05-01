@@ -139,7 +139,7 @@ import { watch } from "vue";
 
 import { AddFieldPosition } from "@/contracts";
 import axios from "axios";
-import ProtocolBreadcrumbs from "./ProtocolBreadcrumbs.vue";
+import ProtocolBreadcrumbs from "./breadcrumbs/ProtocolBreadcrumbs.vue";
 
 // Stores
 const protocolRenderStore = useProtocolRenderStore();
