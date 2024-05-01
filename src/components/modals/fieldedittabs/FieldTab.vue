@@ -32,6 +32,17 @@
             >
             </v-switch>
           </v-col>
+          <v-col cols="12" v-if="protocolStore.editingField.is_variable_length">
+            <v-alert
+              type="info"
+              outlined
+              elevation="2"
+              icon="mdi-information"
+              class="mb-4"
+            >
+              You can set any length to 0 if it is not defined.
+            </v-alert>
+          </v-col>
           <v-col md="6">
             <v-text-field
               :label="
