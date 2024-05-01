@@ -391,8 +391,14 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
         return;
       }
 
-      this.svgWrapper.style.width = bBox.width + "px";
-      this.svgWrapper.style.height = bBox.height + "px";
+      this.svgWrapper.style.width = bBox.width + 1 + "px";
+      this.svgWrapper.style.height = bBox.height + 1 + "px";
+
+      // Also set the height and width of the SVG element
+      const svg = d3.select(this.svgWrapper).select("svg");
+
+      svg.attr("width", bBox.width + 1);
+      svg.attr("height", bBox.height + 1);
     },
 
     /**
