@@ -116,6 +116,23 @@
     </v-col>
   </v-row>
 
+  <!-- TIPs alert -->
+  <v-row class="d-flex justify-center pt-5">
+    <v-col md="4">
+      <v-alert
+        type="info"
+        outlined
+        elevation="2"
+        icon="mdi-information"
+        class="mb-4"
+        closable
+        v-if="protocolStore.uploaded"
+      >
+        <strong>Tip:</strong> Right-click on a field to open the context menu.
+      </v-alert>
+    </v-col>
+  </v-row>
+
   <FieldEditModal
     :fieldEditModal="protocolRenderStore.fieldEditModal"
     @modal="protocolRenderStore.closeFieldModal()"
