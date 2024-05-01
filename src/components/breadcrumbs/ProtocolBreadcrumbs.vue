@@ -1,10 +1,5 @@
 <template>
   <div v-if="items.length > 0" class="d-flex justify-center mb-2">
-    <!--<v-breadcrumbs :items="items">
-      <template v-slot:divider>
-        <v-icon icon="mdi-chevron-right"></v-icon>
-      </template>
-    </v-breadcrumbs>-->
     <span v-for="(item, index) in items" :key="index">
       <v-icon v-if="index !== 0" icon="mdi-chevron-right"></v-icon>
       <v-chip
