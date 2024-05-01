@@ -465,10 +465,6 @@ watch(
     if (protocolStore.protocol?.fields?.length === 0) {
       return;
     }
-    console.log("CURRENT");
-    console.log(current);
-    console.log("OLD");
-    console.log(old);
     onProtocolChange(old.id !== current?.id);
   },
   { immediate: true },
@@ -481,28 +477,6 @@ async function onProtocolChange(newProtocol: boolean = false) {
     fieldToEncapsulate.value = field.id;
   } else {
     fieldToEncapsulate.value = "";
-  }
-
-  if (newProtocol) {
-    protocolStore.encapsulatedProtocols = [] as EncapsulatedProtocol[];
-
-    try {
-      const result = await axios.get(
-        `/protocol-encapsulations/${protocolStore.protocol.id}`,
-      );
-
-      console.log(result.data);
-
-      result.data.forEach((encapsulation: any) => {
-        protocolStore.encapsulatedProtocols.push({
-          id: encapsulation.id,
-          protocol: encapsulation.protocol,
-          used_for_encapsulation_fields: encapsulation.fields ?? [],
-        });
-      });
-    } catch (error) {
-      console.log(error);
-    }
   }
 }
 </script>

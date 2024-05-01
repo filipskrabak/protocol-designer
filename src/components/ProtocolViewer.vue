@@ -137,7 +137,7 @@ import { onMounted } from "vue";
 import { useProtocolStore } from "@/store/ProtocolStore";
 import { watch } from "vue";
 
-import { AddFieldPosition } from "@/contracts";
+import { AddFieldPosition, EncapsulatedProtocol } from "@/contracts";
 import axios from "axios";
 import ProtocolBreadcrumbs from "./breadcrumbs/ProtocolBreadcrumbs.vue";
 
@@ -182,6 +182,47 @@ function getFieldLength() {
     );
   }
   return protocolRenderStore.fieldTooltip.field.length + " b";
+}
+
+// Encapsulation
+
+watch(
+  () => protocolStore.protocol,
+  (old, current) => {
+    if (protocolStore.protocol?.fields?.length === 0) {
+      return;
+    }
+    console.log("CURRENT");
+    console.log(current);
+    console.log("OLD");
+    console.log(old);
+    onProtocolChange(old.id !== current?.id);
+  },
+  { immediate: true },
+);
+
+async function onProtocolChange(newProtocol: boolean = false) {
+  if (newProtocol) {
+    protocolStore.encapsulatedProtocols = [] as EncapsulatedProtocol[];
+
+    try {
+      const result = await axios.get(
+        `/protocol-encapsulations/${protocolStore.protocol.id}`,
+      );
+
+      console.log(result.data);
+
+      result.data.forEach((encapsulation: any) => {
+        protocolStore.encapsulatedProtocols.push({
+          id: encapsulation.id,
+          protocol: encapsulation.protocol,
+          used_for_encapsulation_fields: encapsulation.fields ?? [],
+        });
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
 }
 </script>
 
