@@ -732,14 +732,33 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
       }
 
       // Decode the base64 string
-      svgNode?.append(
-        new DOMParser().parseFromString(
-          Buffer.from(this.rawProtocolData.split(",")[1], "base64").toString(
-            "utf-8",
-          ),
-          "image/svg+xml",
-        ).documentElement,
+      const svgDoc = new DOMParser().parseFromString(
+        Buffer.from(this.rawProtocolData.split(",")[1], "base64").toString(
+          "utf-8",
+        ),
+        "image/svg+xml",
       );
+
+      // Error checking
+      if (
+        svgDoc.documentElement.tagName !== "svg" ||
+        svgDoc.getElementsByTagName("parsererror").length > 0 ||
+        svgDoc.documentElement.namespaceURI !== "http://www.w3.org/2000/svg" ||
+        !svgDoc.documentElement.querySelector("metadata")
+      ) {
+        this.notificationStore.showNotification({
+          message: "Invalid protocol file",
+          color: "error",
+          icon: "mdi-alert",
+          timeout: 3000,
+        });
+
+        router.push("/upload");
+
+        return;
+      }
+
+      svgNode?.append(svgDoc.documentElement);
 
       this.getMetadata();
 
