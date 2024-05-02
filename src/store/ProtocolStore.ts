@@ -66,6 +66,7 @@ export const useProtocolStore = defineStore("ProtocolStore", {
         );
         this.protocol.fields[index] = this.editingField;
       }
+      this.protocol.updated_at = new Date().toLocaleDateString("sk-SK");
     },
     findFieldById(id: string) {
       return this.protocol.fields.find((field) => field.id === id);

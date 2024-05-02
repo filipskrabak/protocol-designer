@@ -608,9 +608,9 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
       this.protocolStore.protocol.version =
         protocolInfo.querySelector("version")?.textContent ?? "";
       this.protocolStore.protocol.updated_at =
-        protocolInfo.querySelector("last_update")?.textContent ?? "";
+        protocolInfo.querySelector("updated_at")?.textContent ?? "";
       this.protocolStore.protocol.created_at =
-        protocolInfo.querySelector("created")?.textContent ?? "";
+        protocolInfo.querySelector("created_at")?.textContent ?? "";
 
       // set rawProtocolData
 

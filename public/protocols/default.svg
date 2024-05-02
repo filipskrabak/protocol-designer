@@ -7,8 +7,8 @@
             <pd:author>Your Name</pd:author>
             <pd:description></pd:description>
             <pd:version>1.0</pd:version>
-            <pd:last_update>%CURRENT_DATE%</pd:last_update>
-            <pd:created>%CURRENT_DATE%</pd:created>
+            <pd:updated_at>%CURRENT_DATE%</pd:updated_at>
+            <pd:created_at>%CURRENT_DATE%</pd:created_at>
         </pd:info>
     </metadata>
 
