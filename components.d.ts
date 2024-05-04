@@ -13,6 +13,7 @@ declare module 'vue' {
     EncapsulationSelectField: (typeof import("./src/components/modals/EncapsulationSelectField.vue"))["default"]
     EncapsulationSelectFieldOptions: (typeof import("./src/components/modals/EncapsulationSelectFieldOptions.vue"))["default"]
     EncapsulationSelectFields: (typeof import("./src/components/modals/EncapsulationSelectFields.vue"))["default"]
+    EncapsulationVisualization: typeof import('./src/components/breadcrumbs/EncapsulationVisualization.vue')['default']
     FieldDeleteModal: typeof import('./src/components/modals/FieldDeleteModal.vue')['default']
     FieldEditModal: typeof import('./src/components/modals/FieldEditModal.vue')['default']
     FieldEncapsulateModal: typeof import('./src/components/modals/FieldEncapsulateModal.vue')['default']

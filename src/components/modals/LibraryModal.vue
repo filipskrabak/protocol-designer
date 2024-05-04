@@ -20,7 +20,7 @@
                 { title: 'Name', value: 'name' },
                 { title: 'Author', value: 'author' },
                 { title: 'Version', value: 'version' },
-                { title: 'Created', value: 'created' },
+                { title: 'Created', value: 'created_at' },
                 { title: 'Actions', value: 'actions', sortable: false },
               ]"
               :items="protocolLibraryStore.protocols"

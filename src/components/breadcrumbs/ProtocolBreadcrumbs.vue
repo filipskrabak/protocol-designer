@@ -14,6 +14,20 @@
         {{ item.title }}
       </v-chip>
     </span>
+
+    <v-btn
+      v-if="items.length > 1"
+      @click="visDialog = true"
+      icon
+      class="ml-2"
+      size="x-small"
+    >
+      <v-icon>mdi-graph</v-icon>
+    </v-btn>
+
+    <v-dialog v-model="visDialog" width="auto">
+      <encapsulation-visualization />
+    </v-dialog>
     <v-dialog v-model="dialog" width="auto">
       <v-card
         max-width="400"
@@ -50,12 +64,14 @@ import { watch } from "vue";
 import axios from "axios";
 import router from "@/router";
 import { useProtocolRenderStore } from "@/store/ProtocolRenderStore";
+import EncapsulationVisualization from "./EncapsulationVisualization.vue";
 
 const protocolStore = useProtocolStore();
 const protocolRenderStore = useProtocolRenderStore();
 
 const items = ref<BreadcrumbItem[]>([]);
 const dialog = ref(false);
+const visDialog = ref(false);
 const currentItem = ref<BreadcrumbItem | null>(null);
 
 interface BreadcrumbItem {
