@@ -765,7 +765,7 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
       this.initialize();
 
       this.notificationStore.showNotification({
-        message: "Protocol successfully uploaded",
+        message: "Protocol successfully loaded",
         timeout: 5000,
         color: "green",
         icon: "mdi-check",

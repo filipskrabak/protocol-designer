@@ -182,6 +182,8 @@ const notificationStore = useNotificationStore();
 const authStore = useAuthStore();
 
 function newProtocol() {
+  protocolRenderStore.rawProtocolData = "";
+  protocolRenderStore.loading = false;
   protocolStore.newProtocol();
   router.push("/upload");
 }

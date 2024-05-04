@@ -55,7 +55,6 @@ async function uploadProtocol($event: Event) {
   if (target && target.files) {
     file.value = target.files[0];
   } else {
-    // TODO: FAIL STATE
     return;
   }
 

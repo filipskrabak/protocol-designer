@@ -91,21 +91,16 @@ function close() {
 }
 
 async function loadProtocol(protocol: Protocol) {
+  await router.push({ path: "/protocols/" + protocol.id });
+
   protocolStore.uploaded = true;
   protocolStore.protocol = _.cloneDeep(protocol);
 
-  await router.push({ path: "/protocols/" + protocol.id });
-
-  protocolRenderStore.rawProtocolData = "";
-  await protocolRenderStore.initializeProtocolRaw();
+  if (protocolRenderStore.loading == false) {
+    protocolRenderStore.rawProtocolData = "";
+    await protocolRenderStore.initializeProtocolRaw();
+  }
   close();
-
-  notificationStore.showNotification({
-    message: `Protocol ${protocol.name} loaded`,
-    color: "success",
-    icon: "mdi-check",
-    timeout: 3000,
-  });
 }
 
 function deleteProtocol(protocol: Protocol) {
