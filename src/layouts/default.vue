@@ -2,10 +2,10 @@
   <v-app>
     <v-layout class="rounded rounded-md">
       <v-app-bar>
-        <v-app-bar-nav-icon
+        <!--<v-app-bar-nav-icon
           variant="text"
           @click.stop="drawerLeft = !drawerLeft"
-        ></v-app-bar-nav-icon>
+        ></v-app-bar-nav-icon>-->
 
         <v-toolbar-title>Protocol Designer</v-toolbar-title>
         <v-btn>
@@ -112,11 +112,11 @@
         </v-menu>
       </v-app-bar>
 
-      <v-navigation-drawer v-model="drawerLeft" location="left">
+      <!--<v-navigation-drawer v-model="drawerLeft" location="left">
         <v-list>
           <LeftDrawer />
         </v-list>
-      </v-navigation-drawer>
+      </v-navigation-drawer>-->
 
       <SettingsModal
         v-model="settingsModal"
