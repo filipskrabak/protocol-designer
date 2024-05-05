@@ -860,6 +860,7 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
       const formattedHeaderName = protocol.name.replace(/ /g, "");
 
       let p4 = `header ${formattedHeaderName}_h {`;
+      let fieldCount = 0;
 
       protocol.fields.forEach((field) => {
         if (field.encapsulate) {
@@ -868,6 +869,13 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
 
         if (field.is_variable_length) {
           if (field.max_length == 0) {
+            this.notificationStore.showNotification({
+              message: `Couldn't export to P4: Field ${field.display_name} is variable length but has no max length`,
+              color: "error",
+              icon: "mdi-alert",
+              timeout: 8000,
+            });
+
             throw new Error(
               `Field ${field.display_name} is variable length but has no max length`,
             );
@@ -877,7 +885,19 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
         } else {
           p4 += `\n\tbit<${field.length}> ${field.id};`;
         }
+        fieldCount++;
       });
+
+      if (fieldCount == 0) {
+        this.notificationStore.showNotification({
+          message: `Couldn't export to P4: No fields found`,
+          color: "error",
+          icon: "mdi-alert",
+          timeout: 8000,
+        });
+
+        throw new Error(`No fields found`);
+      }
 
       p4 += "\n}";
 
