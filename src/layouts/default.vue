@@ -66,6 +66,11 @@
                   >Scalable Vector Graphics (.svg)</v-list-item-title
                 >
               </v-list-item>
+              <v-list-item link>
+                <v-list-item-title @click="protocolRenderStore.exportToP4()"
+                  >P4 (.p4)</v-list-item-title
+                >
+              </v-list-item>
             </v-list>
           </v-menu>
 

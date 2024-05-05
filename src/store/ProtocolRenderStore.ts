@@ -853,6 +853,49 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
       downloadLink.click();
       document.body.removeChild(downloadLink);
     },
+
+    exportToP4() {
+      const protocol = this.protocolStore.protocol;
+
+      const formattedHeaderName = protocol.name.replace(/ /g, "");
+
+      let p4 = `header ${formattedHeaderName}_h {`;
+
+      protocol.fields.forEach((field) => {
+        if (field.encapsulate) {
+          return;
+        }
+
+        if (field.is_variable_length) {
+          if (field.max_length == 0) {
+            throw new Error(
+              `Field ${field.display_name} is variable length but has no max length`,
+            );
+          }
+
+          p4 += `\n\tvarbit<${field.max_length}> ${field.id};`;
+        } else {
+          p4 += `\n\tbit<${field.length}> ${field.id};`;
+        }
+      });
+
+      p4 += "\n}";
+
+      // Create a p4 file
+      const p4Blob = new Blob([p4], {
+        type: "text/plain;charset=utf-8",
+      });
+
+      const p4Url = URL.createObjectURL(p4Blob);
+
+      const downloadLink = document.createElement("a");
+
+      downloadLink.href = p4Url;
+      downloadLink.download = formattedHeaderName + ".p4";
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+    },
   },
 
   // Getters
