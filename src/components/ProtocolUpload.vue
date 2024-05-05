@@ -39,9 +39,10 @@
 import router from "@/router";
 import { useProtocolRenderStore } from "@/store/ProtocolRenderStore";
 import { useProtocolStore } from "@/store/ProtocolStore";
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import axios from "axios";
 import { v4 as uuid } from "uuid";
+import { on } from "events";
 
 const protocolRenderStore = useProtocolRenderStore();
 const protocolStore = useProtocolStore();
@@ -49,6 +50,11 @@ const protocolStore = useProtocolStore();
 const file = ref<File | null>(null);
 
 const rules = ref([(v: string) => !!v || "File is required"]);
+
+onMounted(() => {
+  // Reset the protocol data (bugfix)
+  protocolRenderStore.rawProtocolData = "";
+});
 
 async function uploadProtocol($event: Event) {
   const target = $event.target as HTMLInputElement;

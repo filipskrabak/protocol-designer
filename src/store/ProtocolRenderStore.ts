@@ -662,6 +662,20 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
         useProtocolStore().protocol,
       );
 
+      if (
+        result !== true &&
+        result !== false &&
+        result.status == 401 &&
+        result.data.detail == "Sorry, that protocol already exists."
+      ) {
+        console.log("Protocol already exists, updating instead.");
+
+        this.protocolStore.protocol.id = v4() as unknown as typeof v4; // generate a new id
+
+        // Again initialize
+        this.initialize();
+      }
+
       const protocolFile: File = new File(
         [useProtocolRenderStore().rawProtocolData],
         `${useProtocolStore().protocol.id}.svg`,

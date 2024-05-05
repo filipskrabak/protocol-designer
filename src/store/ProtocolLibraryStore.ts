@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { Protocol } from "@/contracts";
 import { v4 } from "uuid";
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 import _ from "lodash";
 
 export const useProtocolLibraryStore = defineStore("ProtocolLibraryStore", {
@@ -50,23 +50,23 @@ export const useProtocolLibraryStore = defineStore("ProtocolLibraryStore", {
      * Add a protocol to the library
      *
      * @param protocol protocol object to add
-     * @returns true if protocol was added, false if it was updated
+     * @returns true if protocol was added, AxiosResponse if error
      */
-    async addProtocol(protocol: Protocol) {
+    async addProtocol(protocol: Protocol): Promise<AxiosResponse | boolean> {
       try {
         const result = await axios.post("/protocols", protocol);
 
         if (result.status !== 201) {
           console.error(result);
-          return false;
+          return result;
         }
 
         protocol.id = result.data.id;
 
         this.protocols.push(_.cloneDeep(protocol));
-      } catch (error) {
+      } catch (error: any) {
         console.error(error);
-        return false;
+        return error.response;
       }
 
       return true;
