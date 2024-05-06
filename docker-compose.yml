@@ -1,0 +1,35 @@
+version: "3.3"
+services:
+    db:
+        image: postgres:latest
+        ports:
+            - "5432:5432"
+        environment:
+            POSTGRES_DB: postgres
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: root
+    fastapi-python:
+        build: 
+            context: ./backend
+            dockerfile: Dockerfile
+        ports:
+            - 8000:8000
+        environment:
+            - DATABASE_HOST=host.docker.internal
+            - DATABASE_PORT=5432
+            - DATABASE_NAME=postgres
+            - DATABASE_USER=postgres
+            - DATABASE_PASSWORD=root
+            - SECRET_KEY=09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7
+        volumes:
+            - ./backend/static:/home/api/static
+        depends_on:
+            - db
+    frontend-vue:
+        build: 
+            context: ./frontend
+            dockerfile: Dockerfile
+        ports:
+            - 3000:3000
+        depends_on:
+            - fastapi-python
