@@ -4,9 +4,13 @@
       <v-card-title class="text-center">
         <span class="text-h5">Settings</span>
       </v-card-title>
-      <v-tabs v-model="tab" bg-color="grey-lighten-4" style="overflow: visible">
+      <v-tabs
+        v-model="tab"
+        bg-color="grey-lighten-4"
+        style="overflow: visible"
+        align-tabs="center"
+      >
         <v-tab value="one">Protocol</v-tab>
-        <v-tab value="two">Validation Rules</v-tab>
       </v-tabs>
 
       <v-card-text>
@@ -14,8 +18,6 @@
           <v-window-item value="one">
             <GenericTab />
           </v-window-item>
-
-          <v-window-item value="two"> TODO </v-window-item>
         </v-window>
       </v-card-text>
       <v-card-actions>
