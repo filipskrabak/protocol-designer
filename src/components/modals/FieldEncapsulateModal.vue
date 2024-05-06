@@ -23,16 +23,47 @@
           </v-alert>
 
           <v-list
-            v-for="protocol in allEncapsulatedProtocols"
-            :key="protocol.id"
+            v-for="encapsulatedProtocol in protocolStore.encapsulatedProtocols"
+            :key="encapsulatedProtocol.id"
             elevation="2"
           >
-            <v-list-item @click="selectProtocol(protocol)">
+            <v-list-item @click="selectProtocol(encapsulatedProtocol.protocol)">
               <template v-slot:append>
                 <v-icon color="red darken-1">mdi-folder-open</v-icon>
               </template>
 
-              <v-list-item-title>{{ protocol.name }}</v-list-item-title>
+              <v-list-item-title
+                >{{ encapsulatedProtocol.protocol.name }}
+                <v-chip
+                  v-for="field in encapsulatedProtocol.used_for_encapsulation_fields"
+                  :key="field.id"
+                  color="blue darken-1"
+                  class="ml-2"
+                >
+                  {{ field.display_name }}
+
+                  <v-tooltip activator="parent" location="top">
+                    <p
+                      v-if="
+                        field.field_options.filter(
+                          (fieldOption) => fieldOption.used_for_encapsulation,
+                        ).length === 0
+                      "
+                    >
+                      No field options added yet! Use the Encapsulation tab to
+                      add one.
+                    </p>
+                    <p
+                      v-for="fieldOption in field.field_options.filter(
+                        (fieldOption) => fieldOption.used_for_encapsulation,
+                      )"
+                      :key="fieldOption.value"
+                    >
+                      {{ fieldOption.name }} ({{ fieldOption.value }})
+                    </p>
+                  </v-tooltip>
+                </v-chip>
+              </v-list-item-title>
             </v-list-item>
           </v-list>
         </v-card-text>
@@ -72,11 +103,8 @@
 <script setup lang="ts">
 import { useProtocolStore } from "@/store/ProtocolStore";
 import { useProtocolRenderStore } from "@/store/ProtocolRenderStore";
-import { useProtocolLibraryStore } from "@/store/ProtocolLibraryStore";
 import { useNotificationStore } from "@/store/NotificationStore";
 import { Protocol } from "@/contracts";
-import { computed } from "vue";
-import { v4 } from "uuid";
 import _ from "lodash";
 import router from "@/router";
 
@@ -84,7 +112,6 @@ import router from "@/router";
 const protocolStore = useProtocolStore();
 const protocolRenderStore = useProtocolRenderStore();
 const notificationStore = useNotificationStore();
-const protocolLibraryStore = useProtocolLibraryStore();
 
 async function selectProtocol(protocol: Protocol) {
   protocolStore.uploaded = true;
@@ -104,16 +131,4 @@ async function selectProtocol(protocol: Protocol) {
     icon: "mdi-check",
   });
 }
-
-function libraryProtocolById(id: typeof v4) {
-  return protocolLibraryStore.protocols.find((protocol) => protocol.id === id);
-}
-
-const allEncapsulatedProtocols = computed(() => {
-  return protocolStore.encapsulatedProtocols
-    .map((protocol) => {
-      return libraryProtocolById(protocol.protocol.id);
-    })
-    .filter((protocol) => protocol !== undefined) as Protocol[];
-});
 </script>
