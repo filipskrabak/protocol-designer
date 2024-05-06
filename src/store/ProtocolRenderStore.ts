@@ -5,6 +5,7 @@ import { defineStore } from "pinia";
 import {
   AddFieldPosition,
   EditingMode,
+  EncapsulatedProtocol,
   Field,
   FieldOption,
   FloatingFieldWindow,
@@ -540,6 +541,33 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
             return;
           }
 
+          if (field.encapsulate) {
+            const encapsulationRelatedFieldIds: String[] = [];
+
+            that.protocolStore.encapsulatedProtocols.forEach(
+              (encapsulatedProtocol: EncapsulatedProtocol) => {
+                encapsulatedProtocol.used_for_encapsulation_fields.forEach(
+                  (field: Field) => {
+                    encapsulationRelatedFieldIds.push(field.id);
+                  },
+                );
+              },
+            );
+
+            if (encapsulationRelatedFieldIds.length > 0) {
+              const encapsulationRelatedFieldsToHighlight = d3.selectAll(
+                encapsulationRelatedFieldIds
+                  .map((id) => `[data-id="${id}"]`)
+                  .join(", "),
+              );
+
+              encapsulationRelatedFieldsToHighlight.each(function () {
+                const rect = d3.select(this).select("rect");
+                rect.style("fill", "rgb(135,206,250)");
+              });
+            }
+          }
+
           const firstHighlightedEl = elementsToHighlight.nodes()[0];
 
           if (
@@ -572,9 +600,8 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
           });
         });
 
-        dataElements[i].addEventListener("mouseout", function () {
-          const dataId = dataElements[i].getAttribute("data-id");
-          const elementsToHighlight = d3.selectAll(`[data-id="${dataId}"]`);
+        dataElements[i].addEventListener("mouseout", function (event) {
+          const elementsToHighlight = d3.selectAll(`[data-id]`);
 
           that.fieldTooltip.show = false;
 
