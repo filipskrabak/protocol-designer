@@ -61,14 +61,14 @@ async def login(user: OAuth2PasswordRequestForm = Depends(), db: Session = Depen
 
 
 @router.get(
-    "/users/whoami", response_model=UserOut, dependencies=[Depends(get_current_user)]
+    "/users/current", response_model=UserOut, dependencies=[Depends(get_current_user)]
 )
 async def read_users_me(current_user: UserOut = Depends(get_current_user)):
     return current_user
 
 
 @router.delete(
-    "/user/{user_id}",
+    "/users/{user_id}",
     response_model=Status,
     responses={404: {"description": "User not found"}},
     dependencies=[Depends(get_current_user)],

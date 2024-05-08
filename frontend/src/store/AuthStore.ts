@@ -94,7 +94,7 @@ export const useAuthStore = defineStore("AuthStore", {
 
       let response;
       try {
-        response = await axios.get("/users/whoami");
+        response = await axios.get("/users/current");
       } catch (error) {
         console.error(error);
         return false;
