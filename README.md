@@ -15,15 +15,17 @@ This project is using Docker. To be able to run it, you need to have it installe
 1. Clone this repository
 ``` git clone https://github.com/filipskrabak/protocol-designer.git ```
 
-2. Ensure that Docker is running
+2. Setup `.env` file according to `.env.example`
 
-3. Make sure that you are inside the project root folder `./protocol-designer` where `docker-compose.yml` is present
+3. Ensure that Docker is running
 
-4. Run the project with ```docker compose up --build``` (this might take a while for the first time!)
+4. Make sure that you are inside the project root folder `./protocol-designer` where `docker-compose.yml` is present
 
-5. Open `http://localhost/` and register an account. 
+5. Run the project with ```docker compose up --build``` (this might take a while for the first time!)
 
-6. Enjoy!
+6. Open `http://localhost/` and register an account. 
+
+7. Enjoy!
 
 ### Usage
 
