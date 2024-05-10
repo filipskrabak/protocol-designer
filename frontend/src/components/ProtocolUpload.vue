@@ -80,7 +80,7 @@ async function uploadProtocol($event: Event) {
 
 async function newProject() {
   const response = await axios.get(
-    "http://" + window.location.origin + "/protocols/default.svg",
+    window.location.origin + "/protocols/default.svg",
   );
 
   // replace %CURRENT_DATE% with current date (format DD.MM.YYYY)
