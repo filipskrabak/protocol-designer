@@ -21,7 +21,7 @@ This project is using Docker. To be able to run it, you need to have it installe
 
 4. Run the project with ```docker compose up --build``` (this might take a while for the first time!)
 
-5. Open `http://localhost:8080/` and register an account. 
+5. Open `http://localhost/` and register an account. 
 
 6. Enjoy!
 
