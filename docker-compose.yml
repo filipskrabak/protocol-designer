@@ -15,7 +15,7 @@ services:
         ports:
             - 8000:8000
         environment:
-            - DATABASE_HOST=host.docker.internal
+            - DATABASE_HOST=db
             - DATABASE_PORT=5432
             - DATABASE_NAME=postgres
             - DATABASE_USER=postgres
@@ -30,6 +30,6 @@ services:
             context: ./frontend
             dockerfile: Dockerfile
         ports:
-            - 3000:3000
+            - 8080:8080
         depends_on:
             - fastapi-python
