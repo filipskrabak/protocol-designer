@@ -10,7 +10,7 @@ from fastapi.staticfiles import StaticFiles
 app = FastAPI(title="Protocol Designer API")
 app.include_router(router)
 
-origins = ["http://localhost:3000", "http://localhost:80", "http://localhost", "localhost", "http://localhost:8080"]
+origins = ["http://localhost:3000", "http://localhost:80", "http://localhost", "localhost", "http://localhost:8080", "http://147.175.151.135"]
 
 app.add_middleware(
     CORSMiddleware,
