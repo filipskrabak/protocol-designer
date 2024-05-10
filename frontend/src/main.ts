@@ -16,7 +16,9 @@ import { createApp } from "vue";
 // Axios
 import axios from "axios";
 
-axios.defaults.baseURL = "http://localhost:8000";
+// Get URL from environment variable
+
+axios.defaults.baseURL = window.location.origin + ":8000";
 
 // Set withCredentials to true to ensure cookies are sent with every request
 axios.defaults.withCredentials = true;
