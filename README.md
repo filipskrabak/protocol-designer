@@ -95,6 +95,6 @@ https://github.com/filipskrabak/protocol-designer/assets/51746069/e77e9ba9-d36d-
 https://github.com/filipskrabak/protocol-designer/assets/51746069/a3278d74-a9fa-40ec-b1e4-4083448c24d0
 
 
-### Documentation
+## Documentation
 
 Documentation is available in [the wiki of this repository](https://github.com/filipskrabak/protocol-designer/wiki/Technical-Documentation)
