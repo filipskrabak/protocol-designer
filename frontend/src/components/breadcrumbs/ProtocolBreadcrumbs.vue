@@ -95,50 +95,52 @@ async function onBreadcrumbClick(item: BreadcrumbItem) {
 }
 
 watch(
-  () => protocolStore.protocol,
-  async (newProtocol, oldProtocol) => {
-    if (newProtocol.id !== oldProtocol.id) {
-      // Get breadcrumbs
-      try {
-        items.value = [];
-        const result = await axios.get(
-          `/protocol-encapsulations/${protocolStore.protocol.id}/breadcrumbs`,
-        );
-
-        // Reverse order of items in result.data
-
-        let breadcrumbsData = result.data.reverse();
-
-        breadcrumbsData.forEach((element: Protocol[]) => {
-          let title = "";
-
-          if (element.length <= 2) {
-            for (let i = 0; i < element.length; i++) {
-              title += element[i].name + " ";
-
-              if (i < element.length - 1) {
-                title += ", ";
-              }
-            }
-          } else {
-            title = element[0].name + ", ...";
-          }
-
-          items.value.push({
-            title: title,
-            protocols: element,
-          });
-        });
-
-        items.value.push({
-          title: protocolStore.protocol.name,
-          protocols: [protocolStore.protocol],
-          disabled: true,
-        });
-      } catch (error) {
-        console.log(error);
-      }
-    }
-  },
+  () => protocolStore.protocol.name,
+  async () => {
+      getBreadcrumbs();
+  }
 );
+
+async function getBreadcrumbs() {
+  try {
+    items.value = [];
+    const result = await axios.get(
+      `/protocol-encapsulations/${protocolStore.protocol.id}/breadcrumbs`,
+    );
+
+    // Reverse order of items in result.data
+
+    let breadcrumbsData = result.data.reverse();
+
+    breadcrumbsData.forEach((element: Protocol[]) => {
+      let title = "";
+
+      if (element.length <= 2) {
+        for (let i = 0; i < element.length; i++) {
+          title += element[i].name + " ";
+
+          if (i < element.length - 1) {
+            title += ", ";
+          }
+        }
+      } else {
+        title = element[0].name + ", ...";
+      }
+
+      items.value.push({
+        title: title,
+        protocols: element,
+      });
+    });
+
+    items.value.push({
+      title: protocolStore.protocol.name,
+      protocols: [protocolStore.protocol],
+      disabled: true,
+    });
+} catch (error) {
+    console.log(error);
+  }
+}
+
 </script>

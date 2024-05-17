@@ -191,13 +191,17 @@ watch(
 
 function getFieldLength() {
   if (protocolRenderStore.fieldTooltip.field.is_variable_length) {
-    return (
-      "min: " +
-      protocolRenderStore.fieldTooltip.field.length +
-      " b, max: " +
-      protocolRenderStore.fieldTooltip.field.max_length +
-      " b"
-    );
+    if(protocolRenderStore.fieldTooltip.field.length === 0 && protocolRenderStore.fieldTooltip.field.max_length === 0) {
+      return "Unknown length"
+     } else {
+      return (
+        "min: " +
+        protocolRenderStore.fieldTooltip.field.length +
+        " b, max: " +
+        protocolRenderStore.fieldTooltip.field.max_length +
+        " b"
+      );
+    }
   }
   return protocolRenderStore.fieldTooltip.field.length + " b";
 }

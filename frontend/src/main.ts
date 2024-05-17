@@ -18,7 +18,9 @@ import axios from "axios";
 
 // Get URL from environment variable
 
-axios.defaults.baseURL = window.location.origin + ":8000";
+let url = window.location.origin;
+url = url.replace(/:\d+$/, ""); // Strip the port number from the URL
+axios.defaults.baseURL = url + ":8000";
 
 // Set withCredentials to true to ensure cookies are sent with every request
 axios.defaults.withCredentials = true;
