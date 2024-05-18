@@ -49,13 +49,16 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
   // Actions
   actions: {
     async initialize() {
+      this.loading = true;
       this.renderSVG();
       this.renderScale();
       this.setSvgSize();
       this.getMetadata();
-      this.saveCurrentProtocol();
+      await this.saveCurrentProtocol();
 
-      router.push("/protocols/" + this.protocolStore.protocol.id);
+      await router.push("/protocols/" + this.protocolStore.protocol.id);
+
+      this.loading = false;
     },
 
     /**
@@ -406,8 +409,6 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
      * Handles the loading of metadata from the SVG into the protocolStore
      */
     getMetadata() {
-      this.loading = false;
-
       // Clear protocolStore fields array
       this.protocolStore.clearProtocol();
 
@@ -697,7 +698,11 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
       ) {
         console.log("Protocol already exists, updating instead.");
 
-        this.protocolStore.protocol.id = v4() as unknown as typeof v4; // generate a new id
+        const newProtocol = _.cloneDeep(this.protocolStore.protocol);
+
+        newProtocol.id = v4() as unknown as typeof v4; // generate a new id
+
+        this.protocolStore.protocol = newProtocol;
 
         // Again initialize
         this.initialize();

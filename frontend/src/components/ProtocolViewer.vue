@@ -209,16 +209,15 @@ function getFieldLength() {
 // Encapsulation
 
 watch(
-  () => protocolStore.protocol,
-  (old, current) => {
+  () => protocolRenderStore.loading,
+  (currentVal, prevVal) => {
     if (protocolStore.protocol?.fields?.length === 0) {
       return;
     }
-    console.log("CURRENT");
-    console.log(current);
-    console.log("OLD");
-    console.log(old);
-    onProtocolChange(old.id !== current?.id);
+
+    if(currentVal == false) {
+      onProtocolChange(true);
+    }
   },
   { immediate: true },
 );

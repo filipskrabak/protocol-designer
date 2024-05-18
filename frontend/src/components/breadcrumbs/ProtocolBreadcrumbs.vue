@@ -95,9 +95,11 @@ async function onBreadcrumbClick(item: BreadcrumbItem) {
 }
 
 watch(
-  () => protocolStore.protocol.name,
-  async () => {
+  () => protocolRenderStore.loading,
+  async (currentVal, prevVal) => {
+    if (currentVal == false) {
       getBreadcrumbs();
+    }
   }
 );
 
