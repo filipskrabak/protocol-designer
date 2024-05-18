@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://www.protocoldescription.com"
+           xmlns:tns="http://www.protocoldescription.com"
+           elementFormDefault="qualified">
+
+<!-- Simple elements -->
+<xs:element name="id" type="xs:string"/>
+<xs:element name="name" type="xs:string"/>
+<xs:element name="author" type="xs:string"/>
+<xs:element name="description" type="xs:string"/>
+<xs:element name="version" type="xs:string"/>
+<xs:element name="updated_at" type="xs:string"/>
+<xs:element name="created_at" type="xs:string"/>
+
+<!-- Attributes -->
+<xs:attribute name="length" type="xs:integer"/>
+<xs:attribute name="length_max" type="xs:integer"/>
+<xs:attribute name="display_name" type="xs:string"/>
+<xs:attribute name="id" type="xs:string"/>
+<xs:attribute name="description" type="xs:string"/>
+<xs:attribute name="encapsulate" type="xs:boolean"/>
+<xs:attribute name="endian" type="xs:string" default="big" />
+
+<xs:attribute name="name" type="xs:string"/>
+<xs:attribute name="value" type="xs:string"/>
+<xs:attribute name="selected" type="xs:boolean"/>
+
+<!-- Complex elements -->
+
+<xs:element name="option">
+  <xs:complexType>
+    <xs:attribute ref="tns:name" use="required"/>
+    <xs:attribute ref="tns:value" use="required"/>
+    <xs:attribute ref="tns:selected"/>
+  </xs:complexType>
+</xs:element>
+
+<xs:element name="field">
+  <xs:complexType>
+    <xs:sequence>
+      <xs:element ref="tns:option" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute ref="tns:length" use="required"/>
+    <xs:attribute ref="tns:length_max"/>
+    <xs:attribute ref="tns:endian"/>
+    <xs:attribute ref="tns:display_name" use="required"/>
+    <xs:attribute ref="tns:id" use="required"/>
+    <xs:attribute ref="tns:description"/>
+    <xs:attribute ref="tns:encapsulate"/>
+  </xs:complexType>
+</xs:element>
+
+<xs:element name="info">
+  <xs:complexType>
+    <xs:sequence>
+      <xs:element ref="tns:id"/>
+      <xs:element ref="tns:name"/>
+      <xs:element ref="tns:author"/>
+      <xs:element ref="tns:description"/>
+      <xs:element ref="tns:version"/>
+      <xs:element ref="tns:updated_at"/>
+      <xs:element ref="tns:created_at"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:element>
+
+</xs:schema>
