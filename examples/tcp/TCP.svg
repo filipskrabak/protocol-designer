@@ -1,0 +1,163 @@
+<svg
+	xmlns="http://www.w3.org/2000/svg"
+	xmlns:xlink="http://www.w3.org/1999/xlink"
+	xmlns:pd="http://www.protocoldescription.com" height="361" width="1025">
+	<!-- Protocol Description -->
+	<metadata>
+		<pd:info>
+			<pd:id>00d7cefb-705e-4f2f-934a-fdff42b8b711</pd:id>
+			<pd:name>TCP</pd:name>
+			<pd:author>Filip Škrabák</pd:author>
+			<pd:description>TCP protocol</pd:description>
+			<pd:version>1.0</pd:version>
+			<pd:updated_at>7. 5. 2024</pd:updated_at>
+			<pd:created_at>14. 10. 2023</pd:created_at>
+		</pd:info>
+		<pd:field pd:display_name="Source port" pd:id="src_port" pd:length="16" pd:endian="big">
+			<pd:option pd:name="HTTP" pd:value="80"/>
+		</pd:field>
+		<pd:field pd:display_name="Destination port" pd:id="dst_port" pd:length="16" pd:endian="big">
+			<pd:option pd:name="HTTP" pd:value="80"/>
+		</pd:field>
+		<pd:field pd:display_name="Sequence Number" pd:id="seq_num" pd:length="32" pd:endian="big"/>
+		<pd:field pd:display_name="Acknowledgement Number" pd:id="ack_num" pd:length="32" pd:endian="big"/>
+		<pd:field pd:display_name="Header Length" pd:id="header_length" pd:length="4" pd:endian="big"/>
+		<pd:field pd:display_name="Reserved" pd:id="reserved" pd:length="3" pd:endian="big"/>
+		<pd:field pd:display_name="Control Flags" pd:id="control_flags" pd:length="9" pd:endian="big"/>
+		<pd:field pd:display_name="Window Size" pd:id="window_size" pd:length="16" pd:endian="big"/>
+		<pd:field pd:display_name="Checksum" pd:id="checksum" pd:length="16" pd:endian="big"/>
+		<pd:field pd:display_name="Urgent Pointer" pd:id="urgent_pointer" pd:length="16" pd:endian="big"/>
+		<pd:field pd:display_name="Options" pd:id="options" pd:length="0" pd:length_max="0" pd:endian="big"/>
+		<pd:field pd:display_name="Padding" pd:id="padding" pd:length="0" pd:length_max="0" pd:endian="big"/>
+		<pd:field pd:display_name="Data" pd:id="data" pd:length="0" pd:length_max="0" pd:endian="big" pd:encapsulate="true"/>
+	</metadata>
+	<!--Classes -->
+	<style>
+        
+            rect.field {
+                fill:rgb(255,255,255);
+                stroke-width:2;
+                stroke:rgb(0,0,0);
+            }
+            text.fieldText {
+                font-family: Verdana;
+                font-size: 14px;
+                fill: black;
+                text-anchor: middle;
+                dominant-baseline: middle;
+            }
+        
+    </style>
+	<!-- Shows the bits per row (scale) -->
+	<g transform="translate(0,0)" data-scale="true">
+		<svg width="1024" height="40">
+			<defs>
+				<marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+					<path d="M 0 0 L 10 5 L 0 10" fill="transparent" stroke="black" stroke-width="2px"/>
+				</marker>
+			</defs>
+			<g transform="translate(0, 20)">
+				<line x1="0" y1="0" x2="100%" y2="0" stroke="black" stroke-width="2" marker-end="url(#arrow)" marker-start="url(#arrow)"/>
+			</g>
+			<rect x="462" y="0" height="40" width="100" fill="rgb(255,255,255)"/>
+			<text x="50%" y="50%" class="fieldText">32 bits</text>
+		</svg>
+	</g>
+	<!-- Wrapper -->
+	<g transform="translate(0, 40)" data-table="true">
+		<g transform="translate(0, 0)">
+			<g transform="translate(0, 0)" data-id="src_port" class="dataElement">
+				<rect class="field" width="512" height="40" style="fill: white;"/>
+				<svg width="512" height="40">
+					<text x="50%" y="50%" class="fieldText">Source port</text>
+				</svg>
+			</g>
+			<g transform="translate(512, 0)" data-id="dst_port" class="dataElement">
+				<rect class="field" width="512" height="40" style="fill: white;"/>
+				<svg width="512" height="40">
+					<text x="50%" y="50%" class="fieldText">Destination port</text>
+				</svg>
+			</g>
+		</g>
+		<g transform="translate(0, 40)">
+			<g transform="translate(0, 0)" data-id="seq_num" class="dataElement">
+				<rect class="field" width="1024" height="40" style="fill: white;"/>
+				<svg width="1024" height="40">
+					<text x="50%" y="50%" class="fieldText">Sequence Number</text>
+				</svg>
+			</g>
+		</g>
+		<g transform="translate(0, 80)">
+			<g transform="translate(0, 0)" data-id="ack_num" class="dataElement">
+				<rect class="field" width="1024" height="40" style="fill: white;"/>
+				<svg width="1024" height="40">
+					<text x="50%" y="50%" class="fieldText">Acknowledgement Number</text>
+				</svg>
+			</g>
+		</g>
+		<g transform="translate(0, 120)">
+			<g transform="translate(0, 0)" data-id="header_length" class="dataElement">
+				<rect class="field" width="128" height="40" style="fill: white;"/>
+				<svg width="128" height="40">
+					<text x="50%" y="50%" class="fieldText">Header Length</text>
+				</svg>
+			</g>
+			<g transform="translate(128, 0)" data-id="reserved" class="dataElement">
+				<rect class="field" width="96" height="40" style="fill: white;"/>
+				<svg width="96" height="40">
+					<text x="50%" y="50%" class="fieldText">Reserved</text>
+				</svg>
+			</g>
+			<g transform="translate(224, 0)" data-id="control_flags" class="dataElement">
+				<rect class="field" width="288" height="40" style="fill: white;"/>
+				<svg width="288" height="40">
+					<text x="50%" y="50%" class="fieldText">Control Flags</text>
+				</svg>
+			</g>
+			<g transform="translate(512, 0)" data-id="window_size" class="dataElement">
+				<rect class="field" width="512" height="40" style="fill: white;"/>
+				<svg width="512" height="40">
+					<text x="50%" y="50%" class="fieldText">Window Size</text>
+				</svg>
+			</g>
+		</g>
+		<g transform="translate(0, 160)">
+			<g transform="translate(0, 0)" data-id="checksum" class="dataElement">
+				<rect class="field" width="512" height="40" style="fill: white;"/>
+				<svg width="512" height="40">
+					<text x="50%" y="50%" class="fieldText">Checksum</text>
+				</svg>
+			</g>
+			<g transform="translate(512, 0)" data-id="urgent_pointer" class="dataElement">
+				<rect class="field" width="512" height="40" style="fill: white;"/>
+				<svg width="512" height="40">
+					<text x="50%" y="50%" class="fieldText">Urgent Pointer</text>
+				</svg>
+			</g>
+		</g>
+		<g transform="translate(0, 200)">
+			<g transform="translate(0, 0)" data-id="options" class="dataElement">
+				<rect class="field" width="1024" height="40" style="fill: white;"/>
+				<svg width="1024" height="40">
+					<text x="50%" y="50%" class="fieldText">Options ...</text>
+				</svg>
+			</g>
+		</g>
+		<g transform="translate(0, 240)">
+			<g transform="translate(0, 0)" data-id="padding" class="dataElement">
+				<rect class="field" width="1024" height="40" style="fill: white;"/>
+				<svg width="1024" height="40">
+					<text x="50%" y="50%" class="fieldText">Padding ...</text>
+				</svg>
+			</g>
+		</g>
+		<g transform="translate(0, 280)">
+			<g transform="translate(0, 0)" data-id="data" class="dataElement">
+				<rect class="field" width="1024" height="40" style="fill: white;"/>
+				<svg width="1024" height="40">
+					<text x="50%" y="50%" class="fieldText">Data ...</text>
+				</svg>
+			</g>
+		</g>
+	</g>
+</svg>

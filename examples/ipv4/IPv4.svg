@@ -1,0 +1,190 @@
+<svg
+	xmlns="http://www.w3.org/2000/svg"
+	xmlns:xlink="http://www.w3.org/1999/xlink"
+	xmlns:pd="http://www.protocoldescription.com" height="361" width="1025">
+	<!-- Protocol Description -->
+	<metadata>
+		<pd:info>
+			<pd:id>005b6f96-a053-4a3c-80b0-291e3f48dcb0</pd:id>
+			<pd:name>IPv4</pd:name>
+			<pd:author>Filip Škrabák</pd:author>
+			<pd:description>IPv4 protocol</pd:description>
+			<pd:version>1.0</pd:version>
+			<pd:updated_at>7. 5. 2024</pd:updated_at>
+			<pd:created_at>7. 5. 2024</pd:created_at>
+		</pd:info>
+		<pd:field pd:display_name="Version" pd:id="version" pd:length="4" pd:endian="big"/>
+		<pd:field pd:display_name="IHL" pd:id="ihl" pd:length="4" pd:endian="big"/>
+		<pd:field pd:display_name="Type of Service" pd:id="type_of_service" pd:length="8" pd:endian="big"/>
+		<pd:field pd:display_name="Total Length" pd:id="total_length" pd:length="16" pd:endian="big"/>
+		<pd:field pd:display_name="Identification" pd:id="identification" pd:length="16" pd:endian="big"/>
+		<pd:field pd:display_name="RES" pd:id="flag_res" pd:length="1" pd:endian="big"/>
+		<pd:field pd:display_name="DF" pd:id="flag_df" pd:length="1" pd:endian="big"/>
+		<pd:field pd:display_name="MF" pd:id="flag_mf" pd:length="1" pd:endian="big"/>
+		<pd:field pd:display_name="Fragment Offset" pd:id="fragment_offset" pd:length="13" pd:endian="big"/>
+		<pd:field pd:display_name="Time to Live" pd:id="ttl" pd:length="8" pd:endian="big"/>
+		<pd:field pd:display_name="Protocol" pd:id="protocol" pd:length="8" pd:endian="big">
+			<pd:option pd:name="TCP" pd:value="6"/>
+			<pd:option pd:name="UDP" pd:value="17"/>
+		</pd:field>
+		<pd:field pd:display_name="Header Checksum" pd:id="header_checksum" pd:length="16" pd:endian="big"/>
+		<pd:field pd:display_name="Source IP" pd:id="src_ip" pd:length="32" pd:endian="big"/>
+		<pd:field pd:display_name="Destination IP" pd:id="dst_ip" pd:length="32" pd:endian="big"/>
+		<pd:field pd:display_name="Options" pd:id="options" pd:length="0" pd:length_max="320" pd:endian="big"/>
+		<pd:field pd:display_name="Padding" pd:id="padding" pd:length="0" pd:length_max="32" pd:endian="big"/>
+		<pd:field pd:display_name="Data" pd:id="data" pd:length="160" pd:length_max="524288" pd:endian="big" pd:encapsulate="true"/>
+	</metadata>
+	<!--Classes -->
+	<style>
+        
+            rect.field {
+                fill:rgb(255,255,255);
+                stroke-width:2;
+                stroke:rgb(0,0,0);
+            }
+            text.fieldText {
+                font-family: Verdana;
+                font-size: 14px;
+                fill: black;
+                text-anchor: middle;
+                dominant-baseline: middle;
+            }
+        
+    </style>
+	<!-- Shows the bits per row (scale) -->
+	<g transform="translate(0,0)" data-scale="true">
+		<svg width="1024" height="40">
+			<defs>
+				<marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+					<path d="M 0 0 L 10 5 L 0 10" fill="transparent" stroke="black" stroke-width="2px"/>
+				</marker>
+			</defs>
+			<g transform="translate(0, 20)">
+				<line x1="0" y1="0" x2="100%" y2="0" stroke="black" stroke-width="2" marker-end="url(#arrow)" marker-start="url(#arrow)"/>
+			</g>
+			<rect x="462" y="0" height="40" width="100" fill="rgb(255,255,255)"/>
+			<text x="50%" y="50%" class="fieldText">32 bits</text>
+		</svg>
+	</g>
+	<!-- Wrapper -->
+	<g transform="translate(0, 40)" data-table="true">
+		<g transform="translate(0, 0)">
+			<g transform="translate(0, 0)" data-id="version" class="dataElement">
+				<rect class="field" width="128" height="40" style="fill: white;"/>
+				<svg width="128" height="40">
+					<text x="50%" y="50%" class="fieldText">Version</text>
+				</svg>
+			</g>
+			<g transform="translate(128, 0)" data-id="ihl" class="dataElement">
+				<rect class="field" width="128" height="40" style="fill: white;"/>
+				<svg width="128" height="40">
+					<text x="50%" y="50%" class="fieldText">IHL</text>
+				</svg>
+			</g>
+			<g transform="translate(256, 0)" data-id="type_of_service" class="dataElement">
+				<rect class="field" width="256" height="40" style="fill: white;"/>
+				<svg width="256" height="40">
+					<text x="50%" y="50%" class="fieldText">Type of Service</text>
+				</svg>
+			</g>
+			<g transform="translate(512, 0)" data-id="total_length" class="dataElement">
+				<rect class="field" width="512" height="40" style="fill: white;"/>
+				<svg width="512" height="40">
+					<text x="50%" y="50%" class="fieldText">Total Length</text>
+				</svg>
+			</g>
+		</g>
+		<g transform="translate(0, 40)">
+			<g transform="translate(0, 0)" data-id="identification" class="dataElement">
+				<rect class="field" width="512" height="40" style="fill: white;"/>
+				<svg width="512" height="40">
+					<text x="50%" y="50%" class="fieldText">Identification</text>
+				</svg>
+			</g>
+			<g transform="translate(512, 0)" data-id="flag_res" class="dataElement">
+				<rect class="field" width="32" height="40" style="fill: white;"/>
+				<svg width="32" height="40">
+					<text x="50%" y="50%" class="fieldText">RES</text>
+				</svg>
+			</g>
+			<g transform="translate(544, 0)" data-id="flag_df" class="dataElement">
+				<rect class="field" width="32" height="40" style="fill: white;"/>
+				<svg width="32" height="40">
+					<text x="50%" y="50%" class="fieldText">DF</text>
+				</svg>
+			</g>
+			<g transform="translate(576, 0)" data-id="flag_mf" class="dataElement">
+				<rect class="field" width="32" height="40" style="fill: white;"/>
+				<svg width="32" height="40">
+					<text x="50%" y="50%" class="fieldText">MF</text>
+				</svg>
+			</g>
+			<g transform="translate(608, 0)" data-id="fragment_offset" class="dataElement">
+				<rect class="field" width="416" height="40" style="fill: white;"/>
+				<svg width="416" height="40">
+					<text x="50%" y="50%" class="fieldText">Fragment Offset</text>
+				</svg>
+			</g>
+		</g>
+		<g transform="translate(0, 80)">
+			<g transform="translate(0, 0)" data-id="ttl" class="dataElement">
+				<rect class="field" width="256" height="40" style="fill: white;"/>
+				<svg width="256" height="40">
+					<text x="50%" y="50%" class="fieldText">Time to Live</text>
+				</svg>
+			</g>
+			<g transform="translate(256, 0)" data-id="protocol" class="dataElement">
+				<rect class="field" width="256" height="40" style="fill: white;"/>
+				<svg width="256" height="40">
+					<text x="50%" y="50%" class="fieldText">Protocol</text>
+				</svg>
+			</g>
+			<g transform="translate(512, 0)" data-id="header_checksum" class="dataElement">
+				<rect class="field" width="512" height="40" style="fill: white;"/>
+				<svg width="512" height="40">
+					<text x="50%" y="50%" class="fieldText">Header Checksum</text>
+				</svg>
+			</g>
+		</g>
+		<g transform="translate(0, 120)">
+			<g transform="translate(0, 0)" data-id="src_ip" class="dataElement">
+				<rect class="field" width="1024" height="40" style="fill: white;"/>
+				<svg width="1024" height="40">
+					<text x="50%" y="50%" class="fieldText">Source IP</text>
+				</svg>
+			</g>
+		</g>
+		<g transform="translate(0, 160)">
+			<g transform="translate(0, 0)" data-id="dst_ip" class="dataElement">
+				<rect class="field" width="1024" height="40" style="fill: white;"/>
+				<svg width="1024" height="40">
+					<text x="50%" y="50%" class="fieldText">Destination IP</text>
+				</svg>
+			</g>
+		</g>
+		<g transform="translate(0, 200)">
+			<g transform="translate(0, 0)" data-id="options" class="dataElement">
+				<rect class="field" width="1024" height="40" style="fill: white;"/>
+				<svg width="1024" height="40">
+					<text x="50%" y="50%" class="fieldText">Options ...</text>
+				</svg>
+			</g>
+		</g>
+		<g transform="translate(0, 240)">
+			<g transform="translate(0, 0)" data-id="padding" class="dataElement">
+				<rect class="field" width="1024" height="40" style="fill: white;"/>
+				<svg width="1024" height="40">
+					<text x="50%" y="50%" class="fieldText">Padding ...</text>
+				</svg>
+			</g>
+		</g>
+		<g transform="translate(0, 280)">
+			<g transform="translate(0, 0)" data-id="data" class="dataElement">
+				<rect class="field" width="1024" height="40" style="fill: white;"/>
+				<svg width="1024" height="40">
+					<text x="50%" y="50%" class="fieldText">Data ...</text>
+				</svg>
+			</g>
+		</g>
+	</g>
+</svg>

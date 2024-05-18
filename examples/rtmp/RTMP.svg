@@ -1,0 +1,106 @@
+<svg
+	xmlns="http://www.w3.org/2000/svg"
+	xmlns:xlink="http://www.w3.org/1999/xlink"
+	xmlns:pd="http://www.protocoldescription.com" height="161" width="1025">
+	<!-- Protocol Description -->
+	<metadata>
+		<pd:info>
+			<pd:id>fb2ab6e0-bea0-4036-aaad-7225aad842f2</pd:id>
+			<pd:name>RTMP</pd:name>
+			<pd:author>Filip Škrabák</pd:author>
+			<pd:description>RTMP streaming protocol</pd:description>
+			<pd:version>1.0</pd:version>
+			<pd:updated_at>14. 10. 2023</pd:updated_at>
+			<pd:created_at>14. 10. 2023</pd:created_at>
+		</pd:info>
+		<pd:field pd:display_name="Message Type" pd:id="message_type" pd:length="8" pd:endian="big">
+			<pd:option pd:name="Set Chunk Size" pd:value="1"/>
+			<pd:option pd:name="Abort Message" pd:value="2"/>
+			<pd:option pd:name="Acknowledgement" pd:value="3"/>
+			<pd:option pd:name="User Control Message" pd:value="4"/>
+			<pd:option pd:name="Window Acknowledgement Size" pd:value="5"/>
+			<pd:option pd:name="Set Peer Bandwidth" pd:value="6"/>
+			<pd:option pd:name="Audio Message" pd:value="8"/>
+			<pd:option pd:name="Video Message" pd:value="9"/>
+			<pd:option pd:name="Data Message" pd:value="18"/>
+			<pd:option pd:name="Shared Object Message" pd:value="19"/>
+			<pd:option pd:name="Command Message" pd:value="20"/>
+			<pd:option pd:name="Aggregate Message" pd:value="22"/>
+		</pd:field>
+		<pd:field pd:display_name="Payload Length" pd:id="payload_length" pd:length="24" pd:endian="big"/>
+		<pd:field pd:display_name="Timestamp" pd:id="timestamp" pd:length="32" pd:endian="big"/>
+		<pd:field pd:display_name="Stream ID" pd:id="stream_id" pd:length="24" pd:endian="big"/>
+		<pd:field pd:display_name="Data" pd:id="data" pd:length="0" pd:length_max="0" pd:endian="big"/>
+	</metadata>
+	<!--Classes -->
+	<style>
+		<![CDATA[
+            rect.field {
+                fill:rgb(255,255,255);
+                stroke-width:2;
+                stroke:rgb(0,0,0);
+            }
+            text.fieldText {
+                font-family: Verdana;
+                font-size: 14px;
+                fill: black;
+                text-anchor: middle;
+                dominant-baseline: middle;
+            }
+        ]]>
+	</style>
+	<!-- Shows the bits per row (scale) -->
+	<g transform="translate(0,0)" data-scale="true">
+		<svg width="1024" height="40">
+			<defs>
+				<marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+					<path d="M 0 0 L 10 5 L 0 10" fill="transparent" stroke="black" stroke-width="2px"/>
+				</marker>
+			</defs>
+			<g transform="translate(0, 20)">
+				<line x1="0" y1="0" x2="100%" y2="0" stroke="black" stroke-width="2" marker-end="url(#arrow)" marker-start="url(#arrow)"/>
+			</g>
+			<rect x="462" y="0" height="40" width="100" fill="rgb(255,255,255)"/>
+			<text x="50%" y="50%" class="fieldText">32 bits</text>
+		</svg>
+	</g>
+	<!-- Wrapper -->
+	<g transform="translate(0, 40)" data-table="true">
+		<g transform="translate(0, 0)">
+			<g transform="translate(0, 0)" data-id="message_type" class="dataElement">
+				<rect class="field" width="256" height="40" style="fill: white;"/>
+				<svg width="256" height="40">
+					<text x="50%" y="50%" class="fieldText">Message Type</text>
+				</svg>
+			</g>
+			<g transform="translate(256, 0)" data-id="payload_length" class="dataElement">
+				<rect class="field" width="768" height="40" style="fill: white;"/>
+				<svg width="768" height="40">
+					<text x="50%" y="50%" class="fieldText">Payload Length</text>
+				</svg>
+			</g>
+		</g>
+		<g transform="translate(0, 40)">
+			<g transform="translate(0, 0)" data-id="timestamp" class="dataElement">
+				<rect class="field" width="1024" height="40" style="fill: white;"/>
+				<svg width="1024" height="40">
+					<text x="50%" y="50%" class="fieldText">Timestamp</text>
+				</svg>
+			</g>
+		</g>
+		<g transform="translate(0, 80)">
+			<g transform="translate(0, 0)" data-id="stream_id" class="dataElement">
+				<rect class="field" width="768" height="40" style="fill: white;"/>
+				<svg width="768" height="40">
+					<text x="50%" y="50%" class="fieldText">Stream ID</text>
+				</svg>
+			</g>
+			<g transform="translate(768, 0)" data-id="data" class="dataElement">
+				<rect class="field" width="256" height="40" style="fill: white;"/>
+				<svg width="256" height="40">
+					<text x="50%" y="50%" class="fieldText">Data ...</text>
+				</svg>
+			</g>
+		</g>
+	</g>
+</svg>

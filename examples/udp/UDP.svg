@@ -1,0 +1,93 @@
+<svg
+	xmlns="http://www.w3.org/2000/svg"
+	xmlns:xlink="http://www.w3.org/1999/xlink"
+	xmlns:pd="http://www.protocoldescription.com" height="161" width="1025">
+	<!-- Protocol Description -->
+	<metadata>
+		<pd:info>
+			<pd:id>13b7ff01-8396-477c-b61b-c1bc3ff5ecd9</pd:id>
+			<pd:name>UDP</pd:name>
+			<pd:author>Filip Škrabák</pd:author>
+			<pd:description>UDP protocol</pd:description>
+			<pd:version>1.0</pd:version>
+			<pd:updated_at>14. 10. 2023</pd:updated_at>
+			<pd:created_at>14. 10. 2023</pd:created_at>
+		</pd:info>
+		<pd:field pd:display_name="Source Port" pd:id="source_port" pd:length="16" pd:endian="big"/>
+		<pd:field pd:display_name="Destination Port" pd:id="destination_port" pd:length="16" pd:endian="big"/>
+		<pd:field pd:display_name="Length" pd:id="length" pd:length="16" pd:endian="big"/>
+		<pd:field pd:display_name="Checksum" pd:id="checksum" pd:length="16" pd:endian="big"/>
+		<pd:field pd:display_name="Data" pd:id="data" pd:length="0" pd:length_max="0" pd:endian="big" pd:encapsulate="true"/>
+	</metadata>
+	<!--Classes -->
+	<style>
+        
+            rect.field {
+                fill:rgb(255,255,255);
+                stroke-width:2;
+                stroke:rgb(0,0,0);
+            }
+            text.fieldText {
+                font-family: Verdana;
+                font-size: 14px;
+                fill: black;
+                text-anchor: middle;
+                dominant-baseline: middle;
+            }
+        
+    </style>
+	<!-- Shows the bits per row (scale) -->
+	<g transform="translate(0,0)" data-scale="true">
+		<svg width="1024" height="40">
+			<defs>
+				<marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+					<path d="M 0 0 L 10 5 L 0 10" fill="transparent" stroke="black" stroke-width="2px"/>
+				</marker>
+			</defs>
+			<g transform="translate(0, 20)">
+				<line x1="0" y1="0" x2="100%" y2="0" stroke="black" stroke-width="2" marker-end="url(#arrow)" marker-start="url(#arrow)"/>
+			</g>
+			<rect x="462" y="0" height="40" width="100" fill="rgb(255,255,255)"/>
+			<text x="50%" y="50%" class="fieldText">32 bits</text>
+		</svg>
+	</g>
+	<!-- Protocol Header -->
+	<g transform="translate(0, 40)" data-table="true">
+		<g transform="translate(0, 0)">
+			<g transform="translate(0, 0)" data-id="source_port" class="dataElement">
+				<rect class="field" width="512" height="40" style="fill: white;"/>
+				<svg width="512" height="40">
+					<text x="50%" y="50%" class="fieldText">Source Port</text>
+				</svg>
+			</g>
+			<g transform="translate(512, 0)" data-id="destination_port" class="dataElement">
+				<rect class="field" width="512" height="40" style="fill: white;"/>
+				<svg width="512" height="40">
+					<text x="50%" y="50%" class="fieldText">Destination Port</text>
+				</svg>
+			</g>
+		</g>
+		<g transform="translate(0, 40)">
+			<g transform="translate(0, 0)" data-id="length" class="dataElement">
+				<rect class="field" width="512" height="40" style="fill: white;"/>
+				<svg width="512" height="40">
+					<text x="50%" y="50%" class="fieldText">Length</text>
+				</svg>
+			</g>
+			<g transform="translate(512, 0)" data-id="checksum" class="dataElement">
+				<rect class="field" width="512" height="40" style="fill: white;"/>
+				<svg width="512" height="40">
+					<text x="50%" y="50%" class="fieldText">Checksum</text>
+				</svg>
+			</g>
+		</g>
+		<g transform="translate(0, 80)">
+			<g transform="translate(0, 0)" data-id="data" class="dataElement">
+				<rect class="field" width="1024" height="40" style="fill: white;"/>
+				<svg width="1024" height="40">
+					<text x="50%" y="50%" class="fieldText">Data ...</text>
+				</svg>
+			</g>
+		</g>
+	</g>
+</svg>
