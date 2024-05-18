@@ -21,6 +21,7 @@
 </template>
 
 <script setup lang="ts">
+import _ from "lodash";
 import { computed, watch, ref } from "vue";
 
 // Props
@@ -41,7 +42,8 @@ const dialog = computed({
   get: () => props.showModal,
   set: (value: boolean) => {
     // Emit ONLY the selected items to the parent component
-    emit("save", selectedItems.value);
+    emit("save", _.cloneDeep(selectedItems.value));
+    selectedItems.value = [];
   },
 });
 
@@ -49,9 +51,13 @@ const dialog = computed({
 watch(
   () => props.alreadySelected,
   (newValue) => {
-    selectedItems.value = newValue;
+    console.log("alreadySelected", newValue);
+    selectedItems.value = _.cloneDeep(newValue);
   },
+  { deep: true }
 );
+
+
 </script>
 
 <style scoped></style>

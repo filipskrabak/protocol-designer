@@ -188,6 +188,7 @@ import { useProtocolRenderStore } from "@/store/ProtocolRenderStore";
 
 import EncapsulationMultipleSelectModal from "@/components/modals/EncapsulationMultipleSelectModal.vue";
 import axios from "axios";
+import _ from "lodash";
 
 // Stores
 const protocolStore = useProtocolStore();
@@ -292,9 +293,9 @@ async function addFieldsToEncapsulatedProtocol(selectedItems: String[]) {
   }
 
   selectedProtocol.value.used_for_encapsulation_fields =
-    protocolStore.protocol.fields.filter((field) =>
+    _.cloneDeep(protocolStore.protocol.fields.filter((field) =>
       selectedItems.includes(field.id),
-    );
+    ));
 
   if (!(await saveFieldsToAPI())) {
     notificationStore.showNotification({
