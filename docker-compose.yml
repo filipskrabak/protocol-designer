@@ -1,13 +1,20 @@
 version: "3.3"
 services:
     db:
-        image: postgres:latest
+        image: postgres:16.3-alpine
         ports:
             - "5432:5432"
+        volumes:
+            - ./backend/postgres_data:/var/lib/postgresql/data
         environment:
             POSTGRES_DB: postgres
             POSTGRES_USER: postgres
             POSTGRES_PASSWORD: root
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U postgres"]
+            interval: 5s
+            timeout: 5s
+            retries: 5
     fastapi-python:
         build: 
             context: ./backend
@@ -24,7 +31,8 @@ services:
         volumes:
             - ./backend/static:/home/api/static
         depends_on:
-            - db
+            db:
+                condition: service_healthy
     frontend-vue:
         build: 
             context: ./frontend

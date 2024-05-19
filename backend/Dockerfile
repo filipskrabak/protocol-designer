@@ -1,4 +1,4 @@
-FROM alpine:3.17 as builder
+FROM alpine:3.17
 
 RUN apk add --no-cache python3 py3-pip libpq postgresql-client curl
 RUN adduser -D api

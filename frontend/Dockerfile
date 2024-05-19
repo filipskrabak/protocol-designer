@@ -1,4 +1,4 @@
-FROM node:latest as builder
+FROM node:22.2 as builder
 
 WORKDIR /home/frontend
 
