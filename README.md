@@ -44,15 +44,17 @@ This project is using Docker. To be able to run it, you need to have it installe
 
 2. Setup `.env` file according to `.env.example`
 
-3. Ensure that Docker is running
+3. Rename `apache.conf.example` inside the `frontend` folder to `apache.conf`
 
-4. Make sure that you are inside the project root folder `./protocol-designer` where `docker-compose.yml` is present
+4. Ensure that Docker is running
 
-5. Run the project with ```docker compose up --build``` (this might take a while for the first time!)
+5. Make sure that you are inside the project root folder `./protocol-designer` where `docker-compose.yml` is present
 
-6. Open `http://localhost/` and register an account. 
+6. Run the project with ```docker compose up --build``` (this might take a while for the first time!)
 
-7. Enjoy! For the user guide, continue to [the user guide](#usage-user-guide)
+7. Open `http://localhost/` and register an account. 
+
+8. Enjoy! For the user guide, continue to [the user guide](#usage-user-guide)
 
 ### Usage (User Guide)
 
