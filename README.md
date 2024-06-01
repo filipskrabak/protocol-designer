@@ -1,7 +1,7 @@
 # Protocol Designer
 
 ## Description
-This tool allows you to visually design network protocol headers or whole protocol stacks with encapsulation. It supports export to SVG and P4. 
+This tool allows you to visually design network protocol headers or whole protocol stacks with encapsulation. It supports export to SVG and P4. Demo of this application is available at [protocol-designer.app](https://protocol-designer.app)
 
 ![app_protocoledit(1)](https://github.com/filipskrabak/protocol-designer/assets/51746069/882aab3c-1d41-4f7f-b5b3-f85f842f40a9)
 
