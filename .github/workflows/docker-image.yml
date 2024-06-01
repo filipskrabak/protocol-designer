@@ -21,6 +21,8 @@ jobs:
         username: ${{ secrets.SERVER_USER }}
         key: ${{ secrets.SERVER_SSH_KEY }}
         script: |
-          cd /home/ubuntu/protocol-designer
+          cd /home/ubuntu/protocol-designer/backend
+          sudo chown -R ubuntu:ubuntu postgres_data
+          cd ..
           git pull
-          docker compose up -d --remove-orphans
+          docker compose up --build -d --remove-orphans
