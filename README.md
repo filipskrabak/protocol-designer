@@ -106,3 +106,5 @@ Documentation is available in [the wiki of this repository](https://github.com/f
 This project has been supervised by [Jakub Dubec](https://github.com/Sibyx), whose guidance and ideas have been extremely valuable throughtout the development. 
 
 Special thanks goes to the [Faculty of Informatics and Information Technologies](https://fiit.stuba.sk) at the Slovak University of Technology for providing hosting for this project.
+
+![fiit](https://github.com/filipskrabak/protocol-designer/assets/51746069/e824dc0b-8666-4662-853b-c7364234e823)
