@@ -10,7 +10,7 @@
         <v-toolbar-title>
           <v-img max-width="280" src="/images/pdlogo.png"></v-img
         ></v-toolbar-title>
-        <v-btn>
+        <v-btn v-if="protocolStore.uploaded">
           <v-icon class="me-2">mdi-plus-circle</v-icon>
           New
 
