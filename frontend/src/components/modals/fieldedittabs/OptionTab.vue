@@ -17,7 +17,7 @@
               label="Value*"
               required
               v-model.number="option.value"
-              hint="Value of the option (ex. 0x0800)"
+              hint="Value of the option (ex. 15)"
               :rules="valueRules"
               type="number"
             ></v-text-field>
@@ -89,7 +89,8 @@ const nameRules = [
 // Rules
 const valueRules = [
   // No empty names
-  (v: number) => !!v || "Value is required",
+  // Allow 0
+  (v: any) => typeof v === "number" || "Value must be a number",
   // Unique names
   (v: number) => {
     const values = protocolStore.editingField.field_options.map(
