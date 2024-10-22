@@ -5,10 +5,28 @@
     <link rel="icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Protocol Designer</title>
+    <script defer src="https://analytics.elvira.stuba.sk/script.js" data-website-id=""></script>
   </head>
 
   <body>
     <div id="app"></div>
     <script type="module" src="/src/main.ts"></script>
+
+    <script type="module">
+      window.onload = () => {
+        let siteAnalyticsKey = import.meta.env.VITE_ANALYTICS_KEY;
+
+        // If the key is not set, we are in development mode
+        // Remove the analytics script
+        if (!siteAnalyticsKey) {
+          const script = document.querySelector('script[data-website-id]');
+          script.remove();
+          return;
+        }
+
+        const script = document.querySelector('script[data-website-id]');
+        script.dataset.websiteId = import.meta.env.VITE_ANALYTICS_KEY;
+      };
+    </script>
   </body>
 </html>
