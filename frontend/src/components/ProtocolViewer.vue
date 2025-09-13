@@ -153,7 +153,7 @@
           <ul class="mt-2 mb-0">
             <li>Right-click on a field to open the context menu for editing options</li>
             <li>Switch to <strong>Field Management</strong> mode above to reorder fields with drag & drop</li>
-            <li>Use the context menu to add fields before or after existing ones</li>
+            <li>Use settings to change dimensions of the header (bits per row or pixels per bit)</li>
           </ul>
         </v-alert>
       </v-col>
