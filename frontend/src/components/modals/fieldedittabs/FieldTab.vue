@@ -9,7 +9,7 @@
               required
               v-model="protocolStore.editingField.display_name"
               hint="Name displayed to the user (ex. Destination Port)"
-              :rules="[(v) => !!v || 'Display name is required']"
+              :rules="[(v: string) => !!v || 'Display name is required']"
             ></v-text-field>
           </v-col>
           <v-col md="6">
@@ -18,10 +18,7 @@
               required
               v-model="protocolStore.editingField.id"
               hint="Name used in the protocol definition (ex. dst_port)"
-              :rules="[
-                (v) => !!v || 'ID is required',
-                (v) => /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(v) || 'Invalid ID',
-              ]"
+              :rules="fieldIdRules"
             ></v-text-field>
           </v-col>
           <v-col md="12" class="py-0">
@@ -73,7 +70,7 @@
               :items="[Endian.Big, Endian.Little]"
               label="Endianity*"
               v-model="protocolStore.editingField.endian"
-              :rules="[(v) => !!v || 'Endianity is required']"
+              :rules="[(v: string) => !!v || 'Endianity is required']"
               required
             ></v-select>
           </v-col>
@@ -93,14 +90,25 @@
 </template>
 
 <script setup lang="ts">
-import { EditingMode, Endian } from "@/contracts";
+import { Endian } from "@/contracts";
 import { useProtocolStore } from "@/store/ProtocolStore";
 
 const protocolStore = useProtocolStore();
 
 // Rules
+const fieldIdRules = [
+  (v: string) => !!v || 'ID is required',
+  (v: string) => /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(v) || 'Invalid ID format (must start with letter or underscore, contain only letters, numbers, and underscores)',
+  (v: string) => {
+    // Check for duplicates only if this is a different field than the one being edited
+    const isDuplicate = protocolStore.protocol.fields?.some(field =>
+      field.id === v
+    );
+    return !isDuplicate || 'Field ID must be unique within the protocol';
+  }
+];
 
-let minimumLengthRules = [
+const minimumLengthRules = [
   (v: number) => v === 0 || !!v || "Length is required",
   (v: number) => v >= 0 || "Must be a positive number",
   (v: number) =>
@@ -109,7 +117,7 @@ let minimumLengthRules = [
     "Must be greater than 0",
 ];
 
-let maximumLengthRules = [
+const maximumLengthRules = [
   (v: number) => v === 0 || !!v || "Maximum length is required",
   (v: number) => v >= 0 || "Maximum length must be a positive number",
   // Must be equal or greater than minimum length
