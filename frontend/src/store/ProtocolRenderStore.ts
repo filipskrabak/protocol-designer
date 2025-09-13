@@ -9,6 +9,7 @@ import {
   Field,
   FieldOption,
   FloatingFieldWindow,
+  LengthUnit,
 } from "../contracts";
 import { Endian } from "../contracts";
 import { useProtocolStore } from "@/store/ProtocolStore";
@@ -59,6 +60,22 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
       await router.push("/protocols/" + this.protocolStore.protocol.id);
 
       this.loading = false;
+    },
+
+    // Helper function to convert length to bits for rendering
+    lengthToBits(field: Field): number {
+      if (field.length_unit === LengthUnit.Bytes) {
+        return field.length * 8;
+      }
+      return field.length;
+    },
+
+    // Helper function to convert max length to bits for rendering
+    maxLengthToBits(field: Field): number {
+      if (field.length_unit === LengthUnit.Bytes) {
+        return field.max_length * 8;
+      }
+      return field.max_length;
     },
 
     /**
@@ -143,6 +160,7 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
         newFieldElement.setAttribute("pd:display_name", field.display_name);
         newFieldElement.setAttribute("pd:id", field.id);
         newFieldElement.setAttribute("pd:length", String(field.length));
+        newFieldElement.setAttribute("pd:length_unit", field.length_unit || LengthUnit.Bits);
 
         // Optional attributes
         if (field.is_variable_length) {
@@ -185,7 +203,7 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
             renderedPixelsInLine;
         } else if (field.is_variable_length && !this.settingsStore.truncateVariableLengthFields) {
           // Field is variable length, has set min and max length, but should not be truncated
-          totalWidthToRender = field.max_length * this.settingsStore.pixelsPerBit;
+          totalWidthToRender = this.maxLengthToBits(field) * this.settingsStore.pixelsPerBit;
 
         } else if (field.is_variable_length)
         {
@@ -193,7 +211,7 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
           // Truncate the field to the minimum length
 
           const rowWidth = this.settingsStore.bitsPerRow * this.settingsStore.pixelsPerBit;
-          const fieldLengthPx = Math.max(field.length, field.max_length) * this.settingsStore.pixelsPerBit;
+          const fieldLengthPx = Math.max(this.lengthToBits(field), this.maxLengthToBits(field)) * this.settingsStore.pixelsPerBit;
 
           if(rowWidth < fieldLengthPx) {
             totalWidthToRender = rowWidth - renderedPixelsInLine;
@@ -202,7 +220,7 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
             totalWidthToRender = fieldLengthPx;
           }
         } else {
-          totalWidthToRender = field.length * this.settingsStore.pixelsPerBit;
+          totalWidthToRender = this.lengthToBits(field) * this.settingsStore.pixelsPerBit;
         }
 
         console.log("totalWidthToRender", totalWidthToRender);
@@ -495,6 +513,9 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
             field.attributes.getNamedItem("pd:encapsulate")?.value === "true"
               ? true
               : false,
+          length_unit: field.attributes.getNamedItem("pd:length_unit")?.value === "bytes"
+            ? LengthUnit.Bytes
+            : LengthUnit.Bits,
         };
 
         this.protocolStore.addField(fieldInfo);
@@ -856,6 +877,7 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
         id: "",
         description: "",
         encapsulate: false,
+        length_unit: LengthUnit.Bits,
       };
 
       this.fieldEditModal = !this.fieldEditModal;
@@ -926,9 +948,9 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
             );
           }
 
-          p4 += `\n\tvarbit<${field.max_length}> ${field.id};`;
+          p4 += `\n\tvarbit<${this.maxLengthToBits(field)}> ${field.id};`;
         } else {
-          p4 += `\n\tbit<${field.length}> ${field.id};`;
+          p4 += `\n\tbit<${this.lengthToBits(field)}> ${field.id};`;
         }
         fieldCount++;
       });

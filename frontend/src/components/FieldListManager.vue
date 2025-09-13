@@ -65,7 +65,7 @@
               <div class="text-h6">{{ field.display_name }}</div>
               <div class="text-caption text-grey-darken-1">
                 ID: {{ field.id }} |
-                {{ field.is_variable_length ? `${field.length}-${field.max_length}` : field.length }} bits |
+                {{ field.is_variable_length ? `${field.length}-${field.max_length}` : field.length }} {{ field.length_unit || 'bits' }} |
                 {{ field.endian }} endian
                 <v-chip
                   v-if="field.encapsulate"

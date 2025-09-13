@@ -1,4 +1,4 @@
-import { Endian } from "./enums";
+import { Endian, LengthUnit } from "./enums";
 import { v4 } from "uuid";
 
 export interface FieldOption {
@@ -17,6 +17,7 @@ export interface Field {
   id: string;
   description: string;
   encapsulate: boolean; // used to indicate if this protocol contains a child protocol
+  length_unit: LengthUnit; // unit for the length field (bits or bytes)
 }
 
 export interface Protocol {

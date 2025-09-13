@@ -51,8 +51,18 @@
               v-model.number="protocolStore.editingField.length"
               hint="If variable length is enabled, this is the minimum length"
               :rules="minimumLengthRules"
-              suffix="bits"
+              :suffix="protocolStore.editingField.length_unit || 'bits'"
             ></v-text-field>
+          </v-col>
+          <v-col md="6">
+            <v-select
+              :items="[LengthUnit.Bits, LengthUnit.Bytes]"
+              label="Length unit*"
+              v-model="protocolStore.editingField.length_unit"
+              hint="Unit for length values (bits or bytes)"
+              :rules="[(v: string) => !!v || 'Length unit is required']"
+              required
+            ></v-select>
           </v-col>
           <v-col md="6">
             <v-text-field
@@ -62,7 +72,7 @@
               v-model.number="protocolStore.editingField.max_length"
               hint="Maximum possible length"
               :rules="maximumLengthRules"
-              suffix="bits"
+              :suffix="protocolStore.editingField.length_unit || 'bits'"
             ></v-text-field>
           </v-col>
           <v-col cols="12">
@@ -90,20 +100,45 @@
 </template>
 
 <script setup lang="ts">
-import { Endian } from "@/contracts";
+import { Endian, LengthUnit, EditingMode } from "@/contracts";
 import { useProtocolStore } from "@/store/ProtocolStore";
+import { watch } from "vue";
 
 const protocolStore = useProtocolStore();
+
+// Watch for unit changes and convert values
+watch(() => protocolStore.editingField.length_unit, (newUnit, oldUnit) => {
+  if (oldUnit && newUnit !== oldUnit) {
+    if (newUnit === LengthUnit.Bytes && oldUnit === LengthUnit.Bits) {
+      // Convert from bits to bytes (divide by 8)
+      protocolStore.editingField.length = Math.ceil(protocolStore.editingField.length / 8);
+      if (protocolStore.editingField.is_variable_length) {
+        protocolStore.editingField.max_length = Math.ceil(protocolStore.editingField.max_length / 8);
+      }
+    } else if (newUnit === LengthUnit.Bits && oldUnit === LengthUnit.Bytes) {
+      // Convert from bytes to bits (multiply by 8)
+      protocolStore.editingField.length = protocolStore.editingField.length * 8;
+      if (protocolStore.editingField.is_variable_length) {
+        protocolStore.editingField.max_length = protocolStore.editingField.max_length * 8;
+      }
+    }
+  }
+});
 
 // Rules
 const fieldIdRules = [
   (v: string) => !!v || 'ID is required',
   (v: string) => /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(v) || 'Invalid ID format (must start with letter or underscore, contain only letters, numbers, and underscores)',
   (v: string) => {
-    // Check for duplicates only if this is a different field than the one being edited
-    const isDuplicate = protocolStore.protocol.fields?.some(field =>
-      field.id === v
-    );
+    // Check for duplicates, excluding the current field being edited
+    const isDuplicate = protocolStore.protocol.fields?.some(field => {
+      // If we're editing an existing field, exclude it from duplicate check
+      if (protocolStore.editingMode === EditingMode.Edit && field.id === protocolStore.editingFieldId) {
+        return false;
+      }
+      // Check if any other field has the same ID
+      return field.id === v;
+    });
     return !isDuplicate || 'Field ID must be unique within the protocol';
   }
 ];

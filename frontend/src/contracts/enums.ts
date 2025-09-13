@@ -13,3 +13,8 @@ export enum AddFieldPosition {
   After = "after",
   End = "end",
 }
+
+export enum LengthUnit {
+  Bits = "bits",
+  Bytes = "bytes",
+}
