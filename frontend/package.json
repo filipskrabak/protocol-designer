@@ -17,6 +17,7 @@
     "roboto-fontface": "*",
     "uuid": "^9.0.1",
     "vue": "^3.3.0",
+    "vuedraggable": "^4.1.0",
     "vuetify": "^3.0.0"
   },
   "devDependencies": {

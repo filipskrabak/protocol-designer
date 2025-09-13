@@ -3,135 +3,167 @@
   <div class="d-flex justify-center mb-3" v-if="protocolStore.uploaded">
     <h1>{{ protocolStore.protocol.name }}</h1>
   </div>
-  <div class="d-flex justify-center align-center">
-    <!-- Skeleton -->
-    <template v-if="protocolStore.uploaded">
-      <v-skeleton-loader
-        type="table-row, table-row, table-row, table-row"
-        height="240"
-        width="380"
-        v-if="protocolRenderStore.loading"
-      >
-      </v-skeleton-loader>
-    </template>
 
-    <!-- SVG Wrapper -->
-    <div ref="svgWrapper"></div>
-
-    <!-- Single Field Tooltip -->
-    <div
-      class="tooltip"
-      v-if="protocolRenderStore.fieldTooltip.show"
-      :style="{
-        top: protocolRenderStore.fieldTooltip.y + 'px',
-        left: protocolRenderStore.fieldTooltip.x + 'px',
-      }"
+  <!-- Display Mode Switcher -->
+  <div class="d-flex justify-center mb-4" v-if="protocolStore.uploaded">
+    <v-btn-toggle
+      v-model="displayMode"
+      variant="outlined"
+      divided
+      color="primary"
+      mandatory
     >
-      <div class="tooltip-inner">
-        <div class="tooltip-header">
-          <h4>{{ protocolRenderStore.fieldTooltip.field.id }}</h4>
-        </div>
-        <div class="tooltip-body">Length: {{ getFieldLength() }}</div>
-      </div>
-    </div>
-
-    <!-- Single Field Context Menu -->
-    <v-overlay v-model="protocolRenderStore.fieldContextMenu.show">
-      <v-menu
-        v-model="protocolRenderStore.fieldContextMenu.show"
-        offset-y
-        absolute
-        location-strategy="static"
-        :style="{
-          top: protocolRenderStore.fieldContextMenu.y + 'px',
-          left: protocolRenderStore.fieldContextMenu.x + 'px',
-        }"
-      >
-        <v-list>
-          <v-list-subheader>{{
-            protocolRenderStore.fieldTooltip.field.display_name
-          }}</v-list-subheader>
-          <v-list-item
-            prepend-icon="mdi-pencil"
-            @click="
-              protocolRenderStore.showFieldEditModal(
-                protocolRenderStore.fieldTooltip.field,
-              )
-            "
-          >
-            <v-list-item-title>Edit Field</v-list-item-title>
-          </v-list-item>
-          <!-- Add to the left -->
-          <v-list-item
-            prepend-icon="mdi-arrow-left-thick"
-            @click="
-              protocolRenderStore.showFieldAddModal(
-                protocolRenderStore.fieldTooltip.field,
-                AddFieldPosition.Before,
-              )
-            "
-          >
-            <v-list-item-title>Add new Field before</v-list-item-title>
-          </v-list-item>
-          <!-- Add to the right -->
-          <v-list-item
-            prepend-icon="mdi-arrow-right-thick"
-            @click="
-              protocolRenderStore.showFieldAddModal(
-                protocolRenderStore.fieldTooltip.field,
-                AddFieldPosition.After,
-              )
-            "
-          >
-            <v-list-item-title>Add new Field after</v-list-item-title>
-          </v-list-item>
-          <v-list-item
-            prepend-icon="mdi-delete"
-            @click="
-              protocolRenderStore.showFieldDeleteModal(
-                protocolRenderStore.fieldTooltip.field,
-              )
-            "
-          >
-            <v-list-item-title>Delete Field</v-list-item-title>
-          </v-list-item>
-        </v-list>
-      </v-menu>
-    </v-overlay>
+      <v-btn value="visual" prepend-icon="mdi-view-grid">
+        Visual Editor
+      </v-btn>
+      <v-btn value="list" prepend-icon="mdi-format-list-bulleted">
+        Field Management
+      </v-btn>
+    </v-btn-toggle>
   </div>
 
-  <!-- Append new Field -->
-  <v-row class="mt-3" v-if="protocolStore.uploaded">
-    <v-col cols="12" class="d-flex justify-center">
-      <v-btn
-        @click="
-          protocolRenderStore.showFieldAddModal(null, AddFieldPosition.End)
-        "
-        icon="mdi-plus"
-        size="small"
-      >
-        <v-icon>mdi-plus</v-icon>
-        <v-tooltip activator="parent" location="top">Add a new Field</v-tooltip>
-      </v-btn>
-    </v-col>
-  </v-row>
+  <!-- Visual Editor Mode -->
+  <div v-show="displayMode === 'visual'">
+    <div class="d-flex justify-center align-center">
+      <!-- Skeleton -->
+      <template v-if="protocolStore.uploaded">
+        <v-skeleton-loader
+          type="table-row, table-row, table-row, table-row"
+          height="240"
+          width="380"
+          v-if="protocolRenderStore.loading"
+        >
+        </v-skeleton-loader>
+      </template>
 
-  <!-- TIPs alert -->
-  <v-row class="d-flex justify-center pt-5">
-    <v-col md="4">
-      <v-alert
-        type="info"
-        outlined
-        elevation="2"
-        icon="mdi-information"
-        class="mb-4"
-        closable
-        v-if="protocolStore.uploaded"
+      <!-- SVG Wrapper -->
+      <div ref="svgWrapper"></div>
+
+      <!-- Single Field Tooltip -->
+      <div
+        class="tooltip"
+        v-if="protocolRenderStore.fieldTooltip.show"
+        :style="{
+          top: protocolRenderStore.fieldTooltip.y + 'px',
+          left: protocolRenderStore.fieldTooltip.x + 'px',
+        }"
       >
-        <strong>Tip:</strong> Right-click on a field to open the context menu.
-      </v-alert>
-    </v-col>
-  </v-row>
+        <div class="tooltip-inner">
+          <div class="tooltip-header">
+            <h4>{{ protocolRenderStore.fieldTooltip.field.id }}</h4>
+          </div>
+          <div class="tooltip-body">Length: {{ getFieldLength() }}</div>
+        </div>
+      </div>
+
+      <!-- Single Field Context Menu -->
+      <v-overlay v-model="protocolRenderStore.fieldContextMenu.show">
+        <v-menu
+          v-model="protocolRenderStore.fieldContextMenu.show"
+          offset-y
+          absolute
+          location-strategy="static"
+          :style="{
+            top: protocolRenderStore.fieldContextMenu.y + 'px',
+            left: protocolRenderStore.fieldContextMenu.x + 'px',
+          }"
+        >
+          <v-list>
+            <v-list-subheader>{{
+              protocolRenderStore.fieldTooltip.field.display_name
+            }}</v-list-subheader>
+            <v-list-item
+              prepend-icon="mdi-pencil"
+              @click="
+                protocolRenderStore.showFieldEditModal(
+                  protocolRenderStore.fieldTooltip.field,
+                )
+              "
+            >
+              <v-list-item-title>Edit Field</v-list-item-title>
+            </v-list-item>
+            <!-- Add to the left -->
+            <v-list-item
+              prepend-icon="mdi-arrow-left-thick"
+              @click="
+                protocolRenderStore.showFieldAddModal(
+                  protocolRenderStore.fieldTooltip.field,
+                  AddFieldPosition.Before,
+                )
+              "
+            >
+              <v-list-item-title>Add new Field before</v-list-item-title>
+            </v-list-item>
+            <!-- Add to the right -->
+            <v-list-item
+              prepend-icon="mdi-arrow-right-thick"
+              @click="
+                protocolRenderStore.showFieldAddModal(
+                  protocolRenderStore.fieldTooltip.field,
+                  AddFieldPosition.After,
+                )
+              "
+            >
+              <v-list-item-title>Add new Field after</v-list-item-title>
+            </v-list-item>
+            <v-list-item
+              prepend-icon="mdi-delete"
+              @click="
+                protocolRenderStore.showFieldDeleteModal(
+                  protocolRenderStore.fieldTooltip.field,
+                )
+              "
+            >
+              <v-list-item-title>Delete Field</v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+      </v-overlay>
+    </div>
+
+    <!-- Append new Field -->
+    <v-row class="mt-3" v-if="protocolStore.uploaded">
+      <v-col cols="12" class="d-flex justify-center">
+        <v-btn
+          @click="
+            protocolRenderStore.showFieldAddModal(null, AddFieldPosition.End)
+          "
+          icon="mdi-plus"
+          size="small"
+        >
+          <v-icon>mdi-plus</v-icon>
+          <v-tooltip activator="parent" location="top">Add a new Field</v-tooltip>
+        </v-btn>
+      </v-col>
+    </v-row>
+
+    <!-- TIPs alert for Visual Editor -->
+    <v-row class="d-flex justify-center pt-5">
+      <v-col md="6">
+        <v-alert
+          type="info"
+          outlined
+          elevation="2"
+          icon="mdi-information"
+          class="mb-4"
+          closable
+          v-if="protocolStore.uploaded"
+        >
+          <strong>Tips:</strong>
+          <ul class="mt-2 mb-0">
+            <li>Right-click on a field to open the context menu for editing options</li>
+            <li>Switch to <strong>Field Management</strong> mode above to reorder fields with drag & drop</li>
+            <li>Use the context menu to add fields before or after existing ones</li>
+          </ul>
+        </v-alert>
+      </v-col>
+    </v-row>
+  </div>
+
+  <!-- Field Management Mode -->
+  <div v-show="displayMode === 'list'">
+    <FieldListManager />
+  </div>
 
   <FieldEditModal
     :fieldEditModal="protocolRenderStore.fieldEditModal"
@@ -148,6 +180,7 @@ import { ref } from "vue";
 import FieldEditModal from "./modals/FieldEditModal.vue";
 import FieldDeleteModal from "./modals/FieldDeleteModal.vue";
 import FieldEncapsulateModal from "./modals/FieldEncapsulateModal.vue";
+import FieldListManager from "./FieldListManager.vue";
 
 import { useProtocolRenderStore } from "@/store/ProtocolRenderStore";
 import { onMounted } from "vue";
@@ -164,6 +197,7 @@ const protocolStore = useProtocolStore();
 
 // Refs
 const svgWrapper = ref<HTMLElement>();
+const displayMode = ref<string>("visual");
 
 onMounted(async () => {
   if (svgWrapper.value) {
@@ -184,6 +218,22 @@ watch(
         svgWrapper.value.innerHTML = "";
         svgWrapper.value.style.width = "0";
         svgWrapper.value.style.height = "0";
+      }
+    }
+  },
+);
+
+// Watch for display mode changes to ensure SVG is properly sized when switching back to visual mode
+watch(
+  () => displayMode.value,
+  async (newMode) => {
+    if (newMode === "visual" && protocolStore.uploaded) {
+      // Give Vue time to show the SVG wrapper
+      await new Promise(resolve => setTimeout(resolve, 50));
+
+      // Re-set the SVG size when switching back to visual mode
+      if (svgWrapper.value && protocolRenderStore.svgWrapper) {
+        protocolRenderStore.setSvgSize();
       }
     }
   },

@@ -12,6 +12,7 @@ declare module 'vue' {
     FieldDeleteModal: typeof import('./src/components/modals/FieldDeleteModal.vue')['default']
     FieldEditModal: typeof import('./src/components/modals/FieldEditModal.vue')['default']
     FieldEncapsulateModal: typeof import('./src/components/modals/FieldEncapsulateModal.vue')['default']
+    FieldListManager: typeof import('./src/components/FieldListManager.vue')['default']
     FieldTab: typeof import('./src/components/modals/fieldedittabs/FieldTab.vue')['default']
     GenericTab: typeof import('./src/components/modals/settingstabs/GenericTab.vue')['default']
     HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
