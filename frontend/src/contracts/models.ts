@@ -8,16 +8,17 @@ export interface FieldOption {
 }
 
 export interface Field {
-  field_options: FieldOption[];
-  length: number;
-  max_length: number;
-  is_variable_length: boolean;
-  endian: Endian;
-  display_name: string;
   id: string;
-  description: string;
+  display_name: string;
+  length: number;
+  max_length?: number;
+  is_variable_length: boolean;
+  field_options?: FieldOption[];
+  description?: string;
   encapsulate: boolean; // used to indicate if this protocol contains a child protocol
+  endian: Endian;
   length_unit: LengthUnit; // unit for the length field (bits or bytes)
+  group_id?: string;
 }
 
 export interface Protocol {

@@ -85,6 +85,19 @@
             ></v-select>
           </v-col>
           <v-col cols="12">
+            <v-combobox
+              :items="groupOptions"
+              label="Group"
+              v-model="groupModel"
+              hint="Select from common groups or type a custom group name"
+              clearable
+              persistent-hint
+              prepend-inner-icon="mdi-tag"
+              item-title="title"
+              item-value="value"
+            />
+          </v-col>
+          <v-col cols="12">
             <v-textarea
               auto-grow
               label="Description"
@@ -102,9 +115,31 @@
 <script setup lang="ts">
 import { Endian, LengthUnit, EditingMode } from "@/contracts";
 import { useProtocolStore } from "@/store/ProtocolStore";
-import { watch } from "vue";
+import { getFieldEditGroupOptions } from "@/utils/groupUtils";
+import { watch, computed } from "vue";
 
 const protocolStore = useProtocolStore();
+
+// Helper to handle combobox value changes (since combobox returns objects when selected)
+const groupModel = computed({
+  get() {
+    return protocolStore.editingField.group_id || ''
+  },
+  set(value: any) {
+    // If it's an object (selected from dropdown), extract the value property
+    if (typeof value === 'object' && value !== null && value.value) {
+      protocolStore.editingField.group_id = value.value
+    } else {
+      // If it's a string (typed manually), use it directly
+      protocolStore.editingField.group_id = value || undefined
+    }
+  }
+});
+
+// Group options for the field edit - focus on common groups plus existing custom ones
+const groupOptions = computed(() => {
+  return getFieldEditGroupOptions(protocolStore.protocol.fields)
+});
 
 // Watch for unit changes and convert values
 watch(() => protocolStore.editingField.length_unit, (newUnit, oldUnit) => {
@@ -112,13 +147,13 @@ watch(() => protocolStore.editingField.length_unit, (newUnit, oldUnit) => {
     if (newUnit === LengthUnit.Bytes && oldUnit === LengthUnit.Bits) {
       // Convert from bits to bytes (divide by 8)
       protocolStore.editingField.length = Math.ceil(protocolStore.editingField.length / 8);
-      if (protocolStore.editingField.is_variable_length) {
+      if (protocolStore.editingField.is_variable_length && protocolStore.editingField.max_length) {
         protocolStore.editingField.max_length = Math.ceil(protocolStore.editingField.max_length / 8);
       }
     } else if (newUnit === LengthUnit.Bits && oldUnit === LengthUnit.Bytes) {
       // Convert from bytes to bits (multiply by 8)
       protocolStore.editingField.length = protocolStore.editingField.length * 8;
-      if (protocolStore.editingField.is_variable_length) {
+      if (protocolStore.editingField.is_variable_length && protocolStore.editingField.max_length) {
         protocolStore.editingField.max_length = protocolStore.editingField.max_length * 8;
       }
     }

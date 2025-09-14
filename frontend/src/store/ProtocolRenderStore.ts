@@ -18,6 +18,7 @@ import { useNotificationStore } from "./NotificationStore";
 import { useProtocolLibraryStore } from "./ProtocolLibraryStore";
 import { LINE_HEIGHT_PX } from "../constants";
 import { v4 } from "uuid";
+import { generateGroupColor, hexToRgba } from "@/utils/groupUtils";
 
 import { ref } from "vue";
 
@@ -73,9 +74,9 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
     // Helper function to convert max length to bits for rendering
     maxLengthToBits(field: Field): number {
       if (field.length_unit === LengthUnit.Bytes) {
-        return field.max_length * 8;
+        return (field.max_length ?? 0) * 8;
       }
-      return field.max_length;
+      return field.max_length ?? 0;
     },
 
     /**
@@ -182,8 +183,16 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
           newFieldElement.setAttribute("pd:encapsulate", "true");
         }
 
+        // Group attributes
+        if (field.group_id) {
+          newFieldElement.setAttribute("pd:group_id", field.group_id);
+          // Store the color for the group_id (predefined or generated)
+          const groupColor = generateGroupColor(field.group_id);
+          newFieldElement.setAttribute("pd:group_color", groupColor);
+        }
+
         // Field options
-        field.field_options.forEach((option) => {
+        field.field_options?.forEach((option) => {
           const newOptionElement = document.createElementNS(
             pdNamespaceURI,
             "pd:option",
@@ -264,11 +273,22 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
           }
 
           // append a new rect element to the new g element
-          newG
+          const rect = newG
             .append("rect")
             .classed("field", true)
             .attr("width", width)
             .attr("height", LINE_HEIGHT_PX);
+
+          // Apply group background styling if group_id is specified
+          if (field.group_id) {
+            const groupColor = generateGroupColor(field.group_id);
+            console.log(`Applying group color for field ${field.display_name}, group: ${field.group_id}, color: ${groupColor}`);
+
+            const rgbaColor = hexToRgba(groupColor, 0.08);
+            rect.style("fill", rgbaColor);
+
+            rect.attr("data-original-style-fill", rgbaColor); // Store original style for hover effects
+          }
 
           // append a new svg element to the new g element
           newG
@@ -516,6 +536,7 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
           length_unit: field.attributes.getNamedItem("pd:length_unit")?.value === "bytes"
             ? LengthUnit.Bytes
             : LengthUnit.Bits,
+          group_id: field.attributes.getNamedItem("pd:group_id")?.value ?? undefined,
         };
 
         this.protocolStore.addField(fieldInfo);
@@ -617,18 +638,25 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
 
           elementsToHighlight.each(function () {
             const rect = d3.select(this).select("rect");
+            let originalStyleFill = "white";
+            if (field.group_id) {
+              const groupColor = generateGroupColor(field.group_id);
+              originalStyleFill = hexToRgba(groupColor, 0.08);
+            }
+            rect.attr("data-original-style-fill", originalStyleFill);
             rect.style("fill", "rgb(216, 216, 216)");
           });
         });
 
-        dataElements[i].addEventListener("mouseout", function (event) {
+        dataElements[i].addEventListener("mouseout", function () {
           const elementsToHighlight = d3.selectAll(`[data-id]`);
 
           that.fieldTooltip.show = false;
 
           elementsToHighlight.each(function () {
             const rect = d3.select(this).select("rect");
-            rect.style("fill", "white");
+            const originalStyleFill = rect.attr("data-original-style-fill") || "white";
+            rect.style("fill", originalStyleFill);
           });
         });
       }
