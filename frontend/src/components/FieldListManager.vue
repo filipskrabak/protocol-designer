@@ -25,7 +25,7 @@
             <v-icon color="primary">mdi-tag-multiple</v-icon>
           </template>
 
-          <v-card-title>Assign Fields to a</v-card-title>
+          <v-card-title>Assign Fields to a Group</v-card-title>
 
           <v-card-subtitle>
             <strong>{{ selectedFields.length }}</strong> field{{ selectedFields.length === 1 ? '' : 's' }} selected
@@ -104,7 +104,7 @@
       closable
       v-if="protocolStore.protocol.fields && protocolStore.protocol.fields.length > 1"
     >
-      <strong>Tip:</strong> Drag and drop fields to reorder them.
+      <strong>Tip:</strong> Drag and drop fields to reorder them. Check the boxes to make groups of fields, highlighting them with colors.
     </v-alert>
 
     <!-- Empty state -->
