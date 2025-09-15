@@ -33,6 +33,12 @@ services:
         depends_on:
             db:
                 condition: service_healthy
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+            interval: 10s
+            timeout: 5s
+            retries: 3
+            start_period: 30s
     frontend-vue:
         build: 
             context: ./frontend
@@ -40,4 +46,11 @@ services:
         ports:
             - 80:80
         depends_on:
-            - fastapi-python
+            fastapi-python:
+                condition: service_healthy
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost"]
+            interval: 10s
+            timeout: 5s
+            retries: 3
+            start_period: 10s

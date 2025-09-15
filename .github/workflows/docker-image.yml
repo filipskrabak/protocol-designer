@@ -21,10 +21,53 @@ jobs:
         key: ${{ secrets.SERVER_SSH_KEY }}
         script: |
           cd /home/ubuntu/protocol-designer
-          docker compose down
+          
+          # Pull latest code first
+          git pull
+          
+          # Fix permissions
           cd backend
           sudo chown -R ubuntu:ubuntu postgres_data
           cd ..
-          git pull
-          docker compose up --build -d --remove-orphans
+          
+          # Build new images without stopping services
+          docker compose build
+          
+          # Rolling update strategy - update services one by one
+          echo "Starting rolling deployment..."
+          
+          # Update backend first (API server)
+          echo "Updating backend service..."
+          docker compose up -d --no-deps fastapi-python
+          
+          # Wait for backend to be healthy (using Docker health check)
+          echo "Waiting for backend to be ready..."
+          for i in {1..60}; do
+            if [ "$(docker inspect --format='{{.State.Health.Status}}' $(docker compose ps -q fastapi-python))" = "healthy" ]; then
+              echo "Backend is healthy"
+              break
+            fi
+            echo "Waiting for backend health check... ($i/60)"
+            sleep 2
+          done
+          
+          # Update frontend
+          echo "Updating frontend service..."
+          docker compose up -d --no-deps frontend-vue
+          
+          # Wait for frontend to be healthy (using Docker health check)
+          echo "Waiting for frontend to be ready..."
+          for i in {1..30}; do
+            if [ "$(docker inspect --format='{{.State.Health.Status}}' $(docker compose ps -q frontend-vue))" = "healthy" ]; then
+              echo "Frontend is healthy"
+              break
+            fi
+            echo "Waiting for frontend health check... ($i/30)"
+            sleep 2
+          done
+          
+          # Clean up old images
+          echo "Cleaning up old images..."
           docker image prune -af
+          
+          echo "Deployment completed successfully!"
