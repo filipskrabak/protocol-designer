@@ -11,7 +11,7 @@
         <v-toolbar-title>
           <v-img max-width="280" src="/images/pdlogo.png"></v-img
         ></v-toolbar-title>
-        <v-btn v-if="protocolStore.uploaded">
+        <v-btn v-if="protocolStore.uploaded" class="d-none d-md-flex">
           <v-icon class="me-2">mdi-plus-circle</v-icon>
           New
 
@@ -45,9 +45,55 @@
           </v-dialog>
         </v-btn>
 
-        <v-btn @click.stop="libraryModal = !libraryModal">
+        <!-- Mobile version - icon only -->
+        <v-btn v-if="protocolStore.uploaded" icon class="d-flex d-md-none">
+          <v-icon>mdi-plus-circle</v-icon>
+          <v-tooltip activator="parent" location="bottom">New Protocol</v-tooltip>
+
+          <v-dialog v-model="newProtocolDialog" activator="parent" width="auto">
+            <v-card>
+              <v-card-text>
+                Do you want to create a new protocol? All unsaved changes will
+                be lost.
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn
+                  color="blue-darken-1"
+                  variant="text"
+                  @click="newProtocolDialog = false"
+                >
+                  Cancel
+                </v-btn>
+                <v-btn
+                  color="blue-darken-1"
+                  variant="text"
+                  @click="
+                    newProtocolDialog = false;
+                    newProtocol();
+                  "
+                >
+                  Create
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+        </v-btn>
+
+        <v-btn @click.stop="libraryModal = !libraryModal" class="d-none d-md-flex">
           <v-icon class="me-2">mdi-folder-open</v-icon>
           Library
+
+          <LibraryModal
+            v-model="libraryModal"
+            @modal="libraryModal = !libraryModal"
+          />
+        </v-btn>
+
+        <!-- Mobile version - icon only -->
+        <v-btn @click.stop="libraryModal = !libraryModal" icon class="d-flex d-md-none">
+          <v-icon>mdi-folder-open</v-icon>
+          <v-tooltip activator="parent" location="bottom">Library</v-tooltip>
 
           <LibraryModal
             v-model="libraryModal"
@@ -58,9 +104,31 @@
         <template v-if="protocolStore.uploaded">
           <v-menu>
             <template v-slot:activator="{ props }">
-              <v-btn v-bind="props">
+              <v-btn v-bind="props" class="d-none d-md-flex">
                 <v-icon class="me-2">mdi-download</v-icon>
                 Export
+              </v-btn>
+            </template>
+            <v-list>
+              <v-list-item link>
+                <v-list-item-title @click="protocolRenderStore.exportSVG()"
+                  >Scalable Vector Graphics (.svg)</v-list-item-title
+                >
+              </v-list-item>
+              <v-list-item link>
+                <v-list-item-title @click="protocolRenderStore.exportToP4()"
+                  >P4 (.p4)</v-list-item-title
+                >
+              </v-list-item>
+            </v-list>
+          </v-menu>
+
+          <!-- Mobile version - icon only -->
+          <v-menu>
+            <template v-slot:activator="{ props }">
+              <v-btn v-bind="props" icon class="d-flex d-md-none">
+                <v-icon>mdi-download</v-icon>
+                <v-tooltip activator="parent" location="bottom">Export</v-tooltip>
               </v-btn>
             </template>
             <v-list>

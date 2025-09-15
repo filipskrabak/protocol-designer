@@ -37,7 +37,9 @@
       </template>
 
       <!-- SVG Wrapper -->
-      <div ref="svgWrapper"></div>
+      <div class="svg-container">
+        <div ref="svgWrapper" class="svg-wrapper"></div>
+      </div>
 
       <!-- Single Field Tooltip -->
       <div
@@ -243,7 +245,7 @@ function getFieldLength() {
   const field = protocolRenderStore.fieldTooltip.field;
   const unit = field.length_unit || 'bits';
   const unitAbbrev = unit === 'bytes' ? 'B' : 'b';
-  
+
   if (field.is_variable_length) {
     if(field.length === 0 && field.max_length === 0) {
       return "Unknown length"
@@ -320,7 +322,62 @@ async function onProtocolChange(newProtocol: boolean = false) {
   padding: 5px;
   transition: all 0.3s;
 }
+
 .tooltip-inner {
   text-align: center;
 }
+
+/* Responsive SVG Container */
+.svg-container {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: auto;
+  overflow-y: visible; /* Allow vertical overflow to prevent cutting */
+  padding: 16px 0;
+  margin: 0 auto;
+  min-height: fit-content; /* Ensure container fits content */
+  text-align: center; /* Center the content */
+
+  /* Custom scrollbar for better UX */
+  scrollbar-width: thin;
+  scrollbar-color: #ccc #f9f9f9;
+}
+
+.svg-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.svg-container::-webkit-scrollbar-track {
+  background: #f9f9f9;
+  border-radius: 4px;
+}
+
+.svg-container::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
+}
+
+.svg-container::-webkit-scrollbar-thumb:hover {
+  background: #999;
+}
+
+.svg-wrapper {
+  display: inline-block;
+  min-width: fit-content;
+  min-height: fit-content; /* Ensure wrapper fits SVG height */
+  text-align: left; /* Reset text alignment for SVG content */
+}
+
+/* Mobile specific adjustments */
+@media (max-width: 768px) {
+  .svg-container {
+    padding: 8px;
+    margin: 0 -16px; /* Extend to screen edges on mobile */
+  }
+
+  .svg-wrapper {
+    padding: 0 16px; /* Add padding back to content */
+  }
+}
+
 </style>
