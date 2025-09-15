@@ -38,71 +38,13 @@ jobs:
           
           # Update backend first (API server)
           echo "Updating backend service..."
-          docker compose up -d --no-deps fastapi-python
+          docker compose up -d --no-deps --wait fastapi-python
+          echo "Backend updated and healthy"
           
-          # Wait for backend to be healthy (using Docker health check)
-          echo "Waiting for backend to be ready..."
-          for i in {1..60}; do
-            BACKEND_CONTAINER=$(docker compose ps -q fastapi-python 2>/dev/null)
-            if [ -n "$BACKEND_CONTAINER" ]; then
-              HEALTH_STATUS=$(docker inspect --format='{{.State.Health.Status}}' $BACKEND_CONTAINER 2>/dev/null)
-              if [ "$HEALTH_STATUS" = "healthy" ]; then
-                echo "Backend is healthy"
-                break
-              fi
-              echo "Waiting for backend health check... ($i/60) - Status: $HEALTH_STATUS"
-            else
-              echo "Waiting for backend container to start... ($i/60)"
-            fi
-            sleep 2
-          done
-          
-          # Fallback health check using curl if Docker health check doesn't work
-          if [ "$HEALTH_STATUS" != "healthy" ]; then
-            echo "Docker health check inconclusive, trying direct curl..."
-            for i in {1..15}; do
-              if curl -f http://localhost:8000/health > /dev/null 2>&1; then
-                echo "Backend responding to health check"
-                break
-              fi
-              echo "Waiting for backend HTTP response... ($i/15)"
-              sleep 2
-            done
-          fi
-          
-          # Update frontend
+          # Update frontend (depends on backend health check)
           echo "Updating frontend service..."
-          docker compose up -d --no-deps frontend-vue
-          
-          # Wait for frontend to be healthy (using Docker health check)
-          echo "Waiting for frontend to be ready..."
-          for i in {1..30}; do
-            FRONTEND_CONTAINER=$(docker compose ps -q frontend-vue 2>/dev/null)
-            if [ -n "$FRONTEND_CONTAINER" ]; then
-              FRONTEND_HEALTH=$(docker inspect --format='{{.State.Health.Status}}' $FRONTEND_CONTAINER 2>/dev/null)
-              if [ "$FRONTEND_HEALTH" = "healthy" ]; then
-                echo "Frontend is healthy"
-                break
-              fi
-              echo "Waiting for frontend health check... ($i/30) - Status: $FRONTEND_HEALTH"
-            else
-              echo "Waiting for frontend container to start... ($i/30)"
-            fi
-            sleep 2
-          done
-          
-          # Fallback health check for frontend
-          if [ "$FRONTEND_HEALTH" != "healthy" ]; then
-            echo "Docker health check inconclusive, trying direct curl..."
-            for i in {1..10}; do
-              if curl -f http://localhost > /dev/null 2>&1; then
-                echo "Frontend responding to HTTP requests"
-                break
-              fi
-              echo "Waiting for frontend HTTP response... ($i/10)"
-              sleep 2
-            done
-          fi
+          docker compose up -d --no-deps --wait frontend-vue
+          echo "Frontend updated and healthy"
           
           # Clean up old images
           echo "Cleaning up old images..."
