@@ -11,8 +11,7 @@
           closable
           class="mb-4"
         ></v-alert>
-      </v-col>
-      <v-col md="6">
+
         <v-autocomplete
           :items="
             protocolStore.protocol?.fields
@@ -30,7 +29,7 @@
       </v-col>
     </v-row>
 
-    <v-divider class="my-5"></v-divider>
+    <v-divider class="mb-5 mt-2"></v-divider>
     <v-row>
       <v-col md="12">
         <h2 class="mb-4">Encapsulated protocols</h2>

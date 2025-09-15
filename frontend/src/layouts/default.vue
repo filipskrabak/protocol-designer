@@ -2,10 +2,11 @@
   <v-app>
     <v-layout class="rounded rounded-md">
       <v-app-bar>
-        <!--<v-app-bar-nav-icon
+        <v-app-bar-nav-icon
+          v-if="protocolStore.uploaded"
           variant="text"
-          @click.stop="drawerLeft = !drawerLeft"
-        ></v-app-bar-nav-icon>-->
+          @click.stop="toggleSidebar"
+        ></v-app-bar-nav-icon>
 
         <v-toolbar-title>
           <v-img max-width="280" src="/images/pdlogo.png"></v-img
@@ -185,9 +186,9 @@
 
 <script lang="ts" setup>
 import DefaultView from "./default/View.vue";
-import LeftDrawer from "@/components/navs/LeftDrawer.vue";
 import SettingsModal from "@/components/modals/SettingsModal.vue";
 import LibraryModal from "@/components/modals/LibraryModal.vue";
+import { useSidebar } from "@/composables/useSidebar";
 
 import { ref } from "vue";
 
@@ -197,7 +198,8 @@ import { useAuthStore } from "@/store/AuthStore";
 import { useNotificationStore } from "@/store/NotificationStore";
 import router from "@/router";
 
-const drawerLeft = ref(false);
+const { toggleDrawer } = useSidebar();
+
 const settingsModal = ref(false);
 const libraryModal = ref(false);
 const newProtocolDialog = ref(false);
@@ -207,6 +209,10 @@ const protocolStore = useProtocolStore();
 const protocolRenderStore = useProtocolRenderStore();
 const notificationStore = useNotificationStore();
 const authStore = useAuthStore();
+
+function toggleSidebar() {
+  toggleDrawer();
+}
 
 function newProtocol() {
   protocolRenderStore.rawProtocolData = "";
