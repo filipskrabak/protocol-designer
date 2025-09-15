@@ -22,10 +22,10 @@ jobs:
         script: |
           cd /home/ubuntu/protocol-designer
           git pull
-          docker compose build
-          docker compose down
           cd backend
           sudo chown -R ubuntu:ubuntu postgres_data
           cd ..
+          docker compose build
+          docker compose down
           docker compose up -d --remove-orphans
           docker image prune -af
