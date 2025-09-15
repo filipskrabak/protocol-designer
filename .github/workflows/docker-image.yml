@@ -21,33 +21,11 @@ jobs:
         key: ${{ secrets.SERVER_SSH_KEY }}
         script: |
           cd /home/ubuntu/protocol-designer
-          
-          # Pull latest code first
           git pull
-          
-          # Fix permissions
+          docker compose build
+          docker compose down
           cd backend
           sudo chown -R ubuntu:ubuntu postgres_data
           cd ..
-          
-          # Build new images without stopping services
-          docker compose build
-          
-          # Rolling update strategy - update services one by one
-          echo "Starting rolling deployment..."
-          
-          # Update backend first (API server)
-          echo "Updating backend service..."
-          docker compose up -d --no-deps --wait fastapi-python
-          echo "Backend updated and healthy"
-          
-          # Update frontend (depends on backend health check)
-          echo "Updating frontend service..."
-          docker compose up -d --no-deps --wait frontend-vue
-          echo "Frontend updated and healthy"
-          
-          # Clean up old images
-          echo "Cleaning up old images..."
+          docker compose up -d --remove-orphans
           docker image prune -af
-          
-          echo "Deployment completed successfully!"
