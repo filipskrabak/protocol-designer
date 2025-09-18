@@ -9,6 +9,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     EncapsulationMultipleSelectModal: typeof import('./src/components/modals/EncapsulationMultipleSelectModal.vue')['default']
     EncapsulationVisualization: typeof import('./src/components/breadcrumbs/EncapsulationVisualization.vue')['default']
+    ExportModal: typeof import('./src/components/modals/ExportModal.vue')['default']
     FieldDeleteModal: typeof import('./src/components/modals/FieldDeleteModal.vue')['default']
     FieldEditModal: typeof import('./src/components/modals/FieldEditModal.vue')['default']
     FieldEncapsulateModal: typeof import('./src/components/modals/FieldEncapsulateModal.vue')['default']

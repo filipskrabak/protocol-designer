@@ -44,6 +44,7 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
     // Modals
     fieldEditModal: ref(false),
     fieldDeleteModal: ref(false),
+    exportModal: ref(false),
 
     fieldEncapsulateModal: ref(false),
   }),
@@ -921,95 +922,13 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
       this.fieldEditModal = false;
     },
 
-    // Exports
-
-    exportSVG() {
-      if (!this.svgWrapper) {
-        throw new Error("svgWrapper is not defined");
-      }
-
-      const svg = this.svgWrapper.querySelector("svg");
-
-      if (!svg) {
-        throw new Error("svg is not defined");
-      }
-
-      const svgData = new XMLSerializer().serializeToString(svg);
-
-      const svgBlob = new Blob([svgData], {
-        type: "image/svg+xml;charset=utf-8",
-      });
-      const svgUrl = URL.createObjectURL(svgBlob);
-
-      const downloadLink = document.createElement("a");
-      downloadLink.href = svgUrl;
-      downloadLink.download = this.protocolStore.protocol.name + ".svg";
-      document.body.appendChild(downloadLink);
-      downloadLink.click();
-      document.body.removeChild(downloadLink);
+    // Export functionality
+    showExportModal() {
+      this.exportModal = true;
     },
 
-    exportToP4() {
-      const protocol = this.protocolStore.protocol;
-
-      const formattedHeaderName = protocol.name.replace(/ /g, "");
-
-      let p4 = `header ${formattedHeaderName}_h {`;
-      let fieldCount = 0;
-
-      protocol.fields.forEach((field) => {
-        if (field.encapsulate) {
-          return;
-        }
-
-        if (field.is_variable_length) {
-          if (field.max_length == 0) {
-            this.notificationStore.showNotification({
-              message: `Couldn't export to P4: Field ${field.display_name} is variable length but has no max length`,
-              color: "error",
-              icon: "mdi-alert",
-              timeout: 8000,
-            });
-
-            throw new Error(
-              `Field ${field.display_name} is variable length but has no max length`,
-            );
-          }
-
-          p4 += `\n\tvarbit<${this.maxLengthToBits(field)}> ${field.id};`;
-        } else {
-          p4 += `\n\tbit<${this.lengthToBits(field)}> ${field.id};`;
-        }
-        fieldCount++;
-      });
-
-      if (fieldCount == 0) {
-        this.notificationStore.showNotification({
-          message: `Couldn't export to P4: No fields found`,
-          color: "error",
-          icon: "mdi-alert",
-          timeout: 8000,
-        });
-
-        throw new Error(`No fields found`);
-      }
-
-      p4 += "\n}";
-
-      // Create a p4 file
-      const p4Blob = new Blob([p4], {
-        type: "text/plain;charset=utf-8",
-      });
-
-      const p4Url = URL.createObjectURL(p4Blob);
-
-      const downloadLink = document.createElement("a");
-
-      downloadLink.href = p4Url;
-      downloadLink.download = formattedHeaderName + ".p4";
-      document.body.appendChild(downloadLink);
-      downloadLink.click();
-      document.body.removeChild(downloadLink);
+    closeExportModal() {
+      this.exportModal = false;
     },
   },
 

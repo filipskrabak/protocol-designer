@@ -57,3 +57,42 @@ export interface User {
   email: string;
   name: string;
 }
+
+export interface ExportResult {
+  success: boolean;
+  content?: string;
+  error?: string;
+  blob?: Blob;
+  filename?: string;
+  // For multi-file exports
+  files?: Array<{
+    content: string;
+    filename: string;
+    mimeType?: string;
+  }>;
+}
+
+export interface ExportFormat {
+  id: string;
+  name: string;
+  description: string;
+  fileExtension: string;
+  mimeType: string;
+  icon: string;
+  supportsPreview: boolean;
+  previewLanguage?: string; // For syntax highlighting in preview
+}
+
+export interface ExportHandler {
+  format: ExportFormat;
+  generate(protocol: Protocol, context: ExportContext): Promise<ExportResult>;
+  validate?(protocol: Protocol): { valid: boolean; errors?: string[] };
+}
+
+export interface ExportContext {
+  svgWrapper?: HTMLElement;
+  lengthToBits: (field: Field) => number;
+  maxLengthToBits: (field: Field) => number;
+  showNotification: (notification: Notification) => void;
+  configuration?: Record<string, any>; // For format-specific configuration
+}

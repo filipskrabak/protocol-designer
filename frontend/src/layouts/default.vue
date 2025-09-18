@@ -102,48 +102,16 @@
         </v-btn>
 
         <template v-if="protocolStore.uploaded">
-          <v-menu>
-            <template v-slot:activator="{ props }">
-              <v-btn v-bind="props" class="d-none d-md-flex">
-                <v-icon class="me-2">mdi-download</v-icon>
-                Export
-              </v-btn>
-            </template>
-            <v-list>
-              <v-list-item link>
-                <v-list-item-title @click="protocolRenderStore.exportSVG()"
-                  >Scalable Vector Graphics (.svg)</v-list-item-title
-                >
-              </v-list-item>
-              <v-list-item link>
-                <v-list-item-title @click="protocolRenderStore.exportToP4()"
-                  >P4 (.p4)</v-list-item-title
-                >
-              </v-list-item>
-            </v-list>
-          </v-menu>
+          <v-btn @click="protocolRenderStore.showExportModal()" class="d-none d-md-flex">
+            <v-icon class="me-2">mdi-download</v-icon>
+            Export
+          </v-btn>
 
           <!-- Mobile version - icon only -->
-          <v-menu>
-            <template v-slot:activator="{ props }">
-              <v-btn v-bind="props" icon class="d-flex d-md-none">
-                <v-icon>mdi-download</v-icon>
-                <v-tooltip activator="parent" location="bottom">Export</v-tooltip>
-              </v-btn>
-            </template>
-            <v-list>
-              <v-list-item link>
-                <v-list-item-title @click="protocolRenderStore.exportSVG()"
-                  >Scalable Vector Graphics (.svg)</v-list-item-title
-                >
-              </v-list-item>
-              <v-list-item link>
-                <v-list-item-title @click="protocolRenderStore.exportToP4()"
-                  >P4 (.p4)</v-list-item-title
-                >
-              </v-list-item>
-            </v-list>
-          </v-menu>
+          <v-btn @click="protocolRenderStore.showExportModal()" icon class="d-flex d-md-none">
+            <v-icon>mdi-download</v-icon>
+            <v-tooltip activator="parent" location="bottom">Export</v-tooltip>
+          </v-btn>
 
           <v-btn icon @click.stop="settingsModal = !settingsModal">
             <v-icon>mdi-cog</v-icon>
@@ -197,6 +165,11 @@
       <SettingsModal
         v-model="settingsModal"
         @modal="settingsModal = !settingsModal"
+      />
+
+      <ExportModal
+        v-model="protocolRenderStore.exportModal"
+        @modal="protocolRenderStore.closeExportModal()"
       />
 
       <DefaultView />
@@ -255,6 +228,7 @@
 <script lang="ts" setup>
 import DefaultView from "./default/View.vue";
 import SettingsModal from "@/components/modals/SettingsModal.vue";
+import ExportModal from "@/components/modals/ExportModal.vue";
 import LibraryModal from "@/components/modals/LibraryModal.vue";
 import { useSidebar } from "@/composables/useSidebar";
 

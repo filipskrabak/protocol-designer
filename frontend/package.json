@@ -9,16 +9,19 @@
   },
   "dependencies": {
     "@mdi/font": "7.4.47",
+    "@types/jszip": "^3.4.1",
     "axios": "^1.12.1",
     "buffer": "^6.0.3",
     "core-js": "^3.45.1",
     "d3": "^7.9.0",
+    "jszip": "^3.10.1",
     "lodash": "^4.17.21",
     "roboto-fontface": "*",
     "uuid": "^9.0.1",
     "vue": "^3.5.21",
     "vuedraggable": "^4.1.0",
-    "vuetify": "^3.10.0"
+    "vuetify": "^3.10.0",
+    "xml-formatter": "^3.6.6"
   },
   "devDependencies": {
     "@babel/types": "^7.28.4",
@@ -26,6 +29,7 @@
     "@types/lodash": "^4.17.20",
     "@types/node": "^20.19.14",
     "@types/uuid": "^9.0.8",
+    "@types/xml-formatter": "^2.1.1",
     "@vitejs/plugin-vue": "^5.2.1",
     "@vue/eslint-config-typescript": "^12.0.0",
     "eslint": "^8.57.1",
