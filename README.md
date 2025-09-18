@@ -17,6 +17,7 @@ Current list of features:
 - [x] Exports
     - [x] Export to SVG
     - [x] Export to P4
+    - [x] Export to Wireshark Lua dissector and colorfilters
 - [x] Encapsulation support (link your protocols)
     - [x] Related fields and field options
     - [x] Related fields highlighting
