@@ -4,12 +4,12 @@
     <div v-if="data.isInitial" class="initial-arrow">
       <v-icon size="16" color="success">mdi-play</v-icon>
     </div>
-    
+
     <!-- Main state circle -->
     <div class="state-circle" title="Click to edit state">
       <!-- Final state has double circle -->
       <div v-if="data.isFinal" class="final-inner-circle"></div>
-      
+
       <!-- State label -->
       <div class="state-label">
         {{ data.label }}

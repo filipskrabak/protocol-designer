@@ -110,7 +110,7 @@
 
       <v-card-actions>
         <v-spacer></v-spacer>
-        
+
         <v-btn
           color="error"
           variant="text"
@@ -119,14 +119,14 @@
         >
           Delete
         </v-btn>
-        
+
         <v-btn
           variant="text"
           @click="closeDialog"
         >
           Cancel
         </v-btn>
-        
+
         <v-btn
           color="primary"
           variant="flat"
@@ -242,19 +242,19 @@ function saveState() {
   if (props.nodeId && localData.label?.trim()) {
     // Clean up empty metadata values
     const cleanMetadata: Record<string, any> = {}
-    
+
     if (localData.metadata?.timeout) {
       cleanMetadata.timeout = parseInt(localData.metadata.timeout)
     }
-    
+
     if (localData.metadata?.entryAction?.trim()) {
       cleanMetadata.entryAction = localData.metadata.entryAction.trim()
     }
-    
+
     if (localData.metadata?.exitAction?.trim()) {
       cleanMetadata.exitAction = localData.metadata.exitAction.trim()
     }
-    
+
     const cleanData: FSMNodeData = {
       label: localData.label.trim(),
       isInitial: localData.isInitial,
@@ -262,7 +262,7 @@ function saveState() {
       description: localData.description?.trim() || undefined,
       metadata: Object.keys(cleanMetadata).length > 0 ? cleanMetadata : undefined
     }
-    
+
     emit('save', props.nodeId, cleanData)
   }
   closeDialog()

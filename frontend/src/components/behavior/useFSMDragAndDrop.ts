@@ -83,7 +83,7 @@ export default function useFSMDragAndDrop() {
     const nodeType = draggedType.value
 
     // Create different node configurations based on type
-    let nodeData: FSMNodeData = { 
+    let nodeData: FSMNodeData = {
       label: nodeId,
       isInitial: false,
       isFinal: false
