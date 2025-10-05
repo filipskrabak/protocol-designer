@@ -96,3 +96,59 @@ export interface ExportContext {
   showNotification: (notification: Notification) => void;
   configuration?: Record<string, any>; // For format-specific configuration
 }
+
+// FSM Data Structures
+
+export interface FSMNodeData {
+  label: string;
+  isInitial: boolean;
+  isFinal: boolean;
+  description?: string;
+  metadata?: Record<string, any>; // For additional state properties
+}
+
+export interface FSMNode {
+  id: string;
+  type: 'fsmState';
+  position: { x: number; y: number };
+  data: FSMNodeData;
+  dimensions?: { width: number; height: number };
+}
+
+export interface FSMEdgeData {
+  event?: string; // Event name that triggers this transition
+  condition?: string; // Guard condition
+  action?: string; // Action to execute
+  description?: string;
+}
+
+export interface FSMEdge {
+  id: string;
+  source: string; // Source node ID
+  target: string; // Target node ID
+  data?: FSMEdgeData;
+  type?: string; // Edge type for custom styling
+  animated?: boolean;
+  style?: Record<string, any>;
+}
+
+export interface FSMEvent {
+  id: string;
+  name: string;
+  description?: string;
+  parameters?: Record<string, any>; // Event parameters/data
+}
+
+export interface FiniteStateMachine {
+  id: string;
+  name: string;
+  description: string;
+  author: string;
+  version: string;
+  created_at: string;
+  updated_at: string;
+  nodes: FSMNode[]; // VueFlow nodes representing states
+  edges: FSMEdge[]; // VueFlow edges representing transitions
+  events: FSMEvent[]; // Available events for transitions
+  metadata?: Record<string, any>; // For FSM-specific properties
+}
