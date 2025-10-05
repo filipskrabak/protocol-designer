@@ -94,30 +94,30 @@ const emit = defineEmits<{
 // Handle click events
 function handleClick(event: MouseEvent) {
   event.stopPropagation()
-  emit('edgeClick', event, { 
-    id: props.id, 
-    source: props.source, 
-    target: props.target, 
-    data: props.data 
+  emit('edgeClick', event, {
+    id: props.id,
+    source: props.source,
+    target: props.target,
+    data: props.data
   })
 }
 
 // Calculate label content
 const edgeLabel = computed(() => {
   const parts = []
-  
+
   if (props.data?.event) {
     parts.push(props.data.event)
   }
-  
+
   if (props.data?.condition) {
     parts.push(`[${props.data.condition}]`)
   }
-  
+
   if (props.data?.action) {
     parts.push(`/ ${props.data.action}`)
   }
-  
+
   return parts.length > 0 ? parts.join(' ') : null
 })
 

@@ -233,7 +233,7 @@ function handleConnect(connection: any) {
     action: '',
     description: ''
   }
-  
+
   const newEdge = {
     ...connection,
     id: edgeId,
@@ -254,10 +254,10 @@ function handleConnect(connection: any) {
       cursor: 'pointer'
     }
   }
-  
+
   addEdges([newEdge])
   syncFSMData()
-  
+
   // Immediately show edit dialog for new connection
   editingEdgeId.value = edgeId
   editingEdgeData.value = { ...edgeData }
@@ -291,17 +291,17 @@ function saveTransitionEdit(edgeId: string, data: FSMEdgeData) {
   if (edgeIndex !== -1) {
     // Update edge data
     edges.value[edgeIndex].data = data
-    
+
     // Create label from data
     const labelParts = []
     if (data.event) labelParts.push(data.event)
     if (data.condition) labelParts.push(`[${data.condition}]`)
     if (data.action) labelParts.push(`/ ${data.action}`)
-    
+
     // Update edge label
     edges.value[edgeIndex].label = labelParts.length > 0 ? labelParts.join(' ') : ''
   }
-  
+
   syncFSMData()
 }
 
@@ -329,7 +329,7 @@ function deleteState(nodeId: string) {
   if (nodeIndex !== -1) {
     nodes.value.splice(nodeIndex, 1)
     // Also remove all edges connected to this node
-    const edgesToRemove = edges.value.filter(edge => 
+    const edgesToRemove = edges.value.filter(edge =>
       edge.source === nodeId || edge.target === nodeId
     )
     edgesToRemove.forEach(edge => {

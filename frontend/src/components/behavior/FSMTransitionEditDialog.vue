@@ -76,7 +76,7 @@
 
       <v-card-actions>
         <v-spacer></v-spacer>
-        
+
         <v-btn
           color="error"
           variant="text"
@@ -85,14 +85,14 @@
         >
           Delete
         </v-btn>
-        
+
         <v-btn
           variant="text"
           @click="closeDialog"
         >
           Cancel
         </v-btn>
-        
+
         <v-btn
           color="primary"
           variant="flat"
@@ -169,23 +169,23 @@ function saveTransition() {
   if (props.edgeId) {
     // Clean up empty values
     const cleanData: FSMEdgeData = {}
-    
+
     if (localData.event?.trim()) {
       cleanData.event = localData.event.trim()
     }
-    
+
     if (localData.condition?.trim()) {
       cleanData.condition = localData.condition.trim()
     }
-    
+
     if (localData.action?.trim()) {
       cleanData.action = localData.action.trim()
     }
-    
+
     if (localData.description?.trim()) {
       cleanData.description = localData.description.trim()
     }
-    
+
     emit('save', props.edgeId, cleanData)
   }
   closeDialog()
