@@ -10,6 +10,7 @@
               v-model="protocolStore.editingField.display_name"
               hint="Name displayed to the user (ex. Destination Port)"
               :rules="[(v: string) => !!v || 'Display name is required']"
+              variant="outlined"
             ></v-text-field>
           </v-col>
           <v-col md="6">
@@ -19,6 +20,7 @@
               v-model="protocolStore.editingField.id"
               hint="Name used in the protocol definition (ex. dst_port)"
               :rules="fieldIdRules"
+              variant="outlined"
             ></v-text-field>
           </v-col>
           <v-col md="12" class="py-0">
@@ -52,6 +54,7 @@
               hint="If variable length is enabled, this is the minimum length"
               :rules="minimumLengthRules"
               :suffix="protocolStore.editingField.length_unit || 'bits'"
+              variant="outlined"
             ></v-text-field>
           </v-col>
           <v-col md="6">
@@ -62,6 +65,7 @@
               hint="Unit for length values (bits or bytes)"
               :rules="[(v: string) => !!v || 'Length unit is required']"
               required
+              variant="outlined"
             ></v-select>
           </v-col>
           <v-col md="6">
@@ -73,6 +77,7 @@
               hint="Maximum possible length"
               :rules="maximumLengthRules"
               :suffix="protocolStore.editingField.length_unit || 'bits'"
+              variant="outlined"
             ></v-text-field>
           </v-col>
           <v-col cols="12">
@@ -82,6 +87,7 @@
               v-model="protocolStore.editingField.endian"
               :rules="[(v: string) => !!v || 'Endianity is required']"
               required
+              variant="outlined"
             ></v-select>
           </v-col>
           <v-col cols="12">
@@ -95,6 +101,7 @@
               prepend-inner-icon="mdi-tag"
               item-title="title"
               item-value="value"
+              variant="outlined"
             />
           </v-col>
           <v-col cols="12">
@@ -104,6 +111,7 @@
               rows="2"
               row-height="20"
               v-model="protocolStore.editingField.description"
+              variant="outlined"
             ></v-textarea>
           </v-col>
         </v-row>

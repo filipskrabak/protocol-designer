@@ -83,23 +83,15 @@
         <v-btn @click.stop="libraryModal = !libraryModal" class="d-none d-md-flex">
           <v-icon class="me-2">mdi-folder-open</v-icon>
           Library
-
-          <LibraryModal
-            v-model="libraryModal"
-            @modal="libraryModal = !libraryModal"
-          />
         </v-btn>
 
         <!-- Mobile version - icon only -->
         <v-btn @click.stop="libraryModal = !libraryModal" icon class="d-flex d-md-none">
           <v-icon>mdi-folder-open</v-icon>
           <v-tooltip activator="parent" location="bottom">Library</v-tooltip>
-
-          <LibraryModal
-            v-model="libraryModal"
-            @modal="libraryModal = !libraryModal"
-          />
         </v-btn>
+
+        <LibraryModal v-model="libraryModal" />
 
         <template v-if="protocolStore.uploaded">
           <v-btn @click="protocolRenderStore.showExportModal()" class="d-none d-md-flex">

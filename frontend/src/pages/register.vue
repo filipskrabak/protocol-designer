@@ -18,6 +18,7 @@
               prepend-inner-icon="mdi-email-outline"
               :rules="emailRules"
               type="email"
+              variant="outlined"
             ></v-text-field>
 
             <div
@@ -31,6 +32,7 @@
               placeholder="Username"
               prepend-inner-icon="mdi-account-outline"
               :rules="usernameRules"
+              variant="outlined"
             ></v-text-field>
             <div
               class="text-subtitle-1 text-medium-emphasis d-flex align-center justify-space-between"
@@ -46,6 +48,7 @@
               prepend-inner-icon="mdi-lock-outline"
               @click:append-inner="visible = !visible"
               :rules="passwordRules"
+              variant="outlined"
             ></v-text-field>
 
             <div
@@ -62,6 +65,7 @@
               prepend-inner-icon="mdi-lock-outline"
               @click:append-inner="visible = !visible"
               :rules="repeatPasswordRules"
+              variant="outlined"
             ></v-text-field>
 
             <v-btn

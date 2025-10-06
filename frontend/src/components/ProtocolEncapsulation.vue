@@ -25,6 +25,7 @@
           v-model="fieldToEncapsulate"
           required
           @update:model-value="saveFieldToEncapsulate"
+          variant="outlined"
         ></v-autocomplete>
       </v-col>
     </v-row>
@@ -48,6 +49,7 @@
           v-model="encapsulatedProtocol"
           chips
           required
+          variant="outlined"
         ></v-autocomplete>
 
         <v-btn

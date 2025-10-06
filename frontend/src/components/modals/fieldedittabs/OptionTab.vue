@@ -10,6 +10,7 @@
               v-model="option.name"
               hint="Name of the values (ex. IPv4)"
               :rules="nameRules"
+              variant="outlined"
             ></v-text-field>
           </v-col>
           <v-col md="5">
@@ -20,6 +21,7 @@
               hint="Value of the option (ex. 15)"
               :rules="valueRules"
               type="number"
+              variant="outlined"
             ></v-text-field>
           </v-col>
           <v-col

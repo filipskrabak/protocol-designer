@@ -15,6 +15,7 @@
             v-model="form.email"
             placeholder="Email address"
             prepend-inner-icon="mdi-email-outline"
+            variant="outlined"
           ></v-text-field>
 
           <div
@@ -30,6 +31,7 @@
             placeholder="Enter your password"
             prepend-inner-icon="mdi-lock-outline"
             @click:append-inner="visible = !visible"
+            variant="outlined"
           ></v-text-field>
 
           <v-btn
