@@ -117,31 +117,33 @@
         >
           <template v-slot:activator="{ props }">
             <v-btn icon v-bind="props">
-              <v-icon>mdi-account-circle</v-icon>
+              <ProfileAvatar :name="authStore.user?.name" size="32" color="primary" />
             </v-btn>
           </template>
 
           <v-card min-width="300">
             <v-list>
               <v-list-item
-                prepend-avatar="https://cdn.vuetifyjs.com/images/john.jpg"
                 :subtitle="authStore.user?.email"
                 :title="authStore.user?.name"
               >
-                <template v-slot:append>
-                  <v-btn
-                    icon="mdi-logout-variant"
-                    variant="text"
-                    @click="logOut"
-                  ></v-btn>
+                <template v-slot:prepend>
+                  <ProfileAvatar :name="authStore.user?.name" size="40" color="primary" />
                 </template>
               </v-list-item>
             </v-list>
-            <v-card-actions>
-              <v-spacer></v-spacer>
 
-              <v-btn variant="text" @click="profileMenu = false">
-                Cancel
+            <v-divider></v-divider>
+
+            <v-card-actions class="px-4 py-3">
+              <v-btn
+                prepend-icon="mdi-logout-variant"
+                variant="text"
+                color="error"
+                @click="logOut"
+                block
+              >
+                Logout
               </v-btn>
             </v-card-actions>
           </v-card>
@@ -222,6 +224,7 @@ import DefaultView from "./default/View.vue";
 import SettingsModal from "@/components/modals/SettingsModal.vue";
 import ExportModal from "@/components/modals/ExportModal.vue";
 import LibraryModal from "@/components/modals/LibraryModal.vue";
+import ProfileAvatar from "@/components/ProfileAvatar.vue";
 import { useSidebar } from "@/composables/useSidebar";
 
 import { ref } from "vue";

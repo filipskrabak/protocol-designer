@@ -20,6 +20,7 @@ declare module 'vue' {
     LeftDrawer: typeof import('./src/components/navs/LeftDrawer.vue')['default']
     LibraryModal: typeof import('./src/components/modals/LibraryModal.vue')['default']
     OptionTab: typeof import('./src/components/modals/fieldedittabs/OptionTab.vue')['default']
+    ProfileAvatar: typeof import('./src/components/ProfileAvatar.vue')['default']
     ProtocolBreadcrumbs: typeof import('./src/components/breadcrumbs/ProtocolBreadcrumbs.vue')['default']
     ProtocolEncapsulation: typeof import('./src/components/ProtocolEncapsulation.vue')['default']
     ProtocolLibrary: typeof import('./src/components/ProtocolLibrary.vue')['default']
