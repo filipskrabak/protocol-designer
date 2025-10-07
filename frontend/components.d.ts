@@ -22,6 +22,7 @@ declare module 'vue' {
     OptionTab: typeof import('./src/components/modals/fieldedittabs/OptionTab.vue')['default']
     ProtocolBreadcrumbs: typeof import('./src/components/breadcrumbs/ProtocolBreadcrumbs.vue')['default']
     ProtocolEncapsulation: typeof import('./src/components/ProtocolEncapsulation.vue')['default']
+    ProtocolLibrary: typeof import('./src/components/ProtocolLibrary.vue')['default']
     ProtocolProperties: typeof import('./src/components/ProtocolProperties.vue')['default']
     ProtocolUpload: typeof import('./src/components/ProtocolUpload.vue')['default']
     ProtocolViewer: typeof import('./src/components/ProtocolViewer.vue')['default']
