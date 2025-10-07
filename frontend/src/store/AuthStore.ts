@@ -75,7 +75,14 @@ export const useAuthStore = defineStore("AuthStore", {
 
       return true;
     },
-    logout() {
+    async logout() {
+      try {
+        await axios.post("/logout");
+      } catch (error) {
+        console.error("Logout error:", error);
+      }
+
+      // Clear local state
       this._authenticated = false;
       this.user = {} as User;
 

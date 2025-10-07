@@ -255,9 +255,8 @@ function newProtocol() {
   router.push("/upload");
 }
 
-function logOut() {
-  // TODO: bug, cookie is not removed
-  authStore.logout();
+async function logOut() {
+  await authStore.logout();
   router.push("/login");
 }
 </script>
