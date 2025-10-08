@@ -11,6 +11,7 @@
           required
           v-model="protocolStore.protocol.name"
           hint="Name of the protocol (ex. TCP)"
+          variant="outlined"
         ></v-text-field>
       </v-col>
       <v-col md="6">
@@ -19,6 +20,7 @@
           required
           v-model="protocolStore.protocol.author"
           hint="Full name of the author of the protocol"
+          variant="outlined"
         ></v-text-field>
       </v-col>
     </v-row>
@@ -30,6 +32,7 @@
           v-model="protocolStore.protocol.created_at"
           hint="Date of the protocol creation"
           disabled
+          variant="outlined"
         ></v-text-field>
       </v-col>
       <v-col md="6">
@@ -38,6 +41,7 @@
           v-model="protocolStore.protocol.updated_at"
           hint="Date of the last modification"
           disabled
+          variant="outlined"
         ></v-text-field>
       </v-col>
     </v-row>
@@ -49,6 +53,7 @@
           required
           v-model="protocolStore.protocol.version"
           hint="Version of the protocol (ex. 1.0)"
+          variant="outlined"
         ></v-text-field>
       </v-col>
     </v-row>
@@ -59,6 +64,7 @@
           auto-grow
           v-model="protocolStore.protocol.description"
           hint="Description of the protocol"
+          variant="outlined"
         ></v-textarea>
       </v-col>
     </v-row>

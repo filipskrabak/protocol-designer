@@ -9,6 +9,7 @@
         type="number"
         v-model="settingsStore.bitsPerRow"
         suffix="bits"
+        variant="outlined"
       ></v-text-field>
     </v-col>
     <v-col cols="12" md="6">
@@ -18,6 +19,7 @@
         type="number"
         v-model="settingsStore.pixelsPerBit"
         suffix="pixels"
+        variant="outlined"
       ></v-text-field>
     </v-col>
     <v-col cols="12">
