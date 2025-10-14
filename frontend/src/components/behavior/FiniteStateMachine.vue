@@ -51,7 +51,6 @@
             :no-edges-connectable="false"
             @nodes-change="onNodesChange"
             @edges-change="onEdgesChange"
-            @connect="handleConnect"
             @edge-click="onEdgeClick"
             @node-click="onNodeClick"
             @dragover="onDragOver"
