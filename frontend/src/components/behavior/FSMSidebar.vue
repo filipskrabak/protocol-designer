@@ -5,17 +5,17 @@
         <v-icon class="me-2">mdi-drag</v-icon>
         <span>FSM Elements</span>
       </v-card-title>
-      
+
       <v-card-text>
         <div class="text-caption text-medium-emphasis mb-3">
-          Drag elements to the canvas to create your FSM
+          Drag elements to the canvas to use them
         </div>
 
         <div class="fsm-elements">
           <!-- Initial State -->
-          <div 
+          <div
             class="fsm-element initial-state"
-            draggable="true" 
+            draggable="true"
             @dragstart="onDragStart($event, 'initial')"
           >
             <div class="state-preview initial-preview">
@@ -26,9 +26,9 @@
           </div>
 
           <!-- Normal State -->
-          <div 
+          <div
             class="fsm-element normal-state"
-            draggable="true" 
+            draggable="true"
             @dragstart="onDragStart($event, 'state')"
           >
             <div class="state-preview normal-preview">
@@ -38,9 +38,9 @@
           </div>
 
           <!-- Final State -->
-          <div 
+          <div
             class="fsm-element final-state"
-            draggable="true" 
+            draggable="true"
             @dragstart="onDragStart($event, 'final')"
           >
             <div class="state-preview final-preview">
@@ -56,7 +56,7 @@
     </v-card>
 
     <!-- Instructions -->
-    <v-card class="ma-4" elevation="1">
+    <!--<v-card class="ma-4" elevation="1">
       <v-card-text>
         <div class="text-caption">
           <v-icon size="small" class="me-1">mdi-information</v-icon>
@@ -69,7 +69,7 @@
           <li>Add multiple final states as needed</li>
         </ul>
       </v-card-text>
-    </v-card>
+    </v-card>-->
   </div>
 </template>
 
