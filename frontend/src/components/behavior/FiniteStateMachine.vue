@@ -129,6 +129,7 @@ import FSMStateEditDialog from './FSMStateEditDialog.vue'
 import FSMTransitionEditDialog from './FSMTransitionEditDialog.vue'
 import useFSMDragAndDrop from './useFSMDragAndDrop'
 import type { FiniteStateMachine, FSMEdgeData, FSMNodeData } from '@/contracts/models'
+import { useNotificationStore } from '@/store/NotificationStore'
 
 // Define custom node types
 const nodeTypes = {
@@ -153,6 +154,8 @@ const { onConnect, addEdges, nodes, edges, setNodes, setEdges } = useVueFlow()
 
 // Drag and drop functionality
 const { onDragOver, onDrop, onDragLeave, isDragOver } = useFSMDragAndDrop()
+
+const notificationStore = useNotificationStore()
 
 // FSM data structure
 const fsm = reactive<FiniteStateMachine>({
@@ -242,6 +245,26 @@ function onEdgesChange(changes: any) {
 // Custom connect handler to create FSM edges with default data
 function handleConnect(connection: any) {
   console.log('Connection object received:', connection)
+
+  // Check if an identical transition already exists
+  // (same source, target, and handles would create overlapping edges)
+  const duplicateEdge = edges.value.find(edge =>
+    edge.source === connection.source &&
+    edge.target === connection.target &&
+    edge.sourceHandle === connection.sourceHandle &&
+    edge.targetHandle === connection.targetHandle
+  )
+
+  if (duplicateEdge) {
+    console.warn('Duplicate transition')
+    notificationStore.showNotification({
+      message: 'This transition already exists. Use a different handle or create a different connection.',
+      timeout: 4000,
+      color: 'warning',
+      icon: 'mdi-alert'
+    })
+    return
+  }
 
   const edgeId = `edge_${uuidv4()}`
   const edgeData: FSMEdgeData = {
