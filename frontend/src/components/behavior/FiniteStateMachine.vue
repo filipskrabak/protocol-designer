@@ -251,17 +251,24 @@ function handleConnect(connection: any) {
     description: ''
   }
 
+  // Check if this is a self-loop
+  const isSelfLoop = connection.source === connection.target
+
   const newEdge = {
     id: edgeId,
     source: connection.source,      // Node where drag started
     target: connection.target,      // Node where drag ended
     sourceHandle: connection.sourceHandle,
     targetHandle: connection.targetHandle,
-    data: edgeData,
+    data: {
+      ...edgeData,
+      isSelfLoop // Store this for rendering purposes
+    },
     label: '', // Start with empty label
     animated: false,
     selectable: true,
     focusable: true,
+    type: 'smoothstep', // Use smoothstep for better self-loop rendering
     markerEnd: {
       type: 'arrowclosed',
       width: 20,
@@ -444,6 +451,16 @@ onConnect(handleConnect)
 :deep(.vue-flow__edge.selected .vue-flow__edge-path) {
   stroke: #0ea5e9;
   stroke-width: 3px;
+}
+
+/* Self-loop edges styling - creates larger, more visible loops */
+:deep(.vue-flow__edge.self-loop .vue-flow__edge-path) {
+  stroke-dasharray: none;
+}
+
+/* Increase spacing for self-referencing edges */
+.vue-flow {
+  --vf-edge-z-index: 1;
 }
 
 /* Connection line styling (the temporary line while dragging) */
