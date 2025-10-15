@@ -48,7 +48,9 @@
             :node-types="nodeTypes"
             :edges-focusable="true"
             :edges-updatable="false"
-            :no-edges-connectable="false"
+            :nodes-connectable="true"
+            connection-mode="loose"
+            :connection-line-options="connectionLineOptions"
             @nodes-change="onNodesChange"
             @edges-change="onEdgesChange"
             @edge-click="onEdgeClick"
@@ -131,6 +133,20 @@ import type { FiniteStateMachine, FSMEdgeData, FSMNodeData } from '@/contracts/m
 // Define custom node types
 const nodeTypes = {
   fsmState: FSMStateNode
+}
+
+const connectionLineOptions = {
+  type: 'smoothstep',
+  style: {
+    strokeWidth: 2,
+    stroke: '#0ea5e9',
+  },
+  markerEnd: {
+    type: 'arrowclosed',
+    width: 20,
+    height: 20,
+    color: '#0ea5e9'
+  }
 }
 
 const { onConnect, addEdges, nodes, edges, setNodes, setEdges } = useVueFlow()
@@ -225,6 +241,8 @@ function onEdgesChange(changes: any) {
 
 // Custom connect handler to create FSM edges with default data
 function handleConnect(connection: any) {
+  console.log('Connection object received:', connection)
+
   const edgeId = `edge_${uuidv4()}`
   const edgeData: FSMEdgeData = {
     event: '',
@@ -234,8 +252,11 @@ function handleConnect(connection: any) {
   }
 
   const newEdge = {
-    ...connection,
     id: edgeId,
+    source: connection.source,      // Node where drag started
+    target: connection.target,      // Node where drag ended
+    sourceHandle: connection.sourceHandle,
+    targetHandle: connection.targetHandle,
     data: edgeData,
     label: '', // Start with empty label
     animated: false,
@@ -253,6 +274,8 @@ function handleConnect(connection: any) {
       cursor: 'pointer'
     }
   }
+
+  console.log('New edge being created:', newEdge)
 
   addEdges([newEdge])
   syncFSMData()
@@ -421,6 +444,24 @@ onConnect(handleConnect)
 :deep(.vue-flow__edge.selected .vue-flow__edge-path) {
   stroke: #0ea5e9;
   stroke-width: 3px;
+}
+
+/* Connection line styling (the temporary line while dragging) */
+:deep(.vue-flow__connection-path) {
+  stroke: #0ea5e9 !important;
+  stroke-width: 2px !important;
+  stroke-dasharray: 5, 5;
+  animation: dash 0.5s linear infinite;
+}
+
+@keyframes dash {
+  to {
+    stroke-dashoffset: -10;
+  }
+}
+
+:deep(.vue-flow__connection) {
+  pointer-events: none;
 }
 
 /* Edge labels */
