@@ -23,21 +23,25 @@
 
     <!-- Connection handles -->
     <Handle
-      type="target"
+      id="left"
+      type="source"
       :position="Position.Left"
       class="connection-handle"
     />
     <Handle
+      id="right"
       type="source"
       :position="Position.Right"
       class="connection-handle"
     />
     <Handle
-      type="target"
+      id="top"
+      type="source"
       :position="Position.Top"
       class="connection-handle"
     />
     <Handle
+      id="bottom"
       type="source"
       :position="Position.Bottom"
       class="connection-handle"
