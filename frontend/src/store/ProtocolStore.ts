@@ -5,6 +5,7 @@ import {
   EditingMode,
   AddFieldPosition,
   EncapsulatedProtocol,
+  FiniteStateMachine,
 } from "@/contracts";
 
 export const useProtocolStore = defineStore("ProtocolStore", {
@@ -18,6 +19,7 @@ export const useProtocolStore = defineStore("ProtocolStore", {
     editingMode: EditingMode.Add as EditingMode,
     addFieldPosition: AddFieldPosition.End as AddFieldPosition,
     addFieldPositionFieldId: "", // Used to track the field where the new field will be added
+    currentFSMId: null as string | null, // Currently active FSM being edited
   }),
 
   // Actions
@@ -89,6 +91,65 @@ export const useProtocolStore = defineStore("ProtocolStore", {
           field.encapsulate = false;
         }
       });
+    },
+
+    /**
+     * FSM Management Actions
+     */
+
+    // Initialize FSM array if not exists
+    ensureFSMArray() {
+      if (!this.protocol.finite_state_machines) {
+        this.protocol.finite_state_machines = [];
+      }
+    },
+
+    // Add a new FSM to the protocol
+    addFSM(fsm: FiniteStateMachine) {
+      this.ensureFSMArray();
+      this.protocol.finite_state_machines!.push(fsm);
+      this.currentFSMId = fsm.id;
+      this.protocol.updated_at = new Date().toLocaleDateString("sk-SK");
+    },
+
+    // Update an existing FSM
+    updateFSM(fsmId: string, fsm: FiniteStateMachine) {
+      this.ensureFSMArray();
+      const index = this.protocol.finite_state_machines!.findIndex(f => f.id === fsmId);
+      if (index !== -1) {
+        this.protocol.finite_state_machines![index] = fsm;
+        this.protocol.updated_at = new Date().toLocaleDateString("sk-SK");
+      }
+    },
+
+    // Delete an FSM
+    deleteFSM(fsmId: string) {
+      if (!this.protocol.finite_state_machines) return;
+      this.protocol.finite_state_machines = this.protocol.finite_state_machines.filter(
+        f => f.id !== fsmId
+      );
+      if (this.currentFSMId === fsmId) {
+        this.currentFSMId = this.protocol.finite_state_machines.length > 0
+          ? this.protocol.finite_state_machines[0].id
+          : null;
+      }
+      this.protocol.updated_at = new Date().toLocaleDateString("sk-SK");
+    },
+
+    // Get FSM by ID
+    getFSMById(fsmId: string): FiniteStateMachine | undefined {
+      return this.protocol.finite_state_machines?.find(f => f.id === fsmId);
+    },
+
+    // Set current active FSM
+    setCurrentFSM(fsmId: string | null) {
+      this.currentFSMId = fsmId;
+    },
+
+    // Get current active FSM
+    getCurrentFSM(): FiniteStateMachine | undefined {
+      if (!this.currentFSMId) return undefined;
+      return this.getFSMById(this.currentFSMId);
     },
   },
 

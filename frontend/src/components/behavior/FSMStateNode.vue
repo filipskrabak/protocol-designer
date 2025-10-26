@@ -51,13 +51,12 @@
 
 <script setup lang="ts">
 import { Handle, Position } from '@vue-flow/core'
+import type { NodeProps } from '@vue-flow/core'
 import type { FSMNodeData } from '@/contracts/models'
 
-interface Props {
-  data: FSMNodeData
-}
+type FSMStateNodeProps = NodeProps<FSMNodeData>
 
-defineProps<Props>()
+defineProps<FSMStateNodeProps>()
 </script>
 
 <style scoped>

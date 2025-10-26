@@ -30,6 +30,7 @@ export interface Protocol {
   updated_at: string; // timestamp
   created_at: string; // timestamp
   fields: Field[];
+  finite_state_machines?: FiniteStateMachine[];
 }
 
 export interface EncapsulatedProtocol {
@@ -115,9 +116,22 @@ export interface FSMNode {
   dimensions?: { width: number; height: number };
 }
 
+// Protocol field condition mapping for guards
+export interface ProtocolFieldCondition {
+  field_id: string; // Reference to protocol field
+  operator: 'equals' | 'not_equals' | 'greater_than' | 'less_than' | 'greater_or_equal' | 'less_or_equal';
+  value?: string | number; // Comparison value (can reference field option value)
+  field_option_name?: string; // Optional: reference to specific field option by name
+  //min_value?: number; // For range operators
+  //max_value?: number; // For range operators
+  //bit_position?: number; // For flag operators
+}
+
 export interface FSMEdgeData {
   event?: string; // Event name that triggers this transition
-  condition?: string; // Guard condition
+  condition?: string; // Custom/manual guard condition (freeform text)
+  protocol_conditions?: ProtocolFieldCondition[]; // Structured protocol field conditions
+  use_protocol_conditions?: boolean; // Whether to use protocol_conditions or manual condition
   action?: string; // Action to execute
   description?: string;
 }
@@ -126,10 +140,13 @@ export interface FSMEdge {
   id: string;
   source: string; // Source node ID
   target: string; // Target node ID
+  sourceHandle?: string; // Source handle ID
+  targetHandle?: string; // Target handle ID
   data?: FSMEdgeData;
   type?: string; // Edge type for custom styling
   animated?: boolean;
   style?: Record<string, any>;
+  label?: string; // Display label
 }
 
 export interface FSMEvent {
@@ -147,6 +164,7 @@ export interface FiniteStateMachine {
   version: string;
   created_at: string;
   updated_at: string;
+  protocol_id?: string;
   nodes: FSMNode[]; // VueFlow nodes representing states
   edges: FSMEdge[]; // VueFlow edges representing transitions
   events: FSMEvent[]; // Available events for transitions

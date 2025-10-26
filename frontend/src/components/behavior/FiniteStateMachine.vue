@@ -10,24 +10,75 @@
 
       <v-card-text>
         <v-row align="center">
+          <!-- FSM Selector -->
+          <v-col cols="auto">
+            <v-select
+              v-model="currentFSMId"
+              :items="fsmListItems"
+              label="Select FSM"
+              density="compact"
+              variant="outlined"
+              style="min-width: 250px"
+              item-title="name"
+              item-value="id"
+              prepend-icon="mdi-folder-multiple-outline"
+              hint="Select FSM to edit"
+              persistent-hint
+            >
+              <template v-slot:item="{ props, item }">
+                <v-list-item v-bind="props">
+                  <template v-slot:prepend>
+                    <v-icon>mdi-state-machine</v-icon>
+                  </template>
+                  <template v-slot:append v-if="fsmList.length > 1">
+                    <v-btn
+                      icon="mdi-delete"
+                      size="x-small"
+                      variant="text"
+                      color="error"
+                      @click.stop="confirmDeleteFSM(item.raw.id)"
+                    ></v-btn>
+                  </template>
+                </v-list-item>
+              </template>
+            </v-select>
+          </v-col>
+
+          <!-- FSM Name -->
           <v-col cols="auto">
             <v-text-field
               v-model="fsmName"
               label="FSM Name"
               density="compact"
+              variant="outlined"
               style="min-width: 200px"
+              prepend-icon="mdi-rename-box"
             />
           </v-col>
 
+          <!-- New FSM Button -->
+          <v-col cols="auto">
+            <v-btn
+              @click="createNewFSM"
+              prepend-icon="mdi-plus-circle"
+              color="primary"
+              variant="flat"
+              class="mb-5"
+            >
+              New FSM
+            </v-btn>
+          </v-col>
+
+          <!-- Clear All Button -->
           <v-col cols="auto">
             <v-btn
               @click="clearAll"
               prepend-icon="mdi-delete-sweep"
-              size="small"
               color="error"
               variant="outlined"
+              class="mb-5 "
             >
-              Clear All
+              Clear States
             </v-btn>
           </v-col>
         </v-row>
@@ -49,7 +100,7 @@
             :edges-focusable="true"
             :edges-updatable="false"
             :nodes-connectable="true"
-            connection-mode="loose"
+            :connection-mode="ConnectionMode.Loose"
             :connection-line-options="connectionLineOptions"
             @nodes-change="onNodesChange"
             @edges-change="onEdgesChange"
@@ -90,7 +141,12 @@
         <v-row align="center">
           <v-col>
             <span class="text-caption">
-              States: {{ fsm.nodes.length }} | Transitions: {{ fsm.edges.length }} | Events: {{ fsm.events.length }}
+              <v-chip size="x-small" color="primary" variant="flat" class="me-2">
+                {{ currentFSMIndex + 1 }} / {{ fsmList.length }}
+              </v-chip>
+              States: {{ currentFSM?.nodes.length || 0 }} |
+              Transitions: {{ currentFSM?.edges.length || 0 }} |
+              Events: {{ currentFSM?.events.length || 0 }}
             </span>
           </v-col>
         </v-row>
@@ -114,12 +170,82 @@
       @save="saveStateEdit"
       @delete="deleteState"
     />
+
+    <!-- Delete FSM Confirmation Dialog -->
+    <v-dialog v-model="deleteConfirmDialog" max-width="500">
+      <v-card>
+        <v-card-title class="d-flex align-center">
+          <v-icon color="error" class="me-2">mdi-alert-circle</v-icon>
+          Delete FSM
+        </v-card-title>
+        <v-card-text>
+          <p class="text-body-1">
+            Are you sure you want to delete FSM <strong>"{{ deletingFSMName }}"</strong>?
+          </p>
+          <p class="text-body-2 text-error">
+            This action cannot be undone.
+          </p>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="grey"
+            variant="text"
+            @click="deleteConfirmDialog = false"
+          >
+            Cancel
+          </v-btn>
+          <v-btn
+            color="error"
+            variant="flat"
+            @click="executeDeleteFSM"
+          >
+            Delete
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- Clear States Confirmation Dialog -->
+    <v-dialog v-model="clearConfirmDialog" max-width="500">
+      <v-card>
+        <v-card-title class="d-flex align-center">
+          <v-icon color="warning" class="me-2">mdi-alert</v-icon>
+          Clear All States
+        </v-card-title>
+        <v-card-text>
+          <p class="text-body-1">
+            Are you sure you want to clear all states and transitions in this FSM?
+          </p>
+          <p class="text-body-2 text-warning">
+            This action cannot be undone.
+          </p>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="grey"
+            variant="text"
+            @click="clearConfirmDialog = false"
+          >
+            Cancel
+          </v-btn>
+          <v-btn
+            color="warning"
+            variant="flat"
+            @click="executeClearAll"
+          >
+            Clear All
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive, computed, ref } from 'vue'
-import { VueFlow, useVueFlow } from '@vue-flow/core'
+import { computed, ref, onMounted, markRaw } from 'vue'
+import { VueFlow, useVueFlow, MarkerType, ConnectionMode, ConnectionLineType } from '@vue-flow/core'
 import { Background } from '@vue-flow/background'
 import { Controls } from '@vue-flow/controls'
 import { v4 as uuidv4 } from 'uuid'
@@ -130,20 +256,21 @@ import FSMTransitionEditDialog from './FSMTransitionEditDialog.vue'
 import useFSMDragAndDrop from './useFSMDragAndDrop'
 import type { FiniteStateMachine, FSMEdgeData, FSMNodeData } from '@/contracts/models'
 import { useNotificationStore } from '@/store/NotificationStore'
+import { useProtocolStore } from '@/store/ProtocolStore'
 
 // Define custom node types
 const nodeTypes = {
-  fsmState: FSMStateNode
+  fsmState: markRaw(FSMStateNode)
 }
 
 const connectionLineOptions = {
-  type: 'smoothstep',
+  type: ConnectionLineType.SmoothStep,
   style: {
     strokeWidth: 2,
     stroke: '#0ea5e9',
   },
   markerEnd: {
-    type: 'arrowclosed',
+    type: MarkerType.ArrowClosed,
     width: 20,
     height: 20,
     color: '#0ea5e9'
@@ -156,28 +283,56 @@ const { onConnect, addEdges, nodes, edges, setNodes, setEdges } = useVueFlow()
 const { onDragOver, onDrop, onDragLeave, isDragOver } = useFSMDragAndDrop()
 
 const notificationStore = useNotificationStore()
+const protocolStore = useProtocolStore()
 
-// FSM data structure
-const fsm = reactive<FiniteStateMachine>({
-  id: uuidv4(),
-  name: 'My FSM',
-  description: 'A finite state machine',
-  author: 'User',
-  version: '1.0.0',
-  created_at: new Date().toISOString(),
-  updated_at: new Date().toISOString(),
-  nodes: [],
-  edges: [],
-  events: [],
-  metadata: {}
+// Initialize protocol FSM array if needed
+protocolStore.ensureFSMArray()
+
+// Current FSM ID (synced with ProtocolStore)
+const currentFSMId = computed({
+  get: () => protocolStore.currentFSMId,
+  set: (value: string | null) => {
+    if (value) {
+      protocolStore.setCurrentFSM(value)
+      loadFSMToCanvas(value)
+    }
+  }
+})
+
+// Get FSM list from protocol
+const fsmList = computed(() => {
+  return protocolStore.protocol.finite_state_machines || []
+})
+
+// FSM list items for dropdown
+const fsmListItems = computed(() => {
+  return fsmList.value.map(fsm => ({
+    id: fsm.id,
+    name: fsm.name || 'Unnamed FSM'
+  }))
+})
+
+// Current FSM index
+const currentFSMIndex = computed(() => {
+  if (!currentFSMId.value) return 0
+  return fsmList.value.findIndex(fsm => fsm.id === currentFSMId.value)
+})
+
+// Get current FSM from protocol store
+const currentFSM = computed(() => {
+  return protocolStore.getCurrentFSM()
 })
 
 // Computed property for FSM name binding
 const fsmName = computed({
-  get: () => fsm.name,
+  get: () => currentFSM.value?.name || '',
   set: (value: string) => {
-    fsm.name = value
-    fsm.updated_at = new Date().toISOString()
+    const fsm = currentFSM.value
+    if (fsm) {
+      fsm.name = value
+      fsm.updated_at = new Date().toISOString()
+      protocolStore.updateFSM(fsm.id, fsm)
+    }
   }
 })
 
@@ -195,17 +350,166 @@ const editingNodeData = ref<FSMNodeData>({
   isFinal: false
 })
 
-// Clear all nodes and edges
-function clearAll() {
-  setNodes([])
-  setEdges([])
-  fsm.nodes = []
-  fsm.edges = []
-  fsm.updated_at = new Date().toISOString()
+// Confirmation dialog state
+const deleteConfirmDialog = ref(false)
+const deletingFSMId = ref<string>('')
+const deletingFSMName = ref<string>('')
+const clearConfirmDialog = ref(false)
+
+// Initialize first FSM if none exist
+onMounted(() => {
+  if (fsmList.value.length === 0) {
+    createNewFSM()
+  } else if (!currentFSMId.value) {
+    // Load first FSM
+    const firstFSM = fsmList.value[0]
+    protocolStore.setCurrentFSM(firstFSM.id)
+    loadFSMToCanvas(firstFSM.id)
+  } else {
+    // Load current FSM
+    loadFSMToCanvas(currentFSMId.value)
+  }
+})
+
+// Create new FSM
+function createNewFSM() {
+  const newFSM: FiniteStateMachine = {
+    id: uuidv4(),
+    name: `FSM ${fsmList.value.length + 1}`,
+    description: '',
+    author: protocolStore.protocol.author || 'User',
+    version: '1.0.0',
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    protocol_id: String(protocolStore.protocol.id || ''),
+    nodes: [],
+    edges: [],
+    events: [],
+    metadata: {}
+  }
+
+  protocolStore.addFSM(newFSM)
+  loadFSMToCanvas(newFSM.id)
+
+  notificationStore.showNotification({
+    message: `Created new FSM: ${newFSM.name}`,
+    timeout: 2000,
+    color: 'success',
+    icon: 'mdi-check-circle'
+  })
 }
 
-// Sync VueFlow state with FSM model
-function syncFSMData() {
+// Confirm delete FSM
+function confirmDeleteFSM(fsmId: string) {
+  const fsm = protocolStore.getFSMById(fsmId)
+  if (!fsm) return
+
+  deletingFSMId.value = fsmId
+  deletingFSMName.value = fsm.name || 'Unnamed FSM'
+  deleteConfirmDialog.value = true
+}
+
+// Execute delete FSM after confirmation
+function executeDeleteFSM() {
+  const fsmId = deletingFSMId.value
+  const fsmName = deletingFSMName.value
+
+  protocolStore.deleteFSM(fsmId)
+
+  notificationStore.showNotification({
+    message: `Deleted FSM: ${fsmName}`,
+    timeout: 2000,
+    color: 'info',
+    icon: 'mdi-information'
+  })
+
+  // Close dialog
+  deleteConfirmDialog.value = false
+  deletingFSMId.value = ''
+  deletingFSMName.value = ''
+
+  // Load another FSM if available
+  if (fsmList.value.length > 0) {
+    loadFSMToCanvas(fsmList.value[0].id)
+  } else {
+    // Create new FSM if none left
+    createNewFSM()
+  }
+}
+
+// Load FSM data to canvas
+function loadFSMToCanvas(fsmId: string) {
+  const fsm = protocolStore.getFSMById(fsmId)
+  if (!fsm) return
+
+  // Clear current canvas
+  setNodes([])
+  setEdges([])
+
+  // Load nodes
+  if (fsm.nodes && fsm.nodes.length > 0) {
+    setNodes(fsm.nodes.map(node => ({
+      id: node.id,
+      type: node.type,
+      position: node.position,
+      data: node.data,
+      dimensions: node.dimensions
+    })))
+  }
+
+  // Load edges
+  if (fsm.edges && fsm.edges.length > 0) {
+    setEdges(fsm.edges.map(edge => ({
+      id: edge.id,
+      source: edge.source,
+      target: edge.target,
+      sourceHandle: edge.sourceHandle,
+      targetHandle: edge.targetHandle,
+      data: edge.data,
+      label: edge.label || '',
+      type: edge.type || 'smoothstep',
+      animated: edge.animated || false,
+      style: edge.style || {
+        stroke: '#374151',
+        strokeWidth: 2,
+        cursor: 'pointer'
+      },
+      markerEnd: {
+        type: MarkerType.ArrowClosed,
+        width: 20,
+        height: 20,
+        color: '#374151'
+      }
+    })))
+  }
+}
+
+// Clear all nodes and edges (but keep FSM)
+function clearAll() {
+  clearConfirmDialog.value = true
+}
+
+// Execute clear all after confirmation
+function executeClearAll() {
+  setNodes([])
+  setEdges([])
+  saveFSMFromCanvas()
+
+  notificationStore.showNotification({
+    message: 'Cleared all states and transitions',
+    timeout: 2000,
+    color: 'info',
+    icon: 'mdi-information'
+  })
+
+  clearConfirmDialog.value = false
+}
+
+// Save current canvas state to FSM in protocol store
+function saveFSMFromCanvas() {
+  const fsm = currentFSM.value
+  if (!fsm) return
+
   fsm.nodes = nodes.value.map(node => ({
     id: node.id,
     type: 'fsmState' as const,
@@ -218,28 +522,28 @@ function syncFSMData() {
     id: edge.id,
     source: edge.source,
     target: edge.target,
+    sourceHandle: edge.sourceHandle ?? undefined,
+    targetHandle: edge.targetHandle ?? undefined,
     data: edge.data,
+    label: typeof edge.label === 'string' ? edge.label : undefined,
     type: edge.type,
     animated: edge.animated,
     style: edge.style
   }))
 
   fsm.updated_at = new Date().toISOString()
+  protocolStore.updateFSM(fsm.id, fsm)
 }
 
 // VueFlow event handlers
 function onNodesChange(changes: any) {
-  // Handle node changes (drag, delete, etc.)
   console.log('Nodes changed:', changes)
-  // Sync changes to FSM model
-  syncFSMData()
+  saveFSMFromCanvas()
 }
 
 function onEdgesChange(changes: any) {
-  // Handle edge changes
   console.log('Edges changed:', changes)
-  // Sync changes to FSM model
-  syncFSMData()
+  saveFSMFromCanvas()
 }
 
 // Custom connect handler to create FSM edges with default data
@@ -293,7 +597,7 @@ function handleConnect(connection: any) {
     focusable: true,
     type: 'smoothstep', // Use smoothstep for better self-loop rendering
     markerEnd: {
-      type: 'arrowclosed',
+      type: MarkerType.ArrowClosed,
       width: 20,
       height: 20,
       color: '#374151'
@@ -308,7 +612,7 @@ function handleConnect(connection: any) {
   console.log('New edge being created:', newEdge)
 
   addEdges([newEdge])
-  syncFSMData()
+  saveFSMFromCanvas()
 
   // Immediately show edit dialog for new connection
   editingEdgeId.value = edgeId
@@ -346,15 +650,87 @@ function saveTransitionEdit(edgeId: string, data: FSMEdgeData) {
 
     // Create label from data
     const labelParts = []
-    if (data.event) labelParts.push(data.event)
-    if (data.condition) labelParts.push(`[${data.condition}]`)
-    if (data.action) labelParts.push(`/ ${data.action}`)
+
+    // Add event
+    if (data.event) {
+      labelParts.push(data.event)
+    }
+
+    // Add condition - either manual or protocol-based
+    if (data.use_protocol_conditions && data.protocol_conditions && data.protocol_conditions.length > 0) {
+      // Build protocol condition string
+      const conditionStrings = data.protocol_conditions.map(pc => {
+        // Find field name
+        const field = protocolStore.protocol.fields?.find(f => f.id === pc.field_id)
+        const fieldName = field?.display_name || pc.field_id
+
+        // Build condition based on operator
+        let condStr = ''
+
+        switch (pc.operator) {
+          case 'equals':
+            condStr = `${fieldName}==${pc.field_option_name || pc.value}`
+            break
+          case 'not_equals':
+            condStr = `${fieldName}!=${pc.field_option_name || pc.value}`
+            break
+          case 'greater_than':
+            condStr = `${fieldName}>${pc.value}`
+            break
+          case 'less_than':
+            condStr = `${fieldName}<${pc.value}`
+            break
+          case 'greater_or_equal':
+            condStr = `${fieldName}>=${pc.value}`
+            break
+          case 'less_or_equal':
+            condStr = `${fieldName}<=${pc.value}`
+            break
+        }
+
+        return condStr
+      })
+
+      // Join multiple conditions with AND
+      let conditionText = conditionStrings.join(' && ')
+
+      // Truncate if too long (more than 50 characters)
+      const maxLength = 50
+      if (conditionText.length > maxLength) {
+        const numConditions = data.protocol_conditions.length
+        if (numConditions > 1) {
+          // Show count for multiple conditions
+          conditionText = `${conditionStrings[0].substring(0, 30)}... (+${numConditions - 1})`
+        } else {
+          // Truncate single long condition
+          conditionText = conditionText.substring(0, maxLength) + '...'
+        }
+      }
+
+      labelParts.push(`[${conditionText}]`)
+    } else if (data.condition) {
+      // Manual condition
+      let condText = data.condition
+
+      // Truncate if too long
+      const maxLength = 50
+      if (condText.length > maxLength) {
+        condText = condText.substring(0, maxLength) + '...'
+      }
+
+      labelParts.push(`[${condText}]`)
+    }
+
+    // Add action
+    if (data.action) {
+      labelParts.push(`/ ${data.action}`)
+    }
 
     // Update edge label
     edges.value[edgeIndex].label = labelParts.length > 0 ? labelParts.join(' ') : ''
   }
 
-  syncFSMData()
+  saveFSMFromCanvas()
 }
 
 // Delete transition
@@ -362,7 +738,7 @@ function deleteTransition(edgeId: string) {
   const edgeIndex = edges.value.findIndex(edge => edge.id === edgeId)
   if (edgeIndex !== -1) {
     edges.value.splice(edgeIndex, 1)
-    syncFSMData()
+    saveFSMFromCanvas()
   }
 }
 
@@ -372,7 +748,7 @@ function saveStateEdit(nodeId: string, data: FSMNodeData) {
   if (nodeIndex !== -1) {
     nodes.value[nodeIndex].data = data
   }
-  syncFSMData()
+  saveFSMFromCanvas()
 }
 
 // Delete state
@@ -390,7 +766,7 @@ function deleteState(nodeId: string) {
         edges.value.splice(edgeIndex, 1)
       }
     })
-    syncFSMData()
+    saveFSMFromCanvas()
   }
 }
 
