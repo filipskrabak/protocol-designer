@@ -244,7 +244,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted, markRaw } from 'vue'
+import { computed, ref, onMounted, markRaw, onUnmounted } from 'vue'
 import { VueFlow, useVueFlow, MarkerType, ConnectionMode, ConnectionLineType } from '@vue-flow/core'
 import { Background } from '@vue-flow/background'
 import { Controls } from '@vue-flow/controls'
@@ -280,7 +280,7 @@ const connectionLineOptions = {
 const { onConnect, addEdges, nodes, edges, setNodes, setEdges } = useVueFlow()
 
 // Drag and drop functionality
-const { onDragOver, onDrop, onDragLeave, isDragOver } = useFSMDragAndDrop()
+const { onDragOver, onDrop, onDragLeave, isDragOver, updateIdCounter } = useFSMDragAndDrop()
 
 const notificationStore = useNotificationStore()
 const protocolStore = useProtocolStore()
@@ -446,6 +446,12 @@ function loadFSMToCanvas(fsmId: string) {
   setNodes([])
   setEdges([])
 
+  // Update ID counter based on existing node IDs
+  if (fsm.nodes && fsm.nodes.length > 0) {
+    const existingNodeIds = fsm.nodes.map(node => node.id)
+    updateIdCounter(existingNodeIds)
+  }
+
   // Load nodes
   if (fsm.nodes && fsm.nodes.length > 0) {
     setNodes(fsm.nodes.map(node => ({
@@ -453,7 +459,7 @@ function loadFSMToCanvas(fsmId: string) {
       type: node.type,
       position: node.position,
       data: node.data,
-      dimensions: node.dimensions
+      dimensions: node.dimensions || { width: 150, height: 50 }
     })))
   }
 
@@ -466,7 +472,7 @@ function loadFSMToCanvas(fsmId: string) {
       sourceHandle: edge.sourceHandle,
       targetHandle: edge.targetHandle,
       data: edge.data,
-      label: edge.label || '',
+      label: generateEdgeLabel(edge.data),
       type: edge.type || 'smoothstep',
       animated: edge.animated || false,
       style: edge.style || {
@@ -482,6 +488,90 @@ function loadFSMToCanvas(fsmId: string) {
       }
     })))
   }
+}
+
+// Generate edge label from edge data
+function generateEdgeLabel(data: FSMEdgeData | undefined): string {
+  if (!data) return ''
+
+  const labelParts = []
+
+  // Add event
+  if (data.event) {
+    labelParts.push(data.event)
+  }
+
+  // Add condition - either manual or protocol-based
+  if (data.use_protocol_conditions && data.protocol_conditions && data.protocol_conditions.length > 0) {
+    // Build protocol condition string
+    const conditionStrings = data.protocol_conditions.map(pc => {
+      // Find field name
+      const field = protocolStore.protocol.fields?.find(f => f.id === pc.field_id)
+      const fieldName = field?.display_name || pc.field_id
+
+      // Build condition based on operator
+      let condStr = ''
+
+      switch (pc.operator) {
+        case 'equals':
+          condStr = `${fieldName}==${pc.field_option_name || pc.value}`
+          break
+        case 'not_equals':
+          condStr = `${fieldName}!=${pc.field_option_name || pc.value}`
+          break
+        case 'greater_than':
+          condStr = `${fieldName}>${pc.value}`
+          break
+        case 'less_than':
+          condStr = `${fieldName}<${pc.value}`
+          break
+        case 'greater_or_equal':
+          condStr = `${fieldName}>=${pc.value}`
+          break
+        case 'less_or_equal':
+          condStr = `${fieldName}<=${pc.value}`
+          break
+      }
+
+      return condStr
+    })
+
+    // Join multiple conditions with AND
+    let conditionText = conditionStrings.join(' && ')
+
+    // Truncate if too long (more than 50 characters)
+    const maxLength = 50
+    if (conditionText.length > maxLength) {
+      const numConditions = data.protocol_conditions.length
+      if (numConditions > 1) {
+        // Show count for multiple conditions
+        conditionText = `${conditionStrings[0].substring(0, 30)}... (+${numConditions - 1})`
+      } else {
+        // Truncate single long condition
+        conditionText = conditionText.substring(0, maxLength) + '...'
+      }
+    }
+
+    labelParts.push(`[${conditionText}]`)
+  } else if (data.condition) {
+    // Manual condition
+    let condText = data.condition
+
+    // Truncate if too long
+    const maxLength = 50
+    if (condText.length > maxLength) {
+      condText = condText.substring(0, maxLength) + '...'
+    }
+
+    labelParts.push(`[${condText}]`)
+  }
+
+  // Add action
+  if (data.action) {
+    labelParts.push(`/ ${data.action}`)
+  }
+
+  return labelParts.length > 0 ? labelParts.join(' ') : ''
 }
 
 // Clear all nodes and edges (but keep FSM)
@@ -505,6 +595,9 @@ function executeClearAll() {
   clearConfirmDialog.value = false
 }
 
+// Debounce timer for FSM saving
+let saveDebounceTimer: ReturnType<typeof setTimeout> | null = null
+
 // Save current canvas state to FSM in protocol store
 function saveFSMFromCanvas() {
   const fsm = currentFSM.value
@@ -515,7 +608,7 @@ function saveFSMFromCanvas() {
     type: 'fsmState' as const,
     position: node.position,
     data: node.data,
-    dimensions: node.dimensions
+    dimensions: node.dimensions || { width: 150, height: 50 } // Default dimensions if not yet initialized
   }))
 
   fsm.edges = edges.value.map(edge => ({
@@ -535,15 +628,38 @@ function saveFSMFromCanvas() {
   protocolStore.updateFSM(fsm.id, fsm)
 }
 
+// Debounced version of saveFSMFromCanvas
+function debouncedSaveFSM() {
+  // Clear existing timer
+  if (saveDebounceTimer) {
+    clearTimeout(saveDebounceTimer)
+  }
+
+  // Set new timer - save after 500ms of inactivity
+  saveDebounceTimer = setTimeout(() => {
+    saveFSMFromCanvas()
+    console.log('FSM saved (debounced)')
+  }, 500)
+}
+
+// Cleanup on component unmount
+onUnmounted(() => {
+  if (saveDebounceTimer) {
+    clearTimeout(saveDebounceTimer)
+    // Save immediately on unmount to ensure no data loss
+    saveFSMFromCanvas()
+  }
+})
+
 // VueFlow event handlers
 function onNodesChange(changes: any) {
   console.log('Nodes changed:', changes)
-  saveFSMFromCanvas()
+  debouncedSaveFSM()
 }
 
 function onEdgesChange(changes: any) {
   console.log('Edges changed:', changes)
-  saveFSMFromCanvas()
+  debouncedSaveFSM()
 }
 
 // Custom connect handler to create FSM edges with default data
@@ -648,86 +764,8 @@ function saveTransitionEdit(edgeId: string, data: FSMEdgeData) {
     // Update edge data
     edges.value[edgeIndex].data = data
 
-    // Create label from data
-    const labelParts = []
-
-    // Add event
-    if (data.event) {
-      labelParts.push(data.event)
-    }
-
-    // Add condition - either manual or protocol-based
-    if (data.use_protocol_conditions && data.protocol_conditions && data.protocol_conditions.length > 0) {
-      // Build protocol condition string
-      const conditionStrings = data.protocol_conditions.map(pc => {
-        // Find field name
-        const field = protocolStore.protocol.fields?.find(f => f.id === pc.field_id)
-        const fieldName = field?.display_name || pc.field_id
-
-        // Build condition based on operator
-        let condStr = ''
-
-        switch (pc.operator) {
-          case 'equals':
-            condStr = `${fieldName}==${pc.field_option_name || pc.value}`
-            break
-          case 'not_equals':
-            condStr = `${fieldName}!=${pc.field_option_name || pc.value}`
-            break
-          case 'greater_than':
-            condStr = `${fieldName}>${pc.value}`
-            break
-          case 'less_than':
-            condStr = `${fieldName}<${pc.value}`
-            break
-          case 'greater_or_equal':
-            condStr = `${fieldName}>=${pc.value}`
-            break
-          case 'less_or_equal':
-            condStr = `${fieldName}<=${pc.value}`
-            break
-        }
-
-        return condStr
-      })
-
-      // Join multiple conditions with AND
-      let conditionText = conditionStrings.join(' && ')
-
-      // Truncate if too long (more than 50 characters)
-      const maxLength = 50
-      if (conditionText.length > maxLength) {
-        const numConditions = data.protocol_conditions.length
-        if (numConditions > 1) {
-          // Show count for multiple conditions
-          conditionText = `${conditionStrings[0].substring(0, 30)}... (+${numConditions - 1})`
-        } else {
-          // Truncate single long condition
-          conditionText = conditionText.substring(0, maxLength) + '...'
-        }
-      }
-
-      labelParts.push(`[${conditionText}]`)
-    } else if (data.condition) {
-      // Manual condition
-      let condText = data.condition
-
-      // Truncate if too long
-      const maxLength = 50
-      if (condText.length > maxLength) {
-        condText = condText.substring(0, maxLength) + '...'
-      }
-
-      labelParts.push(`[${condText}]`)
-    }
-
-    // Add action
-    if (data.action) {
-      labelParts.push(`/ ${data.action}`)
-    }
-
-    // Update edge label
-    edges.value[edgeIndex].label = labelParts.length > 0 ? labelParts.join(' ') : ''
+    // Generate and update edge label from data
+    edges.value[edgeIndex].label = generateEdgeLabel(data)
   }
 
   saveFSMFromCanvas()

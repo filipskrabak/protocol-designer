@@ -94,6 +94,10 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
       console.log("protocol fields", this.protocolStore.protocol.fields);
 
       const svg = d3.select(this.svgWrapper);
+
+      // Ensure SCXML namespace is declared on SVG root
+      svg.attr("xmlns:scxml", "http://www.w3.org/2005/07/scxml");
+
       const metadata = d3.select("metadata").node();
       const pdNamespaceURI = d3.namespaces["pd"];
 
@@ -327,6 +331,21 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
           console.log("lastInnerHeight", lastInnerHeight);
         }
       });
+
+      // Remove any existing SCXML elements before adding new ones
+      if (this.svgWrapper) {
+        const svgNode = d3.select(this.svgWrapper).node();
+        if (svgNode) {
+          const metadata = svgNode.querySelector("metadata");
+          if (metadata) {
+            const existingScxmlElements = metadata.querySelectorAll("scxml");
+            existingScxmlElements.forEach(el => el.remove());
+          }
+        }
+      }
+
+      // Add FSMs to SVG as SCXML elements
+      this.addFSMsToSVG();
     },
 
     /**
@@ -689,9 +708,21 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
       this.protocolStore.protocol.created_at =
         protocolInfo.querySelector("created_at")?.textContent ?? "";
 
-      // set rawProtocolData
+      // Load FSMs from SVG (SCXML elements)
+      const fsms = this.getFSMsFromSVG();
+      if (fsms.length > 0) {
+        this.protocolStore.protocol.finite_state_machines = fsms;
+        console.log(`Loaded ${fsms.length} FSM(s) from protocol`);
+      }
 
-      this.rawProtocolData = document.querySelector("svg")?.outerHTML ?? "";
+      // Ensure SCXML namespace is set before capturing outerHTML
+      const svgElement = document.querySelector("svg");
+      if (svgElement) {
+        svgElement.setAttribute("xmlns:scxml", "http://www.w3.org/2005/07/scxml");
+      }
+
+      // set rawProtocolData
+      this.rawProtocolData = svgElement?.outerHTML ?? "";
 
       console.log("protocolStore", this.protocolStore.protocol);
     },
@@ -790,6 +821,8 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
 
       // create D3 namespace for pd
       d3.namespaces["pd"] = "http://www.protocoldescription.com";
+      // create D3 namespace for scxml
+      d3.namespaces["scxml"] = "http://www.w3.org/2005/07/scxml";
 
       const svgNode = svg.node();
 
@@ -929,6 +962,442 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
 
     closeExportModal() {
       this.exportModal = false;
+    },
+
+    /**
+     * Saves FSM changes to the SVG and updates the protocol file on the server
+     * Called when FSMs are modified in the FSM editor
+     */
+    async saveFSMChanges() {
+      if (!this.svgWrapper) {
+        console.warn("Cannot save FSM changes: svgWrapper not defined");
+        return;
+      }
+
+      // Get SVG element
+      const svgElement = document.querySelector("svg");
+      if (!svgElement) {
+        console.warn("SVG element not found");
+        return;
+      }
+
+      // Ensure SCXML namespace is set
+      svgElement.setAttribute("xmlns:scxml", "http://www.w3.org/2005/07/scxml");
+
+      // Get metadata element
+      const metadata = svgElement.querySelector("metadata");
+      if (!metadata) {
+        console.warn("metadata element not found");
+        return;
+      }
+
+      // Remove existing SCXML elements
+      const existingScxmlElements = metadata.querySelectorAll("scxml");
+      existingScxmlElements.forEach(el => el.remove());
+
+      // Add updated FSM SCXML elements
+      const fsms = this.protocolStore.protocol.finite_state_machines;
+      if (fsms && fsms.length > 0) {
+        fsms.forEach(fsm => {
+          const scxmlElement = this.serializeFSMToSCXML(fsm);
+          metadata.appendChild(scxmlElement);
+        });
+        console.log(`Added ${fsms.length} FSM(s) to SVG as SCXML`);
+      }
+
+      // Update raw protocol data
+      this.rawProtocolData = svgElement.outerHTML;
+
+      // Save to server
+      await this.saveCurrentProtocol();
+
+      console.log("FSM changes saved to SVG and server");
+    },
+
+    /**
+     * Serializes a FiniteStateMachine object to SCXML DOM element
+     * Maps FSM nodes to <scxml:state> and edges to <scxml:transition>
+     *
+     * @param fsm - The finite state machine to serialize
+     * @returns SVG element containing the SCXML representation
+     */
+    serializeFSMToSCXML(fsm: import("@/contracts/models").FiniteStateMachine): Element {
+      const scxmlNamespace = "http://www.w3.org/2005/07/scxml";
+      const pdNamespace = "http://www.protocoldescription.com";
+
+      // Create root <scxml:scxml> element
+      const scxmlElement = document.createElementNS(scxmlNamespace, "scxml:scxml");
+      scxmlElement.setAttribute("version", "1.0");
+      scxmlElement.setAttribute("name", fsm.name);
+      scxmlElement.setAttribute("xmlns:pd", pdNamespace);
+
+      // Find and set initial state
+      const initialNode = fsm.nodes.find(n => n.data.isInitial);
+      if (initialNode) {
+        scxmlElement.setAttribute("initial", initialNode.id);
+      }
+
+      // Create <scxml:datamodel> for FSM metadata
+      const datamodel = document.createElementNS(scxmlNamespace, "scxml:datamodel");
+
+      // Add FSM metadata as data elements
+      const metadataMap: Record<string, any> = {
+        fsm_id: fsm.id,
+        description: fsm.description,
+        author: fsm.author,
+        version: fsm.version,
+        created_at: fsm.created_at,
+        updated_at: fsm.updated_at,
+        protocol_id: fsm.protocol_id || ''
+      };
+
+      Object.entries(metadataMap).forEach(([key, value]) => {
+        const dataElement = document.createElementNS(scxmlNamespace, "scxml:data");
+        dataElement.setAttribute("id", key);
+        dataElement.setAttribute("expr", String(value));
+        datamodel.appendChild(dataElement);
+      });
+
+      scxmlElement.appendChild(datamodel);
+
+      // Serialize states
+      fsm.nodes.forEach(node => {
+        const stateElement = document.createElementNS(scxmlNamespace, "scxml:state");
+        stateElement.setAttribute("id", node.id);
+
+        // Mark final states
+        if (node.data.isFinal) {
+          stateElement.setAttribute("final", "true");
+        }
+
+        // Add state description if present
+        if (node.data.description) {
+          stateElement.setAttribute("pd:description", node.data.description);
+        }
+
+        // Store node position and label for reconstruction
+        stateElement.setAttribute("pd:label", node.data.label);
+        stateElement.setAttribute("pd:position_x", String(node.position.x));
+        stateElement.setAttribute("pd:position_y", String(node.position.y));
+
+        // Store state metadata if present
+        if (node.data.metadata) {
+          stateElement.setAttribute("pd:metadata", JSON.stringify(node.data.metadata));
+        }
+
+        // Find and add transitions from this state
+        const outgoingEdges = fsm.edges.filter(e => e.source === node.id);
+        outgoingEdges.forEach(edge => {
+          const transitionElement = document.createElementNS(scxmlNamespace, "scxml:transition");
+          transitionElement.setAttribute("target", edge.target);
+          transitionElement.setAttribute("pd:id", edge.id);
+
+          // Add event trigger
+          if (edge.data?.event) {
+            transitionElement.setAttribute("event", edge.data.event);
+          }
+
+          // Add action
+          if (edge.data?.action) {
+            transitionElement.setAttribute("pd:action", edge.data.action);
+          }
+
+          // Add description
+          if (edge.data?.description) {
+            transitionElement.setAttribute("pd:description", edge.data.description);
+          }
+
+          // Store handle information for reconstruction
+          if (edge.sourceHandle) {
+            transitionElement.setAttribute("pd:source_handle", edge.sourceHandle);
+          }
+          if (edge.targetHandle) {
+            transitionElement.setAttribute("pd:target_handle", edge.targetHandle);
+          }
+
+          // Handle conditions
+          if (edge.data?.use_protocol_conditions && edge.data?.protocol_conditions) {
+            // Use structured protocol conditions
+            transitionElement.setAttribute("pd:use_protocol_conditions", "true");
+
+            edge.data.protocol_conditions.forEach(pc => {
+              const condElement = document.createElementNS(pdNamespace, "pd:protocol_condition");
+              condElement.setAttribute("field_id", pc.field_id);
+              condElement.setAttribute("operator", pc.operator);
+
+              if (pc.value !== undefined) {
+                condElement.setAttribute("value", String(pc.value));
+              }
+              if (pc.field_option_name) {
+                condElement.setAttribute("field_option_name", pc.field_option_name);
+              }
+
+              transitionElement.appendChild(condElement);
+            });
+          } else if (edge.data?.condition) {
+            // Use manual/freeform condition
+            transitionElement.setAttribute("cond", edge.data.condition);
+          }
+
+          stateElement.appendChild(transitionElement);
+        });
+
+        scxmlElement.appendChild(stateElement);
+      });
+
+      return scxmlElement;
+    },
+
+    /**
+     * Adds all FSMs from the protocol to the SVG as SCXML elements
+     * Called after metadata is written to SVG
+     */
+    addFSMsToSVG() {
+      if (!this.svgWrapper) {
+        throw new Error("svgWrapper is not defined");
+      }
+
+      const fsms = this.protocolStore.protocol.finite_state_machines;
+      if (!fsms || fsms.length === 0) {
+        return;
+      }
+
+      const svg = d3.select(this.svgWrapper);
+      const svgNode = svg.node();
+      if (!svgNode) {
+        throw new Error("svgNode is not defined");
+      }
+
+      const metadata = svgNode.querySelector("metadata");
+      if (!metadata) {
+        throw new Error("metadata element not found");
+      }
+
+      // Add each FSM as a separate <scxml:scxml> element inside metadata
+      fsms.forEach(fsm => {
+        const scxmlElement = this.serializeFSMToSCXML(fsm);
+
+        // Append directly to metadata element
+        metadata.appendChild(scxmlElement);
+      });
+
+      console.log(`Added ${fsms.length} FSM(s) to SVG as SCXML`);
+    },
+
+    /**
+     * Parses an SCXML DOM element back into a FiniteStateMachine object
+     *
+     * @param scxmlElement - The SCXML element to parse
+     * @returns FiniteStateMachine object
+     */
+    parseSCXMLToFSM(scxmlElement: Element): import("@/contracts/models").FiniteStateMachine {
+      const name = scxmlElement.getAttribute("name") || "Unnamed FSM";
+      const initialStateId = scxmlElement.getAttribute("initial");
+
+      // Parse datamodel for metadata
+      const datamodel = scxmlElement.querySelector("datamodel");
+      let fsmId = v4();
+      let description = "";
+      let author = "";
+      let version = "1.0";
+      let created_at = new Date().toISOString();
+      let updated_at = new Date().toISOString();
+      let protocol_id = "";
+
+      if (datamodel) {
+        const dataElements = datamodel.querySelectorAll("data");
+        dataElements.forEach(dataEl => {
+          const id = dataEl.getAttribute("id");
+          const expr = dataEl.getAttribute("expr");
+
+          if (id && expr) {
+            switch(id) {
+              case "fsm_id": fsmId = expr; break;
+              case "description": description = expr; break;
+              case "author": author = expr; break;
+              case "version": version = expr; break;
+              case "created_at": created_at = expr; break;
+              case "updated_at": updated_at = expr; break;
+              case "protocol_id": protocol_id = expr; break;
+            }
+          }
+        });
+      }
+
+      const nodes: import("@/contracts/models").FSMNode[] = [];
+      const edges: import("@/contracts/models").FSMEdge[] = [];
+      const events: import("@/contracts/models").FSMEvent[] = [];
+      const eventSet = new Set<string>();
+
+      // Parse states
+      const states = scxmlElement.querySelectorAll("state");
+      states.forEach(stateEl => {
+        const stateId = stateEl.getAttribute("id");
+        if (!stateId) return;
+
+        const isFinal = stateEl.getAttribute("final") === "true";
+        const isInitial = stateId === initialStateId;
+        const label = stateEl.getAttribute("pd:label") || stateId;
+        const stateDescription = stateEl.getAttribute("pd:description") || undefined;
+        const posX = parseFloat(stateEl.getAttribute("pd:position_x") || "0");
+        const posY = parseFloat(stateEl.getAttribute("pd:position_y") || "0");
+        const metadataStr = stateEl.getAttribute("pd:metadata");
+
+        let metadata: Record<string, any> | undefined;
+        if (metadataStr) {
+          try {
+            metadata = JSON.parse(metadataStr);
+          } catch (e) {
+            console.error("Failed to parse state metadata:", e);
+          }
+        }
+
+        const node: import("@/contracts/models").FSMNode = {
+          id: stateId,
+          type: 'fsmState',
+          position: { x: posX, y: posY },
+          data: {
+            label,
+            isInitial,
+            isFinal,
+            description: stateDescription,
+            metadata
+          }
+        };
+
+        nodes.push(node);
+
+        // Parse transitions from this state
+        const transitions = stateEl.querySelectorAll("transition");
+        transitions.forEach(transEl => {
+          const edgeId = transEl.getAttribute("pd:id") || v4();
+          const target = transEl.getAttribute("target");
+          if (!target) return;
+
+          const event = transEl.getAttribute("event") || undefined;
+          const action = transEl.getAttribute("pd:action") || undefined;
+          const edgeDescription = transEl.getAttribute("pd:description") || undefined;
+          const sourceHandle = transEl.getAttribute("pd:source_handle") || undefined;
+          const targetHandle = transEl.getAttribute("pd:target_handle") || undefined;
+          const useProtocolConditions = transEl.getAttribute("pd:use_protocol_conditions") === "true";
+
+          // Track events
+          if (event && !eventSet.has(event)) {
+            eventSet.add(event);
+            events.push({
+              id: v4(),
+              name: event,
+              description: `Event: ${event}`
+            });
+          }
+
+          const edgeData: import("@/contracts/models").FSMEdgeData = {
+            event,
+            action,
+            description: edgeDescription,
+            use_protocol_conditions: useProtocolConditions
+          };
+
+          // Parse conditions
+          if (useProtocolConditions) {
+            const protocolConditions: import("@/contracts/models").ProtocolFieldCondition[] = [];
+            const condElements = transEl.querySelectorAll("protocol_condition");
+
+            condElements.forEach(condEl => {
+              const fieldId = condEl.getAttribute("field_id");
+              const operator = condEl.getAttribute("operator") as any;
+              const value = condEl.getAttribute("value");
+              const fieldOptionName = condEl.getAttribute("field_option_name") || undefined;
+
+              if (fieldId && operator) {
+                protocolConditions.push({
+                  field_id: fieldId,
+                  operator,
+                  value: value ? (isNaN(Number(value)) ? value : Number(value)) : undefined,
+                  field_option_name: fieldOptionName
+                });
+              }
+            });
+
+            if (protocolConditions.length > 0) {
+              edgeData.protocol_conditions = protocolConditions;
+            }
+          } else {
+            // Manual condition
+            const cond = transEl.getAttribute("cond");
+            if (cond) {
+              edgeData.condition = cond;
+            }
+          }
+
+          const edge: import("@/contracts/models").FSMEdge = {
+            id: edgeId,
+            source: stateId,
+            target,
+            sourceHandle,
+            targetHandle,
+            data: edgeData,
+            type: 'smoothstep',
+            animated: false
+          };
+
+          edges.push(edge);
+        });
+      });
+
+      return {
+        id: fsmId,
+        name,
+        description,
+        author,
+        version,
+        created_at,
+        updated_at,
+        protocol_id,
+        nodes,
+        edges,
+        events,
+        metadata: {}
+      };
+    },
+
+    /**
+     * Extracts all FSMs from the SVG document by parsing SCXML elements
+     *
+     * @returns Array of FiniteStateMachine objects
+     */
+    getFSMsFromSVG(): import("@/contracts/models").FiniteStateMachine[] {
+      if (!this.svgWrapper) {
+        return [];
+      }
+
+      const svg = d3.select(this.svgWrapper);
+      const svgNode = svg.node();
+      if (!svgNode) {
+        return [];
+      }
+
+      // Look for SCXML elements inside metadata
+      const metadata = svgNode.querySelector("metadata");
+      if (!metadata) {
+        console.warn("metadata element not found");
+        return [];
+      }
+
+      const scxmlElements = metadata.querySelectorAll("scxml");
+      const fsms: import("@/contracts/models").FiniteStateMachine[] = [];
+
+      scxmlElements.forEach(scxmlEl => {
+        try {
+          const fsm = this.parseSCXMLToFSM(scxmlEl);
+          fsms.push(fsm);
+        } catch (error) {
+          console.error("Failed to parse SCXML element:", error);
+        }
+      });
+
+      console.log(`Loaded ${fsms.length} FSM(s) from SVG`);
+      return fsms;
     },
   },
 

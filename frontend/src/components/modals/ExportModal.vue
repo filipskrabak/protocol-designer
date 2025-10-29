@@ -342,8 +342,11 @@ const downloadExport = async () => {
     );
 
     if (result.success) {
+      const fsmCount = protocolStore.protocol.finite_state_machines?.length || 0;
+      const fsmMessage = fsmCount > 0 ? ` with ${fsmCount} FSM${fsmCount > 1 ? 's' : ''}` : '';
+
       notificationStore.showNotification({
-        message: `${selectedFormat.value.name} exported successfully`,
+        message: `${selectedFormat.value.name} exported successfully${fsmMessage}`,
         color: 'success',
         icon: 'mdi-check',
         timeout: 3000

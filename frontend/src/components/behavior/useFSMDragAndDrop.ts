@@ -12,6 +12,32 @@ function getId() {
 }
 
 /**
+ * Updates the ID counter based on existing node IDs
+ * @param nodeIds - Array of existing node IDs
+ */
+function updateIdCounter(nodeIds: string[]) {
+  let maxId = -1
+
+  // Find the highest ID number from existing nodes
+  nodeIds.forEach(nodeId => {
+    const match = nodeId.match(/^fsm_node_(\d+)$/)
+    if (match) {
+      const num = parseInt(match[1], 10)
+      if (num > maxId) {
+        maxId = num
+      }
+    }
+  })
+
+  // Set the counter to one more than the highest existing ID
+  if (maxId >= 0) {
+    id = maxId + 1
+  }
+
+  console.log(`FSM ID counter updated to: ${id}`)
+}
+
+/**
  * Global state for drag and drop operations
  */
 const state = {
@@ -146,5 +172,6 @@ export default function useFSMDragAndDrop() {
     onDragLeave,
     onDragOver,
     onDrop,
+    updateIdCounter, // Export the function to update ID counter
   }
 }

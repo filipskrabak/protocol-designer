@@ -7,6 +7,7 @@ import {
   EncapsulatedProtocol,
   FiniteStateMachine,
 } from "@/contracts";
+import { useProtocolRenderStore } from "./ProtocolRenderStore";
 
 export const useProtocolStore = defineStore("ProtocolStore", {
   // State
@@ -110,6 +111,10 @@ export const useProtocolStore = defineStore("ProtocolStore", {
       this.protocol.finite_state_machines!.push(fsm);
       this.currentFSMId = fsm.id;
       this.protocol.updated_at = new Date().toLocaleDateString("sk-SK");
+
+      // Trigger FSM save to SVG
+      const protocolRenderStore = useProtocolRenderStore();
+      protocolRenderStore.saveFSMChanges();
     },
 
     // Update an existing FSM
@@ -119,21 +124,32 @@ export const useProtocolStore = defineStore("ProtocolStore", {
       if (index !== -1) {
         this.protocol.finite_state_machines![index] = fsm;
         this.protocol.updated_at = new Date().toLocaleDateString("sk-SK");
+
+        // Trigger FSM save to SVG
+        const protocolRenderStore = useProtocolRenderStore();
+        protocolRenderStore.saveFSMChanges();
       }
     },
 
-    // Delete an FSM
+    // Delete an FSM from the protocol
     deleteFSM(fsmId: string) {
-      if (!this.protocol.finite_state_machines) return;
-      this.protocol.finite_state_machines = this.protocol.finite_state_machines.filter(
-        f => f.id !== fsmId
-      );
-      if (this.currentFSMId === fsmId) {
-        this.currentFSMId = this.protocol.finite_state_machines.length > 0
-          ? this.protocol.finite_state_machines[0].id
-          : null;
+      this.ensureFSMArray();
+      const index = this.protocol.finite_state_machines!.findIndex(f => f.id === fsmId);
+      if (index !== -1) {
+        this.protocol.finite_state_machines!.splice(index, 1);
+        this.protocol.updated_at = new Date().toLocaleDateString("sk-SK");
+
+        // Set current FSM to first available, or null if none
+        if (this.protocol.finite_state_machines!.length > 0) {
+          this.currentFSMId = this.protocol.finite_state_machines![0].id;
+        } else {
+          this.currentFSMId = null;
+        }
+
+        // Trigger FSM save to SVG
+        const protocolRenderStore = useProtocolRenderStore();
+        protocolRenderStore.saveFSMChanges();
       }
-      this.protocol.updated_at = new Date().toLocaleDateString("sk-SK");
     },
 
     // Get FSM by ID
