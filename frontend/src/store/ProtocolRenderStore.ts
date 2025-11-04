@@ -658,6 +658,12 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
 
           elementsToHighlight.each(function () {
             const rect = d3.select(this).select("rect");
+            const rectNode = rect.node();
+
+            if (!rectNode) {
+              return;
+            }
+
             let originalStyleFill = "white";
             if (field.group_id) {
               const groupColor = generateGroupColor(field.group_id);
@@ -675,6 +681,12 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
 
           elementsToHighlight.each(function () {
             const rect = d3.select(this).select("rect");
+            const rectNode = rect.node();
+
+            if (!rectNode) {
+              return;
+            }
+
             const originalStyleFill = rect.attr("data-original-style-fill") || "white";
             rect.style("fill", originalStyleFill);
           });
