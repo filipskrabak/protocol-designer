@@ -724,7 +724,12 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
       const fsms = this.getFSMsFromSVG();
       if (fsms.length > 0) {
         this.protocolStore.protocol.finite_state_machines = fsms;
+        // Set currentFSMId to the first FSM when loading a protocol
+        this.protocolStore.currentFSMId = fsms[0].id;
         console.log(`Loaded ${fsms.length} FSM(s) from protocol`);
+      } else {
+        // No FSMs in this protocol, clear the selection
+        this.protocolStore.currentFSMId = null;
       }
 
       // Ensure SCXML namespace is set before capturing outerHTML
@@ -902,7 +907,7 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
 
       this.getMetadata();
 
-      this.initialize();
+      this.setSvgSize();
 
       this.notificationStore.showNotification({
         message: "Protocol successfully loaded",
