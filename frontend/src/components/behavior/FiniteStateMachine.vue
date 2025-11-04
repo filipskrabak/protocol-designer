@@ -244,7 +244,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted, markRaw, onUnmounted } from 'vue'
+import { computed, ref, onMounted, markRaw, onUnmounted, watch } from 'vue'
 import { VueFlow, useVueFlow, MarkerType, ConnectionMode, ConnectionLineType } from '@vue-flow/core'
 import { Background } from '@vue-flow/background'
 import { Controls } from '@vue-flow/controls'
@@ -370,6 +370,49 @@ onMounted(() => {
     loadFSMToCanvas(currentFSMId.value)
   }
 })
+
+// Watch for protocol changes (when switching between protocols)
+// Track the previous protocol ID to detect switches
+let previousProtocolId: string = String(protocolStore.protocol.id || '')
+
+watch(
+  () => String(protocolStore.protocol.id || ''),
+  (newProtocolId) => {
+    // Detect protocol change
+    const protocolChanged = newProtocolId && previousProtocolId && newProtocolId !== previousProtocolId
+
+    if (protocolChanged) {
+      console.log('Protocol changed, will reload FSM canvas', {
+        from: previousProtocolId,
+        to: newProtocolId
+      })
+
+      // Update previous protocol ID
+      previousProtocolId = newProtocolId
+
+      // Clear the canvas immediately
+      nodes.value = []
+      edges.value = []
+    } else if (!previousProtocolId && newProtocolId) {
+      // First time protocol is loaded
+      previousProtocolId = newProtocolId
+    }
+  },
+  { immediate: true }
+)
+
+// Watch for currentFSMId changes to reload canvas
+// This fires AFTER FSMs are loaded into the protocol
+watch(
+  () => currentFSMId.value,
+  (newFSMId, oldFSMId) => {
+    // Only reload if FSM actually changed and we have a valid FSM
+    if (newFSMId && newFSMId !== oldFSMId) {
+      console.log('Current FSM changed, loading to canvas:', newFSMId)
+      loadFSMToCanvas(newFSMId)
+    }
+  }
+)
 
 // Create new FSM
 function createNewFSM() {
