@@ -55,6 +55,11 @@
       </v-card-text>
     </v-card>
 
+    <!-- FSM Analysis -->
+    <div class="ma-4">
+      <FSMAnalysis />
+    </div>
+
     <!-- Instructions -->
     <!--<v-card class="ma-4" elevation="1">
       <v-card-text>
@@ -74,6 +79,7 @@
 </template>
 
 <script setup lang="ts">
+import FSMAnalysis from './FSMAnalysis.vue'
 import useFSMDragAndDrop from './useFSMDragAndDrop'
 
 const { onDragStart } = useFSMDragAndDrop()

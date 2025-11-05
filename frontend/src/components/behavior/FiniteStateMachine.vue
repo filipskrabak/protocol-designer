@@ -141,9 +141,6 @@
         <v-row align="center">
           <v-col>
             <span class="text-caption">
-              <v-chip size="x-small" color="primary" variant="flat" class="me-2">
-                {{ currentFSMIndex + 1 }} / {{ fsmList.length }}
-              </v-chip>
               States: {{ currentFSM?.nodes.length || 0 }} |
               Transitions: {{ currentFSM?.edges.length || 0 }} |
               Events: {{ currentFSM?.events.length || 0 }}
@@ -860,12 +857,15 @@ onConnect(handleConnect)
   padding: 16px;
   height: 100vh;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .fsm-layout {
   display: flex;
   gap: 0;
-  height: 600px;
+  flex: 1;
+  min-height: 600px;
   border-radius: 4px;
   overflow: hidden;
 }
@@ -878,7 +878,7 @@ onConnect(handleConnect)
 }
 
 .canvas-container {
-  height: 600px;
+  height: 100%;
   width: 100%;
   position: relative;
 }
