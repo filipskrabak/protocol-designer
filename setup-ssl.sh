@@ -75,7 +75,7 @@ docker compose run --rm --entrypoint "sh -c 'rm -rf /etc/letsencrypt/live/defaul
 
 # Request Let's Encrypt certificate
 echo "==> Requesting Let's Encrypt certificate..."
-docker compose run --rm certbot certonly \
+docker compose run --rm --entrypoint "" certbot certbot certonly \
     --webroot \
     --webroot-path=/var/www/certbot \
     --email $EMAIL \
