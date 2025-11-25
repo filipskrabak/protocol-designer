@@ -38,5 +38,20 @@ services:
             dockerfile: Dockerfile
         ports:
             - 80:80
+            - 443:443
+        volumes:
+            - ./certbot/conf:/etc/letsencrypt
+            - ./certbot/www:/var/www/certbot
         depends_on:
             - fastapi-python
+    
+    certbot:
+        image: certbot/certbot
+        restart: unless-stopped
+        volumes:
+            - ./certbot/conf:/etc/letsencrypt
+            - ./certbot/www:/var/www/certbot
+        environment:
+            - DOMAIN
+            - EMAIL
+        entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"

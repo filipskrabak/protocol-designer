@@ -12,7 +12,7 @@ FROM builder as dev
 CMD ["npm", "run", "dev"]
 
 FROM builder as build
-RUN npm run build
+RUN node node_modules/vite/bin/vite.js build
 
 FROM nginx:alpine as prod
 
@@ -20,7 +20,7 @@ COPY nginx.conf /etc/nginx/nginx.conf
 
 COPY --from=build /home/frontend/dist /usr/share/nginx/html
 
-EXPOSE 80
+EXPOSE 80 443
 
 CMD ["nginx", "-g", "daemon off;"]
 
