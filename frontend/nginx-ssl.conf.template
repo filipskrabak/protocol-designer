@@ -17,15 +17,17 @@ http {
   sendfile        on;
   keepalive_timeout  65;
   
-  # HTTP server - redirects to HTTPS
+  # HTTP server - handles ACME challenges and redirects to HTTPS
   server {
     listen       80;
     server_name  _;
     
-    # ACME challenge location for Let's Encrypt
+    # ACME challenge location for Let's Encrypt - MUST be accessible via HTTP
     location ^~ /.well-known/acme-challenge/ {
       root /var/www/certbot;
       try_files $uri =404;
+      # Prevent redirect
+      break;
     }
     
     # Redirect all other HTTP traffic to HTTPS

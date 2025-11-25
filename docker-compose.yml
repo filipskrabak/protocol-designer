@@ -42,8 +42,11 @@ services:
         volumes:
             - ./certbot/conf:/etc/letsencrypt
             - ./certbot/www:/var/www/certbot
+        environment:
+            - DOMAIN
         depends_on:
             - fastapi-python
+        restart: unless-stopped
     
     certbot:
         image: certbot/certbot
@@ -54,4 +57,7 @@ services:
         environment:
             - DOMAIN
             - EMAIL
-        entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+        # Check for renewal twice daily
+        entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew --quiet && echo \"Certificate renewal checked at $$(date)\"; sleep 12h & wait $${!}; done;'"
+        depends_on:
+            - frontend-vue
