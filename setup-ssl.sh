@@ -83,8 +83,11 @@ docker compose run --rm --entrypoint "" certbot certbot certonly \
     --no-eff-email \
     -d $DOMAIN
 
-# Create symbolic link
-ln -sf "../$DOMAIN" "certbot/conf/live/default"
+# Create symbolic link for nginx to find certificates
+echo "==> Creating certificate symbolic link..."
+cd certbot/conf/live
+ln -sf "$DOMAIN" default
+cd ../../../
 
 # Copy SSL-enabled nginx config
 echo "==> Switching to HTTPS-enabled nginx configuration..."
