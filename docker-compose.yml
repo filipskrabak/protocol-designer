@@ -18,8 +18,8 @@ services:
         build: 
             context: ./backend
             dockerfile: Dockerfile
-        ports:
-            - 8000:8000
+        expose:
+            - 8000
         environment:
             - DATABASE_HOST=db
             - DATABASE_PORT=5432
