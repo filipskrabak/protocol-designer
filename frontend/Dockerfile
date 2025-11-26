@@ -12,6 +12,8 @@ FROM builder as dev
 CMD ["npm", "run", "dev"]
 
 FROM builder as build
+ARG VITE_ANALYTICS_KEY
+ENV VITE_ANALYTICS_KEY=${VITE_ANALYTICS_KEY}
 RUN node node_modules/vite/bin/vite.js build
 
 FROM nginx:alpine as prod
