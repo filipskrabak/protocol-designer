@@ -20,10 +20,10 @@ jobs:
         username: ${{ secrets.SERVER_USER }}
         key: ${{ secrets.SERVER_SSH_KEY }}
         script: |
-          cd /home/ubuntu/protocol-designer
+          cd /home/${{ secrets.SERVER_USER }}/protocol-designer
           git pull
           cd backend
-          sudo chown -R ubuntu:ubuntu postgres_data
+          sudo chown -R ${{ secrets.SERVER_USER }}:${{ secrets.SERVER_USER }} postgres_data
           cd ..
           docker compose build
           docker compose down
