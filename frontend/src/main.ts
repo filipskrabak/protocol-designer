@@ -16,11 +16,11 @@ import { createApp } from "vue";
 // Axios
 import axios from "axios";
 
-// Get URL from environment variable
-
-let url = window.location.origin;
-url = url.replace(/:\d+$/, ""); // Strip the port number from the URL
-axios.defaults.baseURL = url + ":8000";
+// Configure API base URL
+// In production, API is proxied through nginx at /api
+// In development, API runs on port 8000
+const isProduction = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+axios.defaults.baseURL = isProduction ? '/api' : 'http://localhost:8000';
 
 // Set withCredentials to true to ensure cookies are sent with every request
 axios.defaults.withCredentials = true;
