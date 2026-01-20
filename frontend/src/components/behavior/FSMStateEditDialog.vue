@@ -68,7 +68,7 @@
               </v-expansion-panel-title>
               <v-expansion-panel-text>
                 <v-text-field
-                  v-model="localData.metadata.timeout"
+                  v-model="localData.metadata!.timeout"
                   label="Timeout (ms)"
                   type="number"
                   placeholder="e.g., 5000"
@@ -80,7 +80,7 @@
                 ></v-text-field>
 
                 <v-text-field
-                  v-model="localData.metadata.entryAction"
+                  v-model="localData.metadata!.entryAction"
                   label="Entry Action"
                   placeholder="e.g., startTimer(), showLoader()"
                   prepend-icon="mdi-login"
@@ -91,7 +91,7 @@
                 ></v-text-field>
 
                 <v-text-field
-                  v-model="localData.metadata.exitAction"
+                  v-model="localData.metadata!.exitAction"
                   label="Exit Action"
                   placeholder="e.g., stopTimer(), hideLoader()"
                   prepend-icon="mdi-logout"
@@ -168,7 +168,7 @@ const localData = reactive<FSMNodeData>({
   isInitial: false,
   isFinal: false,
   description: '',
-  metadata: {}
+  metadata: {} as Record<string, any>
 })
 
 // State type for easy switching
@@ -205,7 +205,7 @@ watch(
         isInitial: newData.isInitial || false,
         isFinal: newData.isFinal || false,
         description: newData.description || '',
-        metadata: { ...newData.metadata } || {}
+        metadata: newData.metadata ? { ...newData.metadata } : {}
       })
     } else {
       // Reset to default values

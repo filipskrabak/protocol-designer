@@ -135,20 +135,10 @@
       <FSMSidebar />
     </div>
 
-    <!-- Status Bar -->
-    <v-card class="mt-4" elevation="1">
-      <v-card-text>
-        <v-row align="center">
-          <v-col>
-            <span class="text-caption">
-              States: {{ currentFSM?.nodes.length || 0 }} |
-              Transitions: {{ currentFSM?.edges.length || 0 }} |
-              Events: {{ currentFSM?.events.length || 0 }}
-            </span>
-          </v-col>
-        </v-row>
-      </v-card-text>
-    </v-card>
+    <!-- FSM Analysis -->
+    <div class="mt-4">
+      <FSMAnalysis />
+    </div>
 
     <!-- Transition Edit Dialog -->
     <FSMTransitionEditDialog
@@ -241,7 +231,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted, markRaw, onUnmounted, watch } from 'vue'
+import { computed, onMounted, markRaw, watch } from 'vue'
 import { VueFlow, useVueFlow, MarkerType, ConnectionMode, ConnectionLineType } from '@vue-flow/core'
 import { Background } from '@vue-flow/background'
 import { Controls } from '@vue-flow/controls'
@@ -250,8 +240,12 @@ import FSMSidebar from './FSMSidebar.vue'
 import FSMStateNode from './FSMStateNode.vue'
 import FSMStateEditDialog from './FSMStateEditDialog.vue'
 import FSMTransitionEditDialog from './FSMTransitionEditDialog.vue'
+import FSMAnalysis from './FSMAnalysis.vue'
 import useFSMDragAndDrop from './useFSMDragAndDrop'
-import type { FiniteStateMachine, FSMEdgeData, FSMNodeData } from '@/contracts/models'
+import { useFSMDialogs } from './composables/useFSMDialogs'
+import { useFSMPersistence } from './composables/useFSMPersistence'
+import { useFSMCanvas } from './composables/useFSMCanvas'
+import type { FiniteStateMachine } from '@/contracts/models'
 import { useNotificationStore } from '@/store/NotificationStore'
 import { useProtocolStore } from '@/store/ProtocolStore'
 
@@ -282,6 +276,54 @@ const { onDragOver, onDrop, onDragLeave, isDragOver, updateIdCounter } = useFSMD
 const notificationStore = useNotificationStore()
 const protocolStore = useProtocolStore()
 
+// Dialog management
+const {
+  editDialog,
+  editingEdgeId,
+  editingEdgeData,
+  stateEditDialog,
+  editingNodeId,
+  editingNodeData,
+  deleteConfirmDialog,
+  deletingFSMId,
+  deletingFSMName,
+  clearConfirmDialog,
+  openTransitionEditDialog,
+  openStateEditDialog,
+  openDeleteConfirmDialog,
+  closeDeleteConfirmDialog,
+  openClearConfirmDialog,
+  closeClearConfirmDialog
+} = useFSMDialogs()
+
+// Persistence management
+const { saveFSMFromCanvas, debouncedSaveFSM, loadFSMToCanvas } = useFSMPersistence(
+  nodes,
+  edges,
+  setNodes,
+  setEdges
+)
+
+// Canvas operations
+const {
+  handleConnect,
+  onEdgeClick,
+  onNodeClick,
+  saveTransitionEdit,
+  deleteTransition,
+  saveStateEdit,
+  deleteState,
+  onNodesChange: handleNodesChange,
+  onEdgesChange: handleEdgesChange
+} = useFSMCanvas(
+  nodes,
+  edges,
+  addEdges,
+  saveFSMFromCanvas,
+  openTransitionEditDialog,
+  openStateEditDialog
+)
+
 // Initialize protocol FSM array if needed
 protocolStore.ensureFSMArray()
 
@@ -291,7 +333,7 @@ const currentFSMId = computed({
   set: (value: string | null) => {
     if (value) {
       protocolStore.setCurrentFSM(value)
-      loadFSMToCanvas(value)
+      loadFSMToCanvas(value, updateIdCounter)
     }
   }
 })
@@ -307,12 +349,6 @@ const fsmListItems = computed(() => {
     id: fsm.id,
     name: fsm.name || 'Unnamed FSM'
   }))
-})
-
-// Current FSM index
-const currentFSMIndex = computed(() => {
-  if (!currentFSMId.value) return 0
-  return fsmList.value.findIndex(fsm => fsm.id === currentFSMId.value)
 })
 
 // Get current FSM from protocol store
@@ -333,38 +369,16 @@ const fsmName = computed({
   }
 })
 
-// Transition editing dialog state
-const editDialog = ref(false)
-const editingEdgeId = ref<string>('')
-const editingEdgeData = ref<FSMEdgeData>({})
-
-// State editing dialog state
-const stateEditDialog = ref(false)
-const editingNodeId = ref<string>('')
-const editingNodeData = ref<FSMNodeData>({
-  label: '',
-  isInitial: false,
-  isFinal: false
-})
-
-// Confirmation dialog state
-const deleteConfirmDialog = ref(false)
-const deletingFSMId = ref<string>('')
-const deletingFSMName = ref<string>('')
-const clearConfirmDialog = ref(false)
-
 // Initialize first FSM if none exist
 onMounted(() => {
   if (fsmList.value.length === 0) {
     createNewFSM()
   } else if (!currentFSMId.value) {
-    // Load first FSM
     const firstFSM = fsmList.value[0]
     protocolStore.setCurrentFSM(firstFSM.id)
-    loadFSMToCanvas(firstFSM.id)
+    loadFSMToCanvas(firstFSM.id, updateIdCounter)
   } else {
-    // Load current FSM
-    loadFSMToCanvas(currentFSMId.value)
+    loadFSMToCanvas(currentFSMId.value, updateIdCounter)
   }
 })
 
@@ -399,14 +413,12 @@ watch(
 )
 
 // Watch for currentFSMId changes to reload canvas
-// This fires AFTER FSMs are loaded into the protocol
 watch(
   () => currentFSMId.value,
   (newFSMId, oldFSMId) => {
-    // Only reload if FSM actually changed and we have a valid FSM
     if (newFSMId && newFSMId !== oldFSMId) {
       console.log('Current FSM changed, loading to canvas:', newFSMId)
-      loadFSMToCanvas(newFSMId)
+      loadFSMToCanvas(newFSMId, updateIdCounter)
     }
   }
 )
@@ -429,7 +441,7 @@ function createNewFSM() {
   }
 
   protocolStore.addFSM(newFSM)
-  loadFSMToCanvas(newFSM.id)
+  loadFSMToCanvas(newFSM.id, updateIdCounter)
 
   notificationStore.showNotification({
     message: `Created new FSM: ${newFSM.name}`,
@@ -443,10 +455,7 @@ function createNewFSM() {
 function confirmDeleteFSM(fsmId: string) {
   const fsm = protocolStore.getFSMById(fsmId)
   if (!fsm) return
-
-  deletingFSMId.value = fsmId
-  deletingFSMName.value = fsm.name || 'Unnamed FSM'
-  deleteConfirmDialog.value = true
+  openDeleteConfirmDialog(fsmId, fsm.name || 'Unnamed FSM')
 }
 
 // Execute delete FSM after confirmation
@@ -463,160 +472,19 @@ function executeDeleteFSM() {
     icon: 'mdi-information'
   })
 
-  // Close dialog
-  deleteConfirmDialog.value = false
-  deletingFSMId.value = ''
-  deletingFSMName.value = ''
+  closeDeleteConfirmDialog()
 
   // Load another FSM if available
   if (fsmList.value.length > 0) {
-    loadFSMToCanvas(fsmList.value[0].id)
+    loadFSMToCanvas(fsmList.value[0].id, updateIdCounter)
   } else {
-    // Create new FSM if none left
     createNewFSM()
   }
 }
 
-// Load FSM data to canvas
-function loadFSMToCanvas(fsmId: string) {
-  const fsm = protocolStore.getFSMById(fsmId)
-  if (!fsm) return
-
-  // Clear current canvas
-  setNodes([])
-  setEdges([])
-
-  // Update ID counter based on existing node IDs
-  if (fsm.nodes && fsm.nodes.length > 0) {
-    const existingNodeIds = fsm.nodes.map(node => node.id)
-    updateIdCounter(existingNodeIds)
-  }
-
-  // Load nodes
-  if (fsm.nodes && fsm.nodes.length > 0) {
-    setNodes(fsm.nodes.map(node => ({
-      id: node.id,
-      type: node.type,
-      position: node.position,
-      data: node.data,
-      dimensions: node.dimensions || { width: 150, height: 50 }
-    })))
-  }
-
-  // Load edges
-  if (fsm.edges && fsm.edges.length > 0) {
-    setEdges(fsm.edges.map(edge => ({
-      id: edge.id,
-      source: edge.source,
-      target: edge.target,
-      sourceHandle: edge.sourceHandle,
-      targetHandle: edge.targetHandle,
-      data: edge.data,
-      label: generateEdgeLabel(edge.data),
-      type: edge.type || 'smoothstep',
-      animated: edge.animated || false,
-      style: edge.style || {
-        stroke: '#374151',
-        strokeWidth: 2,
-        cursor: 'pointer'
-      },
-      markerEnd: {
-        type: MarkerType.ArrowClosed,
-        width: 20,
-        height: 20,
-        color: '#374151'
-      }
-    })))
-  }
-}
-
-// Generate edge label from edge data
-function generateEdgeLabel(data: FSMEdgeData | undefined): string {
-  if (!data) return ''
-
-  const labelParts = []
-
-  // Add event
-  if (data.event) {
-    labelParts.push(data.event)
-  }
-
-  // Add condition - either manual or protocol-based
-  if (data.use_protocol_conditions && data.protocol_conditions && data.protocol_conditions.length > 0) {
-    // Build protocol condition string
-    const conditionStrings = data.protocol_conditions.map(pc => {
-      // Find field name
-      const field = protocolStore.protocol.fields?.find(f => f.id === pc.field_id)
-      const fieldName = field?.display_name || pc.field_id
-
-      // Build condition based on operator
-      let condStr = ''
-
-      switch (pc.operator) {
-        case 'equals':
-          condStr = `${fieldName}==${pc.field_option_name || pc.value}`
-          break
-        case 'not_equals':
-          condStr = `${fieldName}!=${pc.field_option_name || pc.value}`
-          break
-        case 'greater_than':
-          condStr = `${fieldName}>${pc.value}`
-          break
-        case 'less_than':
-          condStr = `${fieldName}<${pc.value}`
-          break
-        case 'greater_or_equal':
-          condStr = `${fieldName}>=${pc.value}`
-          break
-        case 'less_or_equal':
-          condStr = `${fieldName}<=${pc.value}`
-          break
-      }
-
-      return condStr
-    })
-
-    // Join multiple conditions with AND
-    let conditionText = conditionStrings.join(' && ')
-
-    // Truncate if too long (more than 50 characters)
-    const maxLength = 50
-    if (conditionText.length > maxLength) {
-      const numConditions = data.protocol_conditions.length
-      if (numConditions > 1) {
-        // Show count for multiple conditions
-        conditionText = `${conditionStrings[0].substring(0, 30)}... (+${numConditions - 1})`
-      } else {
-        // Truncate single long condition
-        conditionText = conditionText.substring(0, maxLength) + '...'
-      }
-    }
-
-    labelParts.push(`[${conditionText}]`)
-  } else if (data.condition) {
-    // Manual condition
-    let condText = data.condition
-
-    // Truncate if too long
-    const maxLength = 50
-    if (condText.length > maxLength) {
-      condText = condText.substring(0, maxLength) + '...'
-    }
-
-    labelParts.push(`[${condText}]`)
-  }
-
-  // Add action
-  if (data.action) {
-    labelParts.push(`/ ${data.action}`)
-  }
-
-  return labelParts.length > 0 ? labelParts.join(' ') : ''
-}
-
-// Clear all nodes and edges (but keep FSM)
+// Clear all nodes and edges
 function clearAll() {
-  clearConfirmDialog.value = true
+  openClearConfirmDialog()
 }
 
 // Execute clear all after confirmation
@@ -632,220 +500,16 @@ function executeClearAll() {
     icon: 'mdi-information'
   })
 
-  clearConfirmDialog.value = false
+  closeClearConfirmDialog()
 }
-
-// Debounce timer for FSM saving
-let saveDebounceTimer: ReturnType<typeof setTimeout> | null = null
-
-// Save current canvas state to FSM in protocol store
-function saveFSMFromCanvas() {
-  const fsm = currentFSM.value
-  if (!fsm) return
-
-  fsm.nodes = nodes.value.map(node => ({
-    id: node.id,
-    type: 'fsmState' as const,
-    position: node.position,
-    data: node.data,
-    dimensions: node.dimensions || { width: 150, height: 50 } // Default dimensions if not yet initialized
-  }))
-
-  fsm.edges = edges.value.map(edge => ({
-    id: edge.id,
-    source: edge.source,
-    target: edge.target,
-    sourceHandle: edge.sourceHandle ?? undefined,
-    targetHandle: edge.targetHandle ?? undefined,
-    data: edge.data,
-    label: typeof edge.label === 'string' ? edge.label : undefined,
-    type: edge.type,
-    animated: edge.animated,
-    style: edge.style
-  }))
-
-  fsm.updated_at = new Date().toISOString()
-  protocolStore.updateFSM(fsm.id, fsm)
-}
-
-// Debounced version of saveFSMFromCanvas
-function debouncedSaveFSM() {
-  // Clear existing timer
-  if (saveDebounceTimer) {
-    clearTimeout(saveDebounceTimer)
-  }
-
-  // Set new timer - save after 500ms of inactivity
-  saveDebounceTimer = setTimeout(() => {
-    saveFSMFromCanvas()
-    console.log('FSM saved (debounced)')
-  }, 500)
-}
-
-// Cleanup on component unmount
-onUnmounted(() => {
-  if (saveDebounceTimer) {
-    clearTimeout(saveDebounceTimer)
-    // Save immediately on unmount to ensure no data loss
-    saveFSMFromCanvas()
-  }
-})
 
 // VueFlow event handlers
 function onNodesChange(changes: any) {
-  console.log('Nodes changed:', changes)
-  debouncedSaveFSM()
+  handleNodesChange(changes, debouncedSaveFSM)
 }
 
 function onEdgesChange(changes: any) {
-  console.log('Edges changed:', changes)
-  debouncedSaveFSM()
-}
-
-// Custom connect handler to create FSM edges with default data
-function handleConnect(connection: any) {
-  console.log('Connection object received:', connection)
-
-  // Check if an identical transition already exists
-  // (same source, target, and handles would create overlapping edges)
-  const duplicateEdge = edges.value.find(edge =>
-    edge.source === connection.source &&
-    edge.target === connection.target &&
-    edge.sourceHandle === connection.sourceHandle &&
-    edge.targetHandle === connection.targetHandle
-  )
-
-  if (duplicateEdge) {
-    console.warn('Duplicate transition')
-    notificationStore.showNotification({
-      message: 'This transition already exists. Use a different handle or create a different connection.',
-      timeout: 4000,
-      color: 'warning',
-      icon: 'mdi-alert'
-    })
-    return
-  }
-
-  const edgeId = `edge_${uuidv4()}`
-  const edgeData: FSMEdgeData = {
-    event: '',
-    condition: '',
-    action: '',
-    description: ''
-  }
-
-  // Check if this is a self-loop
-  const isSelfLoop = connection.source === connection.target
-
-  const newEdge = {
-    id: edgeId,
-    source: connection.source,      // Node where drag started
-    target: connection.target,      // Node where drag ended
-    sourceHandle: connection.sourceHandle,
-    targetHandle: connection.targetHandle,
-    data: {
-      ...edgeData,
-      isSelfLoop // Store this for rendering purposes
-    },
-    label: '', // Start with empty label
-    animated: false,
-    selectable: true,
-    focusable: true,
-    type: 'smoothstep', // Use smoothstep for better self-loop rendering
-    markerEnd: {
-      type: MarkerType.ArrowClosed,
-      width: 20,
-      height: 20,
-      color: '#374151'
-    },
-    style: {
-      stroke: '#374151',
-      strokeWidth: 2,
-      cursor: 'pointer'
-    }
-  }
-
-  console.log('New edge being created:', newEdge)
-
-  addEdges([newEdge])
-  saveFSMFromCanvas()
-
-  // Immediately show edit dialog for new connection
-  editingEdgeId.value = edgeId
-  editingEdgeData.value = { ...edgeData }
-  editDialog.value = true
-}
-
-// Edge click handler for editing
-function onEdgeClick(edgeMouseEvent: any) {
-  console.log('Edge clicked:', edgeMouseEvent)
-  const edge = edgeMouseEvent.edge
-  editingEdgeId.value = edge.id
-  editingEdgeData.value = edge.data ? { ...edge.data } : {}
-  editDialog.value = true
-}
-
-// Node click handler for editing
-function onNodeClick(nodeEvent: any) {
-  const node = nodeEvent.node
-  editingNodeId.value = node.id
-  editingNodeData.value = node.data ? { ...node.data } : {
-    label: '',
-    isInitial: false,
-    isFinal: false
-  }
-  stateEditDialog.value = true
-}
-
-// Save transition edit
-function saveTransitionEdit(edgeId: string, data: FSMEdgeData) {
-  const edgeIndex = edges.value.findIndex(edge => edge.id === edgeId)
-  if (edgeIndex !== -1) {
-    // Update edge data
-    edges.value[edgeIndex].data = data
-
-    // Generate and update edge label from data
-    edges.value[edgeIndex].label = generateEdgeLabel(data)
-  }
-
-  saveFSMFromCanvas()
-}
-
-// Delete transition
-function deleteTransition(edgeId: string) {
-  const edgeIndex = edges.value.findIndex(edge => edge.id === edgeId)
-  if (edgeIndex !== -1) {
-    edges.value.splice(edgeIndex, 1)
-    saveFSMFromCanvas()
-  }
-}
-
-// Save state edit
-function saveStateEdit(nodeId: string, data: FSMNodeData) {
-  const nodeIndex = nodes.value.findIndex(node => node.id === nodeId)
-  if (nodeIndex !== -1) {
-    nodes.value[nodeIndex].data = data
-  }
-  saveFSMFromCanvas()
-}
-
-// Delete state
-function deleteState(nodeId: string) {
-  const nodeIndex = nodes.value.findIndex(node => node.id === nodeId)
-  if (nodeIndex !== -1) {
-    nodes.value.splice(nodeIndex, 1)
-    // Also remove all edges connected to this node
-    const edgesToRemove = edges.value.filter(edge =>
-      edge.source === nodeId || edge.target === nodeId
-    )
-    edgesToRemove.forEach(edge => {
-      const edgeIndex = edges.value.findIndex(e => e.id === edge.id)
-      if (edgeIndex !== -1) {
-        edges.value.splice(edgeIndex, 1)
-      }
-    })
-    saveFSMFromCanvas()
-  }
+  handleEdgesChange(changes, debouncedSaveFSM)
 }
 
 // Connect nodes with edges using custom handler
@@ -855,8 +519,7 @@ onConnect(handleConnect)
 <style scoped>
 .fsm-editor {
   padding: 16px;
-  height: 100vh;
-  overflow: hidden;
+
   display: flex;
   flex-direction: column;
 }
