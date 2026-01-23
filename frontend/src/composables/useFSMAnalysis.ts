@@ -1,6 +1,6 @@
 // FSM Analysis Composable
 
-import { computed, type ComputedRef } from 'vue';
+import { computed, ref, watch, type ComputedRef, type Ref } from 'vue';
 import type {
   FSMNode,
   FSMEdge,
@@ -8,6 +8,8 @@ import type {
   FSMMetrics,
   FSMProperties,
   FSMIssues,
+  DeterminismIssue,
+  DeadlockAnalysis,
 } from '@/utils/fsm/types';
 import {
   buildAdjacencyList,
@@ -29,13 +31,71 @@ export function useFSMAnalysis(
   nodes: ComputedRef<FSMNode[]>,
   edges: ComputedRef<FSMEdge[]>
 ) {
+  // Ref to store determinism issues (async computed)
+  const determinismIssues: Ref<DeterminismIssue[]> = ref([]);
+
+  // Ref to store deadlock analysis (async computed)
+  const deadlockAnalysis: Ref<DeadlockAnalysis> = ref({
+    progressDeadlocks: [],
+    circularWaits: [],
+    eventStarvation: [],
+    terminalNonFinalStates: [],
+    hasDeadlocks: false,
+  });
+
+  // Flags to track if checks are in progress
+  const checkingDeterminism = ref(false);
+  const checkingDeadlocks = ref(false);
+
+  // Async function to check determinism
+  async function updateDeterminismCheck() {
+    checkingDeterminism.value = true;
+    try {
+      determinismIssues.value = await checkDeterminism(edges.value);
+    } catch (error) {
+      console.error('Error checking determinism:', error);
+      determinismIssues.value = [];
+    } finally {
+      checkingDeterminism.value = false;
+    }
+  }
+
+  // Async function to check deadlocks
+  async function updateDeadlockCheck() {
+    checkingDeadlocks.value = true;
+    try {
+      deadlockAnalysis.value = await detectDeadlocks(nodes.value, edges.value);
+    } catch (error) {
+      console.error('Error checking deadlocks:', error);
+      deadlockAnalysis.value = {
+        progressDeadlocks: [],
+        circularWaits: [],
+        eventStarvation: [],
+        terminalNonFinalStates: [],
+        hasDeadlocks: false,
+      };
+    } finally {
+      checkingDeadlocks.value = false;
+    }
+  }
+
+  // Watch edges and update determinism check
+  watch(edges, () => {
+    updateDeterminismCheck();
+  }, { immediate: true, deep: true });
+
+  // Watch nodes and edges and update deadlock check
+  watch([nodes, edges], () => {
+    updateDeadlockCheck();
+  }, { immediate: true, deep: true });
+
   /**
    * Calculate basic metrics
    */
   const metrics = computed<FSMMetrics>(() => {
     const initialStates = nodes.value.filter(n => n.data?.type === 'initial');
     const finalStates = nodes.value.filter(n => n.data?.type === 'final');
-    
+
     return {
       totalStates: nodes.value.length,
       totalTransitions: edges.value.length,
@@ -50,7 +110,7 @@ export function useFSMAnalysis(
   const properties = computed<FSMProperties>(() => {
     const structure = validateStructure(nodes.value);
     const adjacency = buildAdjacencyList(edges.value);
-    
+
     // Check if all states are reachable from initial states
     let allReachable = true;
     const initialStates = nodes.value.filter(n => n.data?.type === 'initial');
@@ -64,24 +124,23 @@ export function useFSMAnalysis(
     } else {
       allReachable = false; // No initial state means nothing is reachable
     }
-    
+
     // Calculate max depth
     let maxDepth = 0;
     for (const initial of initialStates) {
       const depth = longestPath(initial.id, adjacency);
       maxDepth = Math.max(maxDepth, depth);
     }
-    
-    const determinismIssues = checkDeterminism(edges.value);
+
     const cyclesDetected = hasCycles(nodes.value, adjacency);
     const stronglyConnected = isStronglyConnected(nodes.value, adjacency);
     const selfLoops = countSelfLoops(edges.value);
-    
+
     return {
       hasInitialState: structure.hasInitialState,
       hasFinalState: structure.hasFinalState,
       allStatesReachable: allReachable,
-      isDeterministic: determinismIssues.length === 0,
+      isDeterministic: determinismIssues.value.length === 0,
       isStronglyConnected: stronglyConnected,
       hasCycles: cyclesDetected,
       hasSelfLoops: selfLoops > 0,
@@ -93,25 +152,20 @@ export function useFSMAnalysis(
    * Identify issues
    */
   const issues = computed<FSMIssues>(() => {
-    const determinismIssues = checkDeterminism(edges.value);
     const deadStates = findDeadStates(nodes.value, edges.value);
     const unreachableStates = findUnreachableStates(nodes.value, edges.value);
-    
+
     return {
-      determinismIssues,
+      determinismIssues: determinismIssues.value,
       deadStates,
       unreachableStates,
     };
   });
 
   /**
-   * Detect deadlocks (async for EFSM support)
+   * Deadlocks analysis result (computed from ref)
    */
-  const deadlocks = computed(() => {
-    // For now, return a Promise that resolves to analysis
-    // This will be handled by the UI components
-    return detectDeadlocks(nodes.value, edges.value);
-  });
+  const deadlocks = computed(() => deadlockAnalysis.value);
 
   /**
    * Complete analysis result
@@ -154,10 +208,16 @@ export function useFSMAnalysis(
     properties,
     issues,
     deadlocks,
-    
+
+    // Async checking state
+    checkingDeterminism,
+    checkingDeadlocks,
+    determinismIssues,
+    deadlockAnalysis,
+
     // Combined analysis
     analysis,
-    
+
     // Helper properties
     hasIssues,
     validationColor,

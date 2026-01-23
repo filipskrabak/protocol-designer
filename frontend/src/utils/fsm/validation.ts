@@ -11,13 +11,18 @@ import {
   buildAdjacencyList,
   findReachableNodes,
 } from '../graph/algorithms';
+import {
+  areGuardsSatisfiableSimultaneously,
+  edgeDataToGuard,
+} from './z3-checker';
 
 /**
- * Get a signature for a condition to compare conditions for determinism
+ * Get a signature for a condition to compare conditions for determinism (legacy method)
+ * @deprecated Use Z3-based checking instead for more accurate determinism analysis
  */
 export function getConditionSignature(condition: any): string {
   if (!condition) return '';
-  
+
   if (condition.type === 'protocol') {
     // Sort the conditions by field_id, operator, and value for consistent comparison
     const sorted = [...(condition.conditions || [])].sort((a, b) => {
@@ -30,59 +35,101 @@ export function getConditionSignature(condition: any): string {
     // For manual conditions, use the trimmed text as signature
     return (condition.text || '').trim();
   }
-  
+
   return '';
 }
 
 /**
- * Check if FSM is deterministic
+ * Check if FSM is deterministic using Z3 SMT solver
  * Returns list of states with non-deterministic transitions
+ *
+ * Algorithm:
+ * 1. Group transitions by source state and event
+ * 2. For each group, perform pairwise comparison of guards
+ * 3. Use Z3 to check if any two guards can be satisfied simultaneously
+ * 4. If satisfiable, the FSM is non-deterministic
  */
-export function checkDeterminism(edges: FSMEdge[]): DeterminismIssue[] {
+export async function checkDeterminism(edges: FSMEdge[]): Promise<DeterminismIssue[]> {
   const issues: DeterminismIssue[] = [];
-  
+
   // Group transitions by source state and event
   const transitionsByStateAndEvent = new Map<string, Map<string, FSMEdge[]>>();
-  
+
   for (const edge of edges) {
     const event = edge.data?.event || '';
-    
+
     if (!transitionsByStateAndEvent.has(edge.source)) {
       transitionsByStateAndEvent.set(edge.source, new Map());
     }
-    
+
     const stateTransitions = transitionsByStateAndEvent.get(edge.source)!;
     if (!stateTransitions.has(event)) {
       stateTransitions.set(event, []);
     }
-    
+
     stateTransitions.get(event)!.push(edge);
   }
-  
-  // Check for non-determinism: same event with different conditions or targets
+
+  // Check for non-determinism: pairwise intersection check using Z3
   for (const [state, eventMap] of transitionsByStateAndEvent) {
     for (const [event, transitions] of eventMap) {
       if (transitions.length > 1) {
-        // Multiple transitions with same event - check if conditions differ
-        const conditionSignatures = new Set<string>();
-        
-        for (const transition of transitions) {
-          const signature = getConditionSignature(transition.data?.condition);
-          if (conditionSignatures.has(signature)) {
-            // Same event with same condition going to different states - non-deterministic!
-            issues.push({
-              state,
-              event: event || '(empty)',
-              targets: transitions.map(t => t.target),
-            });
+        // Multiple transitions with same event - check pairwise for conflicts
+        for (let i = 0; i < transitions.length; i++) {
+          for (let j = i + 1; j < transitions.length; j++) {
+            const t1 = transitions[i];
+            const t2 = transitions[j];
+
+            // Convert edge data to Guard objects
+            const guard1 = edgeDataToGuard(t1.data);
+            const guard2 = edgeDataToGuard(t2.data);
+
+            try {
+              // Check if both guards can be true simultaneously
+              const result = await areGuardsSatisfiableSimultaneously(guard1, guard2);
+
+              if (result.satisfiable) {
+                // Non-determinism detected!
+                issues.push({
+                  state,
+                  event: event || '(empty)',
+                  targets: [t1.target, t2.target],
+                });
+
+                // Log detailed information for debugging
+                console.warn(
+                  `Non-determinism detected in state "${state}" for event "${event}":`,
+                  `\n  Guard 1: ${JSON.stringify(guard1)}`,
+                  `\n  Guard 2: ${JSON.stringify(guard2)}`,
+                  `\n  Counter-example: ${result.model}`
+                );
+
+                // Only report once per state-event pair
+                break;
+              }
+            } catch (error) {
+              console.error('Error checking determinism with Z3:', error);
+              // Fall back to conservative approach: assume non-deterministic if we can't check
+              // (Comment this out if you prefer to ignore errors)
+              /*
+              issues.push({
+                state,
+                event: event || '(empty)',
+                targets: [t1.target, t2.target],
+              });
+              */
+            }
+          }
+
+          // Break outer loop if issue already found
+          if (issues.some(issue => issue.state === state && issue.event === (event || '(empty)'))) {
             break;
           }
-          conditionSignatures.add(signature);
         }
       }
     }
   }
-  
+
   return issues;
 }
 
@@ -93,7 +140,7 @@ export function checkDeterminism(edges: FSMEdge[]): DeterminismIssue[] {
 export function findDeadStates(nodes: FSMNode[], edges: FSMEdge[]): DeadState[] {
   const deadStates: DeadState[] = [];
   const statesWithOutgoing = new Set(edges.map(e => e.source));
-  
+
   for (const node of nodes) {
     const isFinal = node.data?.type === 'final';
     if (!statesWithOutgoing.has(node.id) && !isFinal) {
@@ -103,7 +150,7 @@ export function findDeadStates(nodes: FSMNode[], edges: FSMEdge[]): DeadState[] 
       });
     }
   }
-  
+
   return deadStates;
 }
 
@@ -112,7 +159,7 @@ export function findDeadStates(nodes: FSMNode[], edges: FSMEdge[]): DeadState[] 
  */
 export function findUnreachableStates(nodes: FSMNode[], edges: FSMEdge[]): UnreachableState[] {
   const unreachableStates: UnreachableState[] = [];
-  
+
   // Find initial states
   const initialStates = nodes.filter(n => n.data?.type === 'initial');
   if (initialStates.length === 0) {
@@ -122,17 +169,17 @@ export function findUnreachableStates(nodes: FSMNode[], edges: FSMEdge[]): Unrea
       label: n.data?.label || n.id,
     }));
   }
-  
+
   // Build adjacency list
   const adjacency = buildAdjacencyList(edges);
-  
+
   // Find all reachable states from all initial states
   const reachable = new Set<string>();
   for (const initial of initialStates) {
     const reachableFromInitial = findReachableNodes(initial.id, adjacency);
     reachableFromInitial.forEach(id => reachable.add(id));
   }
-  
+
   // States not in reachable set are unreachable
   for (const node of nodes) {
     if (!reachable.has(node.id)) {
@@ -142,7 +189,7 @@ export function findUnreachableStates(nodes: FSMNode[], edges: FSMEdge[]): Unrea
       });
     }
   }
-  
+
   return unreachableStates;
 }
 
@@ -157,7 +204,7 @@ export function validateStructure(nodes: FSMNode[]): {
 } {
   const initialStates = nodes.filter(n => n.data?.type === 'initial');
   const finalStates = nodes.filter(n => n.data?.type === 'final');
-  
+
   return {
     hasInitialState: initialStates.length > 0,
     hasFinalState: finalStates.length > 0,

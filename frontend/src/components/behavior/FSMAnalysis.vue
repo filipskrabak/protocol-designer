@@ -83,8 +83,11 @@
                   </v-icon>
                 </template>
                 <v-list-item-title class="text-wrap">Reachability</v-list-item-title>
-                <v-list-item-subtitle v-if="!properties.allStatesReachable && issues.unreachableStates.length > 0" class="text-wrap">
-                  Unreachable: {{ formatStateLabels(issues.unreachableStates) }}
+                <v-list-item-subtitle class="text-wrap">
+                  Checks whether all states are reachable from the initial state.
+                  <p v-if="!properties.allStatesReachable && issues.unreachableStates.length > 0">
+                    Unreachable: {{ formatStateLabels(issues.unreachableStates) }}
+                  </p>
                 </v-list-item-subtitle>
               </v-list-item>
 
@@ -96,8 +99,11 @@
                   </v-icon>
                 </template>
                 <v-list-item-title class="text-wrap">Determinism</v-list-item-title>
-                <v-list-item-subtitle v-if="!properties.isDeterministic && issues.determinismIssues.length > 0" class="text-wrap">
-                  {{ issues.determinismIssues.length }} conflicting transitions
+                <v-list-item-subtitle class="text-wrap">
+                  Checks whether the guards on outgoing transitions from each state are mutually exclusive (using Z3 SMT solver).
+                  <p v-if="!properties.isDeterministic && issues.determinismIssues.length > 0">
+                    {{ issues.determinismIssues.length }} conflicting transitions
+                  </p>
                 </v-list-item-subtitle>
               </v-list-item>
 
@@ -487,7 +493,7 @@ async function runVerification() {
     const analysis = analyzeEFSM(nodes.value, edges.value, variables)
     efsmWarnings.value = analysis.warnings
     efsmStats.value = analysis.stats
-    
+
     // Run DFS-based deadlock detection with guard evaluation
     try {
       const deadlockAnalysis = await detectDeadlocks(nodes.value, edges.value, variables, true)
