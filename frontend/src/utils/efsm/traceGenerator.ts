@@ -265,7 +265,8 @@ export function exploreAllPaths(
 
         const outgoingEdges = adjacency.get(current.stateId) || [];
         let hasValidTransition = false;
-
+        let validTransitionsForEvent = new Map<string, number>(); // Track valid transitions per event
+        
         console.log(`    Checking ${outgoingEdges.length} outgoing transitions`);
 
         for (const edgeId of outgoingEdges) {
@@ -275,7 +276,8 @@ export function exploreAllPaths(
           const guard = edge.data?.condition;
           const action = edge.data?.action;
           const targetNode = nodes.find(n => n.id === edge.target);
-
+          const event = edge.data?.event || 'ε'; // epsilon for no event
+          
           console.log(`      → ${targetNode?.data?.label || edge.target} ${edge.data?.event ? `[${edge.data.event}]` : ''}`);
           if (guard) console.log(`        Guard: ${guard}`);
           if (action) console.log(`        Action: ${action}`);
@@ -287,8 +289,14 @@ export function exploreAllPaths(
           if (guardResult === true || guardResult === 'unknown') {
             hasValidTransition = true;
             reachableTransitions.add(edge.id);
-
-            // Execute action
+            
+            // Track non-determinism: count valid transitions for this event
+            const eventCount = validTransitionsForEvent.get(event) || 0;
+            validTransitionsForEvent.set(event, eventCount + 1);
+            
+            if (eventCount > 0) {
+              console.log(`        ⚠️ NON-DETERMINISM: Multiple valid transitions for event '${event}' with variables:`, current.variableState);
+            }
             const newVariableState = guardResult === true
               ? executeAction(action || '', current.variableState, variables)
               : current.variableState;

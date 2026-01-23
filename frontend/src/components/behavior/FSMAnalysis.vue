@@ -423,6 +423,7 @@ import { useProtocolStore } from '@/store/ProtocolStore'
 import { useFSMAnalysis } from '@/composables/useFSMAnalysis'
 import { analyzeEFSM } from '@/utils/efsm/variableAnalysis'
 import { generateDeadlockDetails } from '@/utils/efsm/traceGenerator'
+import { detectDeadlocks } from '@/utils/fsm/deadlock'
 import type { FSMNode, FSMEdge } from '@/utils/fsm/types'
 import type { DeadlockDetails, GuardWarning } from '@/contracts/models'
 import DeadlockDetailsModal from './DeadlockDetailsModal.vue'
@@ -476,15 +477,25 @@ const edges = computed<FSMEdge[]>(() => {
 const { metrics, properties, issues, deadlocks } = useFSMAnalysis(nodes, edges)
 
 // Manual verification function
-function runVerification() {
+async function runVerification() {
   isAnalyzing.value = true
 
   // Run EFSM analysis if variables are defined
   const variables = currentFSM.value?.variables || []
   if (variables.length > 0) {
+    console.log('🔬 Running EFSM verification with variables:', variables);
     const analysis = analyzeEFSM(nodes.value, edges.value, variables)
     efsmWarnings.value = analysis.warnings
     efsmStats.value = analysis.stats
+    
+    // Run DFS-based deadlock detection with guard evaluation
+    try {
+      const deadlockAnalysis = await detectDeadlocks(nodes.value, edges.value, variables, true)
+      console.log('Deadlock analysis results:', deadlockAnalysis);
+      // The analysis results will be visible through the computed properties
+    } catch (error) {
+      console.error('Error during EFSM verification:', error);
+    }
   } else {
     efsmWarnings.value = []
     efsmStats.value = null

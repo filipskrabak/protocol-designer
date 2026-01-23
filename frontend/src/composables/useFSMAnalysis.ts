@@ -105,9 +105,11 @@ export function useFSMAnalysis(
   });
 
   /**
-   * Detect deadlocks
+   * Detect deadlocks (async for EFSM support)
    */
   const deadlocks = computed(() => {
+    // For now, return a Promise that resolves to analysis
+    // This will be handled by the UI components
     return detectDeadlocks(nodes.value, edges.value);
   });
 

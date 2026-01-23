@@ -247,14 +247,99 @@ export function findTerminalNonFinalStates(
 /**
  * Comprehensive deadlock detection
  * Checks for all types of deadlocks and returns analysis
- * Now supports EFSM with guard evaluation
+ * Now supports EFSM with guard evaluation using DFS exploration
  */
-export function detectDeadlocks(
+export async function detectDeadlocks(
   nodes: FSMNode[],
   edges: FSMEdge[],
   variables?: import('@/contracts/models').EFSMVariable[],
   generateDetails: boolean = false
-): DeadlockAnalysis {
+): Promise<DeadlockAnalysis> {
+  // For EFSMs with variables, use formal DFS exploration
+  if (variables && variables.length > 0) {
+    console.log('🔬 Running EFSM verification with DFS exploration...');
+    
+    const { exploreAllPaths, generateDeadlockDetails } = await import('../efsm/traceGenerator');
+    const { analyzeEFSM } = await import('../efsm/variableAnalysis');
+    
+    // Run DFS exploration to find reachable states considering guards
+    const exploration = exploreAllPaths(nodes, edges, variables);
+    
+    // Get EFSM-specific warnings
+    const { warnings } = analyzeEFSM(nodes, edges, variables);
+    
+    // Convert DFS deadlock states to progress deadlocks
+    const progressDeadlocks: ProgressDeadlock[] = Array.from(exploration.deadlockStates).map(stateId => {
+      const node = nodes.find(n => n.id === stateId);
+      return {
+        stateId,
+        label: node?.data?.label || stateId,
+        reason: 'No valid transitions due to guard conditions',
+      };
+    });
+    
+    // Find unreachable states (not found in DFS)
+    const unreachableStates = nodes
+      .filter(n => !exploration.reachableStates.has(n.id) && !n.data?.isFinal)
+      .map(n => ({
+        stateId: n.id,
+        label: n.data?.label || n.id,
+        reason: 'Unreachable from initial state with given variable domains',
+      }));
+    
+    // Circular waits and event starvation still apply
+    const circularWaits = findCircularWaits(nodes, edges);
+    const eventStarvation = findEventStarvation(nodes, edges);
+    
+    // Terminal non-final from structural analysis
+    const terminalNonFinalStates = findTerminalNonFinalStates(nodes, edges);
+    
+    const allDeadlocks = [
+      ...progressDeadlocks,
+      ...unreachableStates,
+      ...terminalNonFinalStates
+    ];
+    
+    const hasDeadlocks =
+      allDeadlocks.length > 0 ||
+      circularWaits.length > 0 ||
+      eventStarvation.length > 0;
+    
+    let details: Map<string, import('@/contracts/models').DeadlockDetails> | undefined;
+    
+    // Generate detailed traces if requested
+    if (generateDetails && hasDeadlocks) {
+      details = new Map();
+      
+      // Generate details for all detected deadlock states
+      for (const deadlock of allDeadlocks) {
+        const deadlockDetails = generateDeadlockDetails(
+          deadlock.stateId,
+          'terminal',
+          nodes,
+          edges,
+          variables,
+          warnings
+        );
+        if (deadlockDetails) {
+          details.set(deadlock.stateId, deadlockDetails);
+        }
+      }
+    }
+    
+    console.log(`✅ EFSM verification complete: ${exploration.reachableStates.size} reachable, ${exploration.deadlockStates.size} deadlocks`);
+    
+    return {
+      progressDeadlocks: allDeadlocks,
+      circularWaits,
+      eventStarvation,
+      terminalNonFinalStates: [],
+      hasDeadlocks,
+      details,
+    };
+  }
+  
+  // For regular FSMs without variables, use traditional analysis
   const progressDeadlocks = findProgressDeadlocks(nodes, edges);
   const circularWaits = findCircularWaits(nodes, edges);
   const eventStarvation = findEventStarvation(nodes, edges);
@@ -266,56 +351,12 @@ export function detectDeadlocks(
     eventStarvation.length > 0 ||
     terminalNonFinalStates.length > 0;
 
-  let details: Map<string, import('@/contracts/models').DeadlockDetails> | undefined;
-
-  // Generate detailed traces if requested and variables are provided
-  if (generateDetails && hasDeadlocks && variables && variables.length > 0) {
-    details = new Map();
-
-    // Import trace generator dynamically to avoid circular dependencies
-    import('../efsm/traceGenerator').then(({ generateDeadlockDetails }) => {
-      import('../efsm/variableAnalysis').then(({ analyzeEFSM }) => {
-        const { warnings } = analyzeEFSM(nodes, edges, variables);
-
-        // Generate details for progress deadlocks
-        for (const deadlock of progressDeadlocks) {
-          const deadlockDetails = generateDeadlockDetails(
-            deadlock.stateId,
-            'progress',
-            nodes,
-            edges,
-            variables,
-            warnings
-          );
-          if (deadlockDetails) {
-            details!.set(deadlock.stateId, deadlockDetails);
-          }
-        }
-
-        // Generate details for terminal non-final states
-        for (const state of terminalNonFinalStates) {
-          const deadlockDetails = generateDeadlockDetails(
-            state.id,
-            'terminal',
-            nodes,
-            edges,
-            variables,
-            warnings
-          );
-          if (deadlockDetails) {
-            details!.set(state.id, deadlockDetails);
-          }
-        }
-      });
-    });
-  }
-
   return {
     progressDeadlocks,
     circularWaits,
     eventStarvation,
     terminalNonFinalStates,
     hasDeadlocks,
-    details,
+    details: undefined,
   };
 }

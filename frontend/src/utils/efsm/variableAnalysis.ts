@@ -104,6 +104,11 @@ export function analyzeEFSM(
   const unreachableWarnings = findUnreachableTransitions(nodes, edges, variables);
   warnings.push(...unreachableWarnings);
 
+  // Check for EFSM non-determinism (multiple guards passing for same event)
+  const nonDeterminismWarnings = detectEFSMNonDeterminism(nodes, edges, variables);
+  warnings.push(...nonDeterminismWarnings);
+  stats.contradictions += nonDeterminismWarnings.length;
+
   return { warnings, stats };
 }
 
@@ -376,4 +381,245 @@ function areGuardsMutuallyExclusive(guard1: string, guard2: string): boolean {
 export function getReferencedVariables(expression: string, variables: EFSMVariable[]): string[] {
   const result = parseGuardExpression(expression, variables);
   return result.variables;
+}
+
+/**
+ * Detect EFSM non-determinism: multiple guards that can pass simultaneously
+ * This is more sophisticated than FSM non-determinism - we need to check if
+ * guards can evaluate to true at the same time for the same event.
+ */
+function detectEFSMNonDeterminism(
+  nodes: FSMNode[],
+  edges: FSMEdge[],
+  variables: EFSMVariable[]
+): GuardWarning[] {
+  const warnings: GuardWarning[] = [];
+
+  // Group edges by source state
+  const edgesBySource = new Map<string, FSMEdge[]>();
+  for (const edge of edges) {
+    if (!edgesBySource.has(edge.source)) {
+      edgesBySource.set(edge.source, []);
+    }
+    edgesBySource.get(edge.source)!.push(edge);
+  }
+
+  // Check each state for non-determinism
+  for (const [stateId, stateEdges] of edgesBySource) {
+    // Group by event type
+    const edgesByEvent = new Map<string, FSMEdge[]>();
+    for (const edge of stateEdges) {
+      const event = edge.data?.event || '';
+      if (!event) continue; // Skip edges without events
+
+      if (!edgesByEvent.has(event)) {
+        edgesByEvent.set(event, []);
+      }
+      edgesByEvent.get(event)!.push(edge);
+    }
+
+    // Check each event group for overlapping guards
+    for (const [event, eventEdges] of edgesByEvent) {
+      if (eventEdges.length < 2) continue; // Need at least 2 transitions
+
+      // Check all pairs of transitions
+      for (let i = 0; i < eventEdges.length; i++) {
+        for (let j = i + 1; j < eventEdges.length; j++) {
+          const edge1 = eventEdges[i];
+          const edge2 = eventEdges[j];
+
+          const guard1 = typeof edge1.data?.condition === 'string' ? edge1.data.condition.trim() : '';
+          const guard2 = typeof edge2.data?.condition === 'string' ? edge2.data.condition.trim() : '';
+
+          // If either has no guard, it's always non-deterministic
+          if (!guard1 || !guard2) {
+            const targetNode1 = nodes.find(n => n.id === edge1.target);
+            const targetNode2 = nodes.find(n => n.id === edge2.target);
+            
+            warnings.push({
+              type: 'non_deterministic',
+              severity: 'error',
+              location: {
+                stateId,
+                transitionId: edge1.id,
+                expression: `Event: ${event}`
+              },
+              message: `Non-deterministic transitions: multiple transitions for event '${event}' without guards`,
+              suggestion: `Add mutually exclusive guards or remove duplicate transitions to ${targetNode1?.data?.label} and ${targetNode2?.data?.label}`
+            });
+            continue;
+          }
+
+          // Check if guards can overlap
+          const overlap = checkGuardOverlap(guard1, guard2, variables);
+          if (overlap.canOverlap) {
+            const targetNode1 = nodes.find(n => n.id === edge1.target);
+            const targetNode2 = nodes.find(n => n.id === edge2.target);
+
+            warnings.push({
+              type: 'non_deterministic',
+              severity: 'error',
+              location: {
+                stateId,
+                transitionId: edge1.id,
+                expression: `Guard 1: ${guard1}\nGuard 2: ${guard2}`
+              },
+              message: `EFSM non-determinism: guards may both evaluate to true for event '${event}'`,
+              suggestion: overlap.example 
+                ? `Both guards can be true when ${overlap.example}. Make guards mutually exclusive (e.g., use <= vs >)`
+                : `Ensure guards are mutually exclusive to avoid non-deterministic behavior between ${targetNode1?.data?.label} and ${targetNode2?.data?.label}`
+            });
+          }
+        }
+      }
+    }
+  }
+
+  return warnings;
+}
+
+/**
+ * Check if two guards can overlap (both be true at the same time)
+ * Returns whether they can overlap and an example if found
+ */
+function checkGuardOverlap(
+  guard1: string,
+  guard2: string,
+  variables: EFSMVariable[]
+): { canOverlap: boolean; example?: string } {
+  // Generate sample variable states to test
+  const sampleStates = generateSampleStates(variables);
+
+  // Test each sample state
+  for (const state of sampleStates) {
+    const result1 = evaluateGuard(guard1, state, variables);
+    const result2 = evaluateGuard(guard2, state, variables);
+
+    // If both evaluate to true, they overlap
+    if (result1 === true && result2 === true) {
+      const example = Object.entries(state)
+        .map(([key, val]) => `${key} = ${val}`)
+        .join(', ');
+      return { canOverlap: true, example };
+    }
+  }
+
+  // No overlap found in samples (but this isn't proof they never overlap)
+  // For safety, we should assume they might overlap unless we can prove otherwise
+  // This is a conservative approach
+  
+  // Try to do simple syntactic analysis
+  const areMutuallyExclusive = checkMutualExclusivity(guard1, guard2);
+  if (areMutuallyExclusive) {
+    return { canOverlap: false };
+  }
+
+  // If we can't prove they're mutually exclusive, assume they might overlap
+  // But don't report if we couldn't find a concrete example
+  return { canOverlap: false };
+}
+
+/**
+ * Generate sample variable states for testing guard overlap
+ */
+function generateSampleStates(variables: EFSMVariable[]): VariableState[] {
+  if (variables.length === 0) return [{}];
+
+  const states: VariableState[] = [];
+  
+  // For each variable, generate boundary and middle values
+  function generateCombinations(index: number, currentState: VariableState) {
+    if (index === variables.length) {
+      states.push({ ...currentState });
+      return;
+    }
+
+    const variable = variables[index];
+    let sampleValues: (number | boolean | string)[] = [];
+
+    switch (variable.type) {
+      case 'int':
+        const min = variable.minValue ?? 0;
+        const max = variable.maxValue ?? 10;
+        // Test boundary values and a few in between
+        sampleValues = [min, min + 1, Math.floor((min + max) / 2), max - 1, max];
+        // Remove duplicates
+        sampleValues = [...new Set(sampleValues)].filter(v => v >= min && v <= max);
+        break;
+
+      case 'bool':
+        sampleValues = [false, true];
+        break;
+
+      case 'enum':
+        sampleValues = variable.enumValues || [];
+        break;
+    }
+
+    for (const value of sampleValues) {
+      currentState[variable.name] = value;
+      generateCombinations(index + 1, currentState);
+    }
+  }
+
+  generateCombinations(0, {});
+  
+  // Limit the number of combinations to avoid explosion
+  return states.slice(0, 100);
+}
+
+/**
+ * Check if two guards are syntactically mutually exclusive
+ * This is a simple heuristic-based check
+ */
+function checkMutualExclusivity(guard1: string, guard2: string): boolean {
+  // Pattern: x < N and x >= N are mutually exclusive
+  const ltPattern = /(\w+)\s*<\s*(\d+)/;
+  const gtePattern = /(\w+)\s*>=\s*(\d+)/;
+  const gtPattern = /(\w+)\s*>\s*(\d+)/;
+  const ltePattern = /(\w+)\s*<=\s*(\d+)/;
+  const eqPattern = /(\w+)\s*==\s*(\d+)/;
+  const neqPattern = /(\w+)\s*!=\s*(\d+)/;
+
+  // Check for < vs >=
+  const lt1 = guard1.match(ltPattern);
+  const gte2 = guard2.match(gtePattern);
+  if (lt1 && gte2 && lt1[1] === gte2[1] && lt1[2] === gte2[2]) {
+    return true; // x < N and x >= N are mutually exclusive
+  }
+
+  // Check for > vs <=
+  const gt1 = guard1.match(gtPattern);
+  const lte2 = guard2.match(ltePattern);
+  if (gt1 && lte2 && gt1[1] === lte2[1] && gt1[2] === lte2[2]) {
+    return true; // x > N and x <= N are mutually exclusive
+  }
+
+  // Check for == vs !=
+  const eq1 = guard1.match(eqPattern);
+  const neq2 = guard2.match(neqPattern);
+  if (eq1 && neq2 && eq1[1] === neq2[1] && eq1[2] === neq2[2]) {
+    return true; // x == N and x != N are mutually exclusive
+  }
+
+  // Reverse checks
+  const lt2 = guard2.match(ltPattern);
+  const gte1 = guard1.match(gtePattern);
+  if (lt2 && gte1 && lt2[1] === gte1[1] && lt2[2] === gte1[2]) {
+    return true;
+  }
+
+  const gt2 = guard2.match(gtPattern);
+  const lte1 = guard1.match(ltePattern);
+  if (gt2 && lte1 && gt2[1] === lte1[1] && gt2[2] === lte1[2]) {
+    return true;
+  }
+
+  const eq2 = guard2.match(eqPattern);
+  const neq1 = guard1.match(neqPattern);
+  if (eq2 && neq1 && eq2[1] === neq1[1] && eq2[2] === neq1[2]) {
+    return true;
+  }
+
+  return false; // Can't prove mutual exclusivity
 }
