@@ -247,10 +247,13 @@ export function findTerminalNonFinalStates(
 /**
  * Comprehensive deadlock detection
  * Checks for all types of deadlocks and returns analysis
+ * Now supports EFSM with guard evaluation
  */
 export function detectDeadlocks(
   nodes: FSMNode[],
-  edges: FSMEdge[]
+  edges: FSMEdge[],
+  variables?: import('@/contracts/models').EFSMVariable[],
+  generateDetails: boolean = false
 ): DeadlockAnalysis {
   const progressDeadlocks = findProgressDeadlocks(nodes, edges);
   const circularWaits = findCircularWaits(nodes, edges);
@@ -263,11 +266,56 @@ export function detectDeadlocks(
     eventStarvation.length > 0 ||
     terminalNonFinalStates.length > 0;
 
+  let details: Map<string, import('@/contracts/models').DeadlockDetails> | undefined;
+
+  // Generate detailed traces if requested and variables are provided
+  if (generateDetails && hasDeadlocks && variables && variables.length > 0) {
+    details = new Map();
+
+    // Import trace generator dynamically to avoid circular dependencies
+    import('../efsm/traceGenerator').then(({ generateDeadlockDetails }) => {
+      import('../efsm/variableAnalysis').then(({ analyzeEFSM }) => {
+        const { warnings } = analyzeEFSM(nodes, edges, variables);
+
+        // Generate details for progress deadlocks
+        for (const deadlock of progressDeadlocks) {
+          const deadlockDetails = generateDeadlockDetails(
+            deadlock.stateId,
+            'progress',
+            nodes,
+            edges,
+            variables,
+            warnings
+          );
+          if (deadlockDetails) {
+            details!.set(deadlock.stateId, deadlockDetails);
+          }
+        }
+
+        // Generate details for terminal non-final states
+        for (const state of terminalNonFinalStates) {
+          const deadlockDetails = generateDeadlockDetails(
+            state.id,
+            'terminal',
+            nodes,
+            edges,
+            variables,
+            warnings
+          );
+          if (deadlockDetails) {
+            details!.set(state.id, deadlockDetails);
+          }
+        }
+      });
+    });
+  }
+
   return {
     progressDeadlocks,
     circularWaits,
     eventStarvation,
     terminalNonFinalStates,
     hasDeadlocks,
+    details,
   };
 }

@@ -168,5 +168,72 @@ export interface FiniteStateMachine {
   nodes: FSMNode[]; // VueFlow nodes representing states
   edges: FSMEdge[]; // VueFlow edges representing transitions
   events: FSMEvent[]; // Available events for transitions
+  variables?: EFSMVariable[]; // EFSM variables for guard expressions
   metadata?: Record<string, any>; // For FSM-specific properties
+}
+
+// EFSM Variable Definitions
+
+export type EFSMVariableType = 'int' | 'bool' | 'enum';
+
+export interface EFSMVariable {
+  id: string;
+  name: string;
+  type: EFSMVariableType;
+  description?: string;
+  // For int: min/max bounds (required)
+  minValue?: number;
+  maxValue?: number;
+  // For enum: explicit values (required for enum type)
+  enumValues?: string[];
+  // Optional initial value
+  initialValue?: number | boolean | string;
+}
+
+// Guard Analysis and Warnings
+
+export type GuardWarningType = 'overflow' | 'underflow' | 'contradiction' | 'ambiguous' | 'unreachable' | 'unbounded' | 'undefined_variable' | 'type_mismatch' | 'invalid_expression';
+export type GuardWarningSeverity = 'error' | 'warning' | 'info';
+
+export interface GuardWarning {
+  type: GuardWarningType;
+  severity: GuardWarningSeverity;
+  location: {
+    transitionId?: string;
+    stateId?: string;
+    variableName?: string;
+    expression?: string;
+  };
+  message: string;
+  suggestion?: string;
+}
+
+// Execution Trace for Deadlock Analysis
+
+export interface VariableState {
+  [variableName: string]: number | boolean | string;
+}
+
+export interface GuardEvaluationTrace {
+  stateId: string;
+  stateLabel: string;
+  transition?: {
+    id: string;
+    event?: string;
+    guard?: string;
+    action?: string;
+  };
+  variableValues: VariableState;
+  guardResult?: boolean | 'unknown';
+  guardExpression?: string;
+}
+
+export type DeadlockType = 'progress' | 'circular' | 'starvation' | 'terminal';
+
+export interface DeadlockDetails {
+  type: DeadlockType;
+  shortestTrace: GuardEvaluationTrace[];
+  affectedStates: string[];
+  warnings: GuardWarning[];
+  description: string;
 }

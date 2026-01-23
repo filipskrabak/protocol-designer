@@ -219,7 +219,22 @@
                 <v-list-item-title class="text-wrap">Progress Deadlock Free</v-list-item-title>
                 <v-list-item-subtitle v-if="deadlocks.progressDeadlocks.length > 0" class="text-wrap">
                   {{ deadlocks.progressDeadlocks.length }} state(s):
-                  {{ deadlocks.progressDeadlocks.map(d => formatProgressDeadlock(d)).join('; ') }}
+                  <template v-for="(d, idx) in deadlocks.progressDeadlocks" :key="d.stateId">
+                    <span>{{ d.label }}</span>
+                    <v-btn
+                      v-if="currentFSM?.variables && currentFSM.variables.length > 0"
+                      icon
+                      size="x-small"
+                      variant="text"
+                      color="primary"
+                      @click="showDeadlockInfo(d.stateId, 'progress')"
+                      class="ml-1"
+                    >
+                      <v-icon size="small">mdi-information</v-icon>
+                      <v-tooltip activator="parent">Show trace details</v-tooltip>
+                    </v-btn>
+                    <span v-if="idx < deadlocks.progressDeadlocks.length - 1">; </span>
+                  </template>
                 </v-list-item-subtitle>
                 <v-list-item-subtitle v-else class="text-wrap">
                   All reachable states can eventually reach a final state
@@ -269,7 +284,22 @@
                 <v-list-item-title class="text-wrap">No Terminal Non-Final States</v-list-item-title>
                 <v-list-item-subtitle v-if="deadlocks.terminalNonFinalStates.length > 0" class="text-wrap">
                   {{ deadlocks.terminalNonFinalStates.length }} state(s):
-                  {{ formatStateLabels(deadlocks.terminalNonFinalStates) }}
+                  <template v-for="(state, idx) in deadlocks.terminalNonFinalStates" :key="state.id">
+                    <span>{{ state.label }}</span>
+                    <v-btn
+                      v-if="currentFSM?.variables && currentFSM.variables.length > 0"
+                      icon
+                      size="x-small"
+                      variant="text"
+                      color="primary"
+                      @click="showDeadlockInfo(state.id, 'terminal')"
+                      class="ml-1"
+                    >
+                      <v-icon size="small">mdi-information</v-icon>
+                      <v-tooltip activator="parent">Show trace details</v-tooltip>
+                    </v-btn>
+                    <span v-if="idx < deadlocks.terminalNonFinalStates.length - 1">, </span>
+                  </template>
                 </v-list-item-subtitle>
                 <v-list-item-subtitle v-else class="text-wrap">
                   All non-final states have valid outgoing transitions
@@ -295,8 +325,95 @@
             </div>
           </v-expansion-panel-text>
         </v-expansion-panel>
+
+        <!-- EFSM Warnings (if variables defined) -->
+        <v-expansion-panel v-if="currentFSM?.variables && currentFSM.variables.length > 0">
+          <v-expansion-panel-title>
+            <div class="d-flex align-center">
+              <v-icon
+                :color="efsmWarnings.length === 0 ? 'success' : 'warning'"
+                class="me-2"
+              >
+                {{ efsmWarnings.length === 0 ? 'mdi-check-circle' : 'mdi-alert' }}
+              </v-icon>
+              <span class="font-weight-medium">
+                EFSM Warnings
+                <v-chip
+                  v-if="efsmWarnings.length > 0"
+                  size="x-small"
+                  variant="flat"
+                  color="warning"
+                  class="ml-2"
+                >
+                  {{ efsmWarnings.length }}
+                </v-chip>
+              </span>
+            </div>
+          </v-expansion-panel-title>
+          <v-expansion-panel-text>
+            <div v-if="efsmWarnings.length === 0">
+              <v-alert type="success" variant="tonal" density="compact">
+                No warnings found in guards and actions
+              </v-alert>
+            </div>
+            <div v-else>
+              <!-- Warning Summary -->
+              <div v-if="efsmStats" class="mb-3">
+                <v-chip size="small" variant="outlined" class="ma-1">
+                  Errors: {{ efsmWarnings.filter(w => w.severity === 'error').length }}
+                </v-chip>
+                <v-chip size="small" variant="outlined" class="ma-1">
+                  Warnings: {{ efsmWarnings.filter(w => w.severity === 'warning').length }}
+                </v-chip>
+                <v-chip size="small" variant="outlined" class="ma-1">
+                  Info: {{ efsmWarnings.filter(w => w.severity === 'info').length }}
+                </v-chip>
+              </div>
+
+              <!-- Warning List -->
+              <v-list density="compact">
+                <v-list-item
+                  v-for="(warning, index) in efsmWarnings.slice(0, 10)"
+                  :key="index"
+                  class="warning-item"
+                >
+                  <template v-slot:prepend>
+                    <v-icon
+                      :color="getWarningSeverityColor(warning.severity)"
+                      size="small"
+                    >
+                      {{ getWarningSeverityIcon(warning.severity) }}
+                    </v-icon>
+                  </template>
+
+                  <v-list-item-title class="text-wrap text-body-2">
+                    {{ warning.message }}
+                  </v-list-item-title>
+
+                  <v-list-item-subtitle v-if="warning.location.expression" class="text-wrap text-caption">
+                    <code>{{ warning.location.expression }}</code>
+                  </v-list-item-subtitle>
+
+                  <v-list-item-subtitle v-if="warning.suggestion" class="text-wrap text-caption mt-1">
+                    💡 {{ warning.suggestion }}
+                  </v-list-item-subtitle>
+                </v-list-item>
+              </v-list>
+
+              <div v-if="efsmWarnings.length > 10" class="text-caption text-center mt-2 text-medium-emphasis">
+                ... and {{ efsmWarnings.length - 10 }} more warnings
+              </div>
+            </div>
+          </v-expansion-panel-text>
+        </v-expansion-panel>
       </v-expansion-panels>
     </v-card-text>
+
+    <!-- Deadlock Details Modal -->
+    <DeadlockDetailsModal
+      v-model="showDeadlockModal"
+      :deadlock-details="selectedDeadlockDetails"
+    />
   </v-card>
 </template>
 
@@ -304,7 +421,11 @@
 import { computed, ref, watch } from 'vue'
 import { useProtocolStore } from '@/store/ProtocolStore'
 import { useFSMAnalysis } from '@/composables/useFSMAnalysis'
+import { analyzeEFSM } from '@/utils/efsm/variableAnalysis'
+import { generateDeadlockDetails } from '@/utils/efsm/traceGenerator'
 import type { FSMNode, FSMEdge } from '@/utils/fsm/types'
+import type { DeadlockDetails, GuardWarning } from '@/contracts/models'
+import DeadlockDetailsModal from './DeadlockDetailsModal.vue'
 
 const protocolStore = useProtocolStore()
 
@@ -313,6 +434,10 @@ const hasAnalysis = ref(false)
 const hasChanges = ref(false)
 const isAnalyzing = ref(false)
 const lastAnalyzedVersion = ref<string | null>(null)
+const efsmWarnings = ref<GuardWarning[]>([])
+const efsmStats = ref<any>(null)
+const showDeadlockModal = ref(false)
+const selectedDeadlockDetails = ref<DeadlockDetails | null>(null)
 
 // Convert FSM data types to analysis types
 const nodes = computed<FSMNode[]>(() => {
@@ -353,13 +478,48 @@ const { metrics, properties, issues, deadlocks } = useFSMAnalysis(nodes, edges)
 // Manual verification function
 function runVerification() {
   isAnalyzing.value = true
+
+  // Run EFSM analysis if variables are defined
+  const variables = currentFSM.value?.variables || []
+  if (variables.length > 0) {
+    const analysis = analyzeEFSM(nodes.value, edges.value, variables)
+    efsmWarnings.value = analysis.warnings
+    efsmStats.value = analysis.stats
+  } else {
+    efsmWarnings.value = []
+    efsmStats.value = null
+  }
+
   // Simulate brief analysis time for UX
   setTimeout(() => {
     hasAnalysis.value = true
     hasChanges.value = false
-    lastAnalyzedVersion.value = JSON.stringify({ nodes: nodes.value, edges: edges.value })
+    lastAnalyzedVersion.value = JSON.stringify({ nodes: nodes.value, edges: edges.value, variables })
     isAnalyzing.value = false
   }, 100)
+}
+
+// Show deadlock details
+async function showDeadlockInfo(stateId: string, deadlockType: 'progress' | 'terminal') {
+  const variables = currentFSM.value?.variables || []
+  if (variables.length === 0) {
+    // No variables, can't generate detailed trace
+    return
+  }
+
+  const details = generateDeadlockDetails(
+    stateId,
+    deadlockType,
+    nodes.value,
+    edges.value,
+    variables,
+    efsmWarnings.value
+  )
+
+  if (details) {
+    selectedDeadlockDetails.value = details
+    showDeadlockModal.value = true
+  }
 }
 
 // Watch for changes to FSM structure
@@ -395,6 +555,33 @@ function formatEventStarvation(starvation: { event: string; reachableFrom: numbe
     return `${starvation.event} (unreachable)`
   }
   return `${starvation.event} (only ${starvation.reachableFrom}/${starvation.totalStates} states)`
+}
+
+// Helper functions for warning severity
+function getWarningSeverityColor(severity: string): string {
+  switch (severity) {
+    case 'error':
+      return 'error'
+    case 'warning':
+      return 'warning'
+    case 'info':
+      return 'info'
+    default:
+      return 'grey'
+  }
+}
+
+function getWarningSeverityIcon(severity: string): string {
+  switch (severity) {
+    case 'error':
+      return 'mdi-close-circle'
+    case 'warning':
+      return 'mdi-alert'
+    case 'info':
+      return 'mdi-information'
+    default:
+      return 'mdi-help-circle'
+  }
 }
 </script>
 

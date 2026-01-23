@@ -66,6 +66,7 @@ export interface DeadlockAnalysis {
   eventStarvation: EventStarvation[];
   terminalNonFinalStates: DeadState[];
   hasDeadlocks: boolean;
+  details?: Map<string, import('@/contracts/models').DeadlockDetails>; // Detailed info per deadlock state
 }
 
 export interface FSMProperties {

@@ -1075,6 +1075,41 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
         datamodel.appendChild(dataElement);
       });
 
+      // Add EFSM variables to datamodel
+      if (fsm.variables && fsm.variables.length > 0) {
+        console.log('Serializing variables:', fsm.variables);
+        fsm.variables.forEach(variable => {
+          const dataElement = document.createElementNS(scxmlNamespace, "scxml:data");
+          dataElement.setAttribute("id", variable.name);
+          dataElement.setAttribute("pd:variable_id", variable.id);
+          dataElement.setAttribute("pd:variable_type", variable.type);
+          console.log(`  Variable ${variable.name}: minValue=${variable.minValue}, maxValue=${variable.maxValue}, initialValue=${variable.initialValue}`);
+
+          if (variable.description) {
+            dataElement.setAttribute("pd:description", variable.description);
+          }
+
+          // Type-specific attributes
+          if (variable.type === 'int') {
+            if (variable.minValue !== undefined) {
+              dataElement.setAttribute("pd:min_value", String(variable.minValue));
+            }
+            if (variable.maxValue !== undefined) {
+              dataElement.setAttribute("pd:max_value", String(variable.maxValue));
+            }
+          } else if (variable.type === 'enum' && variable.enumValues) {
+            dataElement.setAttribute("pd:enum_values", JSON.stringify(variable.enumValues));
+          }
+
+          // Initial value
+          if (variable.initialValue !== undefined) {
+            dataElement.setAttribute("expr", String(variable.initialValue));
+          }
+
+          datamodel.appendChild(dataElement);
+        });
+      }
+
       scxmlElement.appendChild(datamodel);
 
       // Serialize states
@@ -1211,7 +1246,7 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
       const name = scxmlElement.getAttribute("name") || "Unnamed FSM";
       const initialStateId = scxmlElement.getAttribute("initial");
 
-      // Parse datamodel for metadata
+      // Parse datamodel for metadata and EFSM variables
       const datamodel = scxmlElement.querySelector("datamodel");
       let fsmId = v4();
       let description = "";
@@ -1220,14 +1255,59 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
       let created_at = new Date().toISOString();
       let updated_at = new Date().toISOString();
       let protocol_id = "";
+      const variables: import("@/contracts/models").EFSMVariable[] = [];
 
       if (datamodel) {
         const dataElements = datamodel.querySelectorAll("data");
         dataElements.forEach(dataEl => {
           const id = dataEl.getAttribute("id");
           const expr = dataEl.getAttribute("expr");
+          const variableType = dataEl.getAttribute("pd:variable_type") as 'int' | 'bool' | 'enum' | null;
 
-          if (id && expr) {
+          // Check if this is a variable (has pd:variable_type)
+          if (variableType) {
+            const variableId = dataEl.getAttribute("pd:variable_id") || v4();
+            const variableDesc = dataEl.getAttribute("pd:description") || undefined;
+
+            const variable: import("@/contracts/models").EFSMVariable = {
+              id: variableId,
+              name: id || '',
+              type: variableType,
+              description: variableDesc
+            };
+
+            // Parse type-specific attributes
+            if (variableType === 'int') {
+              const minValue = dataEl.getAttribute("pd:min_value");
+              const maxValue = dataEl.getAttribute("pd:max_value");
+              if (minValue !== null) variable.minValue = parseInt(minValue);
+              if (maxValue !== null) variable.maxValue = parseInt(maxValue);
+            } else if (variableType === 'enum') {
+              const enumValuesStr = dataEl.getAttribute("pd:enum_values");
+              if (enumValuesStr) {
+                try {
+                  variable.enumValues = JSON.parse(enumValuesStr);
+                } catch (e) {
+                  console.error("Failed to parse enum values:", e);
+                }
+              }
+            }
+
+            // Parse initial value
+            if (expr !== null) {
+              if (variableType === 'int') {
+                variable.initialValue = parseInt(expr);
+              } else if (variableType === 'bool') {
+                variable.initialValue = expr === 'true';
+              } else if (variableType === 'enum') {
+                variable.initialValue = expr;
+              }
+            }
+
+            variables.push(variable);
+            console.log(`  Parsed variable ${variable.name}: minValue=${variable.minValue}, maxValue=${variable.maxValue}, initialValue=${variable.initialValue}`);
+          } else if (id && expr) {
+            // This is metadata
             switch(id) {
               case "fsm_id": fsmId = expr; break;
               case "description": description = expr; break;
@@ -1374,6 +1454,7 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
         nodes,
         edges,
         events,
+        variables,
         metadata: {}
       };
     },

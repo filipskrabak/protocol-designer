@@ -7,6 +7,8 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    DeadlockDetailsModal: typeof import('./src/components/behavior/DeadlockDetailsModal.vue')['default']
+    EFSMVariablesPanel: typeof import('./src/components/behavior/EFSMVariablesPanel.vue')['default']
     EncapsulationMultipleSelectModal: typeof import('./src/components/modals/EncapsulationMultipleSelectModal.vue')['default']
     EncapsulationVisualization: typeof import('./src/components/breadcrumbs/EncapsulationVisualization.vue')['default']
     ExportModal: typeof import('./src/components/modals/ExportModal.vue')['default']
@@ -17,7 +19,6 @@ declare module 'vue' {
     FieldTab: typeof import('./src/components/modals/fieldedittabs/FieldTab.vue')['default']
     FiniteStateMachine: typeof import('./src/components/behavior/FiniteStateMachine.vue')['default']
     FSMAnalysis: typeof import('./src/components/behavior/FSMAnalysis.vue')['default']
-    FSMEditor: typeof import('./src/components/behavior/FSMEditor.vue')['default']
     FSMSidebar: typeof import('./src/components/behavior/FSMSidebar.vue')['default']
     FSMStateEditDialog: typeof import('./src/components/behavior/FSMStateEditDialog.vue')['default']
     FSMStateNode: typeof import('./src/components/behavior/FSMStateNode.vue')['default']

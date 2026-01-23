@@ -1,0 +1,437 @@
+// Execution Trace Generator with Guard Evaluation
+
+import type {
+  FSMNode,
+  FSMEdge,
+  EFSMVariable,
+  VariableState,
+  GuardEvaluationTrace,
+  DeadlockDetails,
+  DeadlockType,
+  GuardWarning,
+} from '@/contracts/models';
+import {
+  evaluateGuard,
+  executeAction,
+  getInitialVariableState,
+} from './guardEvaluator';
+import { buildAdjacencyList } from '../graph/algorithms';
+
+/**
+ * Generate all possible variable state combinations
+ */
+export function generateVariableStateCombinations(variables: EFSMVariable[]): VariableState[] {
+  if (variables.length === 0) {
+    return [{}];
+  }
+
+  const combinations: VariableState[] = [];
+
+  function generateCombination(index: number, currentState: VariableState) {
+    if (index === variables.length) {
+      combinations.push({ ...currentState });
+      return;
+    }
+
+    const variable = variables[index];
+    let possibleValues: (number | boolean | string)[] = [];
+
+    switch (variable.type) {
+      case 'int':
+        // Generate all values in range
+        const min = variable.minValue ?? 0;
+        const max = variable.maxValue ?? 10;
+
+        // Limit the range to avoid explosion
+        const range = max - min + 1;
+        if (range > 20) {
+          // Sample boundary and middle values
+          possibleValues = [min, min + 1, Math.floor((min + max) / 2), max - 1, max];
+        } else {
+          // Generate all values
+          for (let i = min; i <= max; i++) {
+            possibleValues.push(i);
+          }
+        }
+        break;
+
+      case 'bool':
+        possibleValues = [false, true];
+        break;
+
+      case 'enum':
+        possibleValues = variable.enumValues || [];
+        break;
+    }
+
+    for (const value of possibleValues) {
+      currentState[variable.name] = value;
+      generateCombination(index + 1, currentState);
+    }
+  }
+
+  generateCombination(0, {});
+  return combinations;
+}
+
+/**
+ * Find shortest trace to a deadlock state with variable evaluation
+ */
+export function findShortestTraceToDeadlock(
+  startStateId: string,
+  targetStateId: string,
+  nodes: FSMNode[],
+  edges: FSMEdge[],
+  variables: EFSMVariable[],
+  initialVariableState?: VariableState
+): GuardEvaluationTrace[] | null {
+  const initialState = initialVariableState || getInitialVariableState(variables);
+  const adjacency = buildAdjacencyList(edges);
+
+  // BFS with state exploration
+  interface SearchNode {
+    stateId: string;
+    variableState: VariableState;
+    trace: GuardEvaluationTrace[];
+  }
+
+  const queue: SearchNode[] = [{
+    stateId: startStateId,
+    variableState: initialState,
+    trace: [{
+      stateId: startStateId,
+      stateLabel: nodes.find(n => n.id === startStateId)?.data?.label || startStateId,
+      variableValues: initialState,
+    }]
+  }];
+
+  const visited = new Set<string>();
+
+  function getStateKey(stateId: string, varState: VariableState): string {
+    return `${stateId}:${JSON.stringify(varState)}`;
+  }
+
+  visited.add(getStateKey(startStateId, initialState));
+
+  while (queue.length > 0) {
+    const current = queue.shift()!;
+
+    if (current.stateId === targetStateId) {
+      return current.trace;
+    }
+
+    const outgoingEdges = adjacency.get(current.stateId) || [];
+
+    for (const edgeId of outgoingEdges) {
+      const edge = edges.find(e => e.id === edgeId);
+      if (!edge) continue;
+
+      const guard = edge.data?.condition;
+      const action = edge.data?.action;
+
+      // Evaluate guard
+      const guardResult = evaluateGuard(guard || '', current.variableState, variables);
+
+      if (guardResult === true) {
+        // Guard passes, execute action and transition
+        const newVariableState = executeAction(action || '', current.variableState, variables);
+        const stateKey = getStateKey(edge.target, newVariableState);
+
+        if (!visited.has(stateKey)) {
+          visited.add(stateKey);
+
+          const targetNode = nodes.find(n => n.id === edge.target);
+          const newTrace: GuardEvaluationTrace[] = [
+            ...current.trace,
+            {
+              stateId: edge.target,
+              stateLabel: targetNode?.data?.label || edge.target,
+              transition: {
+                id: edge.id,
+                event: edge.data?.event,
+                guard: guard,
+                action: action,
+              },
+              variableValues: newVariableState,
+              guardResult: true,
+              guardExpression: guard,
+            }
+          ];
+
+          queue.push({
+            stateId: edge.target,
+            variableState: newVariableState,
+            trace: newTrace,
+          });
+        }
+      }
+    }
+  }
+
+  return null; // No path found
+}
+
+/**
+ * Explore all possible execution paths with DFS
+ */
+export function exploreAllPaths(
+  nodes: FSMNode[],
+  edges: FSMEdge[],
+  variables: EFSMVariable[],
+  maxDepth: number = 50
+): {
+  reachableStates: Set<string>;
+  reachableTransitions: Set<string>;
+  deadlockStates: Set<string>;
+  traces: Map<string, GuardEvaluationTrace[]>;
+} {
+  console.group('🔍 DFS Exploration Started');
+  console.log('Variables:', variables);
+  console.log('Max Depth:', maxDepth);
+  console.log('Nodes:', nodes.length, 'Edges:', edges.length);
+
+  const initialStates = nodes.filter(n => n.data?.isInitial);
+  const reachableStates = new Set<string>();
+  const reachableTransitions = new Set<string>();
+  const deadlockStates = new Set<string>();
+  const traces = new Map<string, GuardEvaluationTrace[]>();
+  const adjacency = buildAdjacencyList(edges);
+
+  // Get all variable state combinations or sample them
+  const variableCombinations = variables.length > 0
+    ? generateVariableStateCombinations(variables)
+    : [{}];
+
+  console.log(`Generated ${variableCombinations.length} variable combinations:`);
+  variableCombinations.forEach((combo, idx) => {
+    console.log(`  Combination ${idx + 1}:`, combo);
+  });
+
+  interface ExplorationState {
+    stateId: string;
+    variableState: VariableState;
+    trace: GuardEvaluationTrace[];
+    depth: number;
+  }
+
+  for (const initialState of initialStates) {
+    for (const varState of variableCombinations) {
+      console.group(`\n📍 Exploring from ${initialState.data?.label || initialState.id}`);
+      console.log('Initial variable state:', varState);
+
+      const stack: ExplorationState[] = [{
+        stateId: initialState.id,
+        variableState: varState,
+        trace: [{
+          stateId: initialState.id,
+          stateLabel: initialState.data?.label || initialState.id,
+          variableValues: varState,
+        }],
+        depth: 0,
+      }];
+
+      const visitedInPath = new Set<string>();
+      let stepCount = 0;
+
+      function getStateKey(stateId: string, vs: VariableState): string {
+        return `${stateId}:${JSON.stringify(vs)}`;
+      }
+
+      while (stack.length > 0) {
+        const current = stack.pop()!;
+        const stateKey = getStateKey(current.stateId, current.variableState);
+        stepCount++;
+
+        const currentNode = nodes.find(n => n.id === current.stateId);
+        console.log(`\n  Step ${stepCount}: ${currentNode?.data?.label || current.stateId} (depth: ${current.depth})`);
+        console.log('    Variables:', current.variableState);
+
+        // Mark as reachable
+        reachableStates.add(current.stateId);
+        traces.set(stateKey, current.trace);
+
+        // Check depth limit
+        if (current.depth >= maxDepth) {
+          console.log('    ⚠️ Max depth reached');
+          continue;
+        }
+
+        // Avoid infinite loops in this path
+        if (visitedInPath.has(stateKey)) {
+          console.log('    ⚠️ Already visited in this path');
+          continue;
+        }
+        visitedInPath.add(stateKey);
+
+        const outgoingEdges = adjacency.get(current.stateId) || [];
+        let hasValidTransition = false;
+
+        console.log(`    Checking ${outgoingEdges.length} outgoing transitions`);
+
+        for (const edgeId of outgoingEdges) {
+          const edge = edges.find(e => e.id === edgeId);
+          if (!edge) continue;
+
+          const guard = edge.data?.condition;
+          const action = edge.data?.action;
+          const targetNode = nodes.find(n => n.id === edge.target);
+
+          console.log(`      → ${targetNode?.data?.label || edge.target} ${edge.data?.event ? `[${edge.data.event}]` : ''}`);
+          if (guard) console.log(`        Guard: ${guard}`);
+          if (action) console.log(`        Action: ${action}`);
+
+          // Evaluate guard
+          const guardResult = evaluateGuard(guard || '', current.variableState, variables);
+          console.log(`        Guard result: ${guardResult}`);
+
+          if (guardResult === true || guardResult === 'unknown') {
+            hasValidTransition = true;
+            reachableTransitions.add(edge.id);
+
+            // Execute action
+            const newVariableState = guardResult === true
+              ? executeAction(action || '', current.variableState, variables)
+              : current.variableState;
+
+            if (action && guardResult === true) {
+              const changed = JSON.stringify(current.variableState) !== JSON.stringify(newVariableState);
+              if (changed) {
+                console.log('        ✓ Variables updated:', newVariableState);
+              } else {
+                console.log('        Variables unchanged');
+              }
+            }
+
+            console.log('        ✓ Transition allowed, adding to stack');
+
+            const targetNode = nodes.find(n => n.id === edge.target);
+            const newTrace: GuardEvaluationTrace[] = [
+              ...current.trace,
+              {
+                stateId: edge.target,
+                stateLabel: targetNode?.data?.label || edge.target,
+                transition: {
+                  id: edge.id,
+                  event: edge.data?.event,
+                  guard: guard,
+                  action: action,
+                },
+                variableValues: newVariableState,
+                guardResult,
+                guardExpression: guard,
+              }
+            ];
+
+            stack.push({
+              stateId: edge.target,
+              variableState: newVariableState,
+              trace: newTrace,
+              depth: current.depth + 1,
+            });
+          } else {
+            console.log('        ✗ Transition blocked by guard');
+          }
+        }
+
+        // If no valid outgoing transitions and not a final state, it's a deadlock
+        if (!hasValidTransition) {
+          const node = nodes.find(n => n.id === current.stateId);
+          if (node && !node.data?.isFinal) {
+            console.log('    🔴 DEADLOCK DETECTED!');
+            console.log('    Deadlock at:', node.data?.label || current.stateId);
+            console.log('    Variables at deadlock:', current.variableState);
+            deadlockStates.add(current.stateId);
+          } else if (node?.data?.isFinal) {
+            console.log('    ✓ Reached final state');
+          }
+        }
+      }
+      console.groupEnd();
+    }
+  }
+
+  console.log('\n📊 Exploration Summary:');
+  console.log('  Reachable states:', Array.from(reachableStates));
+  console.log('  Reachable transitions:', reachableTransitions.size);
+  console.log('  Deadlock states:', Array.from(deadlockStates));
+  console.groupEnd();
+
+  return {
+    reachableStates,
+    reachableTransitions,
+    deadlockStates,
+    traces,
+  };
+}
+
+/**
+ * Generate detailed deadlock information
+ */
+export function generateDeadlockDetails(
+  deadlockStateId: string,
+  deadlockType: DeadlockType,
+  nodes: FSMNode[],
+  edges: FSMEdge[],
+  variables: EFSMVariable[],
+  warnings: GuardWarning[]
+): DeadlockDetails | null {
+  const initialStates = nodes.filter(n => n.data?.isInitial);
+
+  if (initialStates.length === 0) {
+    return null;
+  }
+
+  // Find shortest trace from an initial state to the deadlock state
+  let shortestTrace: GuardEvaluationTrace[] | null = null;
+
+  for (const initialState of initialStates) {
+    const trace = findShortestTraceToDeadlock(
+      initialState.id,
+      deadlockStateId,
+      nodes,
+      edges,
+      variables
+    );
+
+    if (trace && (!shortestTrace || trace.length < shortestTrace.length)) {
+      shortestTrace = trace;
+    }
+  }
+
+  if (!shortestTrace) {
+    // Create a minimal trace if we can't find a path
+    const node = nodes.find(n => n.id === deadlockStateId);
+    shortestTrace = [{
+      stateId: deadlockStateId,
+      stateLabel: node?.data?.label || deadlockStateId,
+      variableValues: getInitialVariableState(variables),
+    }];
+  }
+
+  let description = '';
+  switch (deadlockType) {
+    case 'progress':
+      description = 'This state cannot reach any final state, leading to a progress deadlock.';
+      break;
+    case 'circular':
+      description = 'Circular wait condition detected in state dependencies.';
+      break;
+    case 'starvation':
+      description = 'Event starvation: required events cannot be triggered.';
+      break;
+    case 'terminal':
+      description = 'Non-final state with no valid outgoing transitions.';
+      break;
+  }
+
+  return {
+    type: deadlockType,
+    shortestTrace,
+    affectedStates: [deadlockStateId],
+    warnings: warnings.filter(w =>
+      w.location.stateId === deadlockStateId ||
+      shortestTrace?.some(t => t.transition?.id === w.location.transitionId)
+    ),
+    description,
+  };
+}

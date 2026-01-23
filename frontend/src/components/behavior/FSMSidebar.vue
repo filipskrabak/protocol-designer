@@ -55,6 +55,11 @@
       </v-card-text>
     </v-card>
 
+    <!-- EFSM Variables Panel -->
+    <div class="ma-4">
+      <EFSMVariablesPanel />
+    </div>
+
     <!-- Instructions -->
     <!--<v-card class="ma-4" elevation="1">
       <v-card-text>
@@ -75,6 +80,7 @@
 
 <script setup lang="ts">
 import useFSMDragAndDrop from './useFSMDragAndDrop'
+import EFSMVariablesPanel from './EFSMVariablesPanel.vue'
 
 const { onDragStart } = useFSMDragAndDrop()
 </script>
