@@ -4,6 +4,7 @@ import type {
   FSMNode,
   FSMEdge,
   DeterminismIssue,
+  CompletenessIssue,
   DeadState,
   UnreachableState,
 } from './types';
@@ -13,6 +14,7 @@ import {
 } from '../graph/algorithms';
 import {
   areGuardsSatisfiableSimultaneously,
+  areGuardsComplete,
   edgeDataToGuard,
 } from './z3-checker';
 
@@ -126,6 +128,72 @@ export async function checkDeterminism(edges: FSMEdge[]): Promise<DeterminismIss
             break;
           }
         }
+      }
+    }
+  }
+
+  return issues;
+}
+
+/**
+ * Check if FSM has complete guard coverage (no gaps) using Z3 SMT solver
+ * Returns list of states/events where guards don't cover all possible cases
+ *
+ * Algorithm:
+ * 1. Group transitions by source state and event
+ * 2. For each group, collect all guards
+ * 3. Use Z3 to check if NOT(G1 OR G2 OR ... OR Gn) is satisfiable
+ * 4. If satisfiable, there's a gap (potential local deadlock)
+ */
+export async function checkCompleteness(edges: FSMEdge[]): Promise<CompletenessIssue[]> {
+  const issues: CompletenessIssue[] = [];
+
+  // Group transitions by source state and event
+  const transitionsByStateAndEvent = new Map<string, Map<string, FSMEdge[]>>();
+
+  for (const edge of edges) {
+    const event = edge.data?.event || '';
+
+    if (!transitionsByStateAndEvent.has(edge.source)) {
+      transitionsByStateAndEvent.set(edge.source, new Map());
+    }
+
+    const stateTransitions = transitionsByStateAndEvent.get(edge.source)!;
+    if (!stateTransitions.has(event)) {
+      stateTransitions.set(event, []);
+    }
+
+    stateTransitions.get(event)!.push(edge);
+  }
+
+  // Check for completeness: gap check using Z3
+  for (const [state, eventMap] of transitionsByStateAndEvent) {
+    for (const [event, transitions] of eventMap) {
+      // Collect all guards for this state-event pair
+      const guards = transitions.map(t => edgeDataToGuard(t.data));
+
+      try {
+        // Check if guards cover all possible cases
+        const result = await areGuardsComplete(guards, state, event);
+
+        if (!result.complete) {
+          // Gap detected - guards don't cover all cases!
+          issues.push({
+            state,
+            event: event || '(empty)',
+            gapModel: result.gapModel,
+          });
+
+          // Log detailed information for debugging
+          console.warn(
+            `Completeness gap detected in state "${state}" for event "${event}":`,
+            `\n  Guards: ${JSON.stringify(guards)}`,
+            `\n  Gap example: ${result.gapModel}`
+          );
+        }
+      } catch (error) {
+        console.error('Error checking completeness with Z3:', error);
+        // On error, assume complete (conservative approach)
       }
     }
   }

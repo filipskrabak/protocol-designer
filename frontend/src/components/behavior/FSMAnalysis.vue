@@ -107,6 +107,22 @@
                 </v-list-item-subtitle>
               </v-list-item>
 
+              <!-- Completeness -->
+              <v-list-item>
+                <template v-slot:prepend>
+                  <v-icon :color="properties.isComplete ? 'success' : 'error'">
+                    {{ properties.isComplete ? 'mdi-check' : 'mdi-close' }}
+                  </v-icon>
+                </template>
+                <v-list-item-title class="text-wrap">Completeness</v-list-item-title>
+                <v-list-item-subtitle class="text-wrap">
+                  Checks whether guards cover all possible cases to prevent local deadlocks (using Z3 SMT solver).
+                  <p v-if="!properties.isComplete && issues.completenessIssues.length > 0">
+                    {{ issues.completenessIssues.length }} state-event pairs with incomplete coverage
+                  </p>
+                </v-list-item-subtitle>
+              </v-list-item>
+
               <!-- Dead States -->
               <v-list-item>
                 <template v-slot:prepend>

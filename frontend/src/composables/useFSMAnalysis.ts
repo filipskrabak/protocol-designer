@@ -9,6 +9,7 @@ import type {
   FSMProperties,
   FSMIssues,
   DeterminismIssue,
+  CompletenessIssue,
   DeadlockAnalysis,
 } from '@/utils/fsm/types';
 import {
@@ -21,6 +22,7 @@ import {
 } from '@/utils/graph/algorithms';
 import {
   checkDeterminism,
+  checkCompleteness,
   findDeadStates,
   findUnreachableStates,
   validateStructure,
@@ -34,6 +36,9 @@ export function useFSMAnalysis(
   // Ref to store determinism issues (async computed)
   const determinismIssues: Ref<DeterminismIssue[]> = ref([]);
 
+  // Ref to store completeness issues (async computed)
+  const completenessIssues: Ref<CompletenessIssue[]> = ref([]);
+
   // Ref to store deadlock analysis (async computed)
   const deadlockAnalysis: Ref<DeadlockAnalysis> = ref({
     progressDeadlocks: [],
@@ -45,6 +50,7 @@ export function useFSMAnalysis(
 
   // Flags to track if checks are in progress
   const checkingDeterminism = ref(false);
+  const checkingCompleteness = ref(false);
   const checkingDeadlocks = ref(false);
 
   // Async function to check determinism
@@ -57,6 +63,19 @@ export function useFSMAnalysis(
       determinismIssues.value = [];
     } finally {
       checkingDeterminism.value = false;
+    }
+  }
+
+  // Async function to check completeness
+  async function updateCompletenessCheck() {
+    checkingCompleteness.value = true;
+    try {
+      completenessIssues.value = await checkCompleteness(edges.value);
+    } catch (error) {
+      console.error('Error checking completeness:', error);
+      completenessIssues.value = [];
+    } finally {
+      checkingCompleteness.value = false;
     }
   }
 
@@ -82,6 +101,7 @@ export function useFSMAnalysis(
   // Watch edges and update determinism check
   watch(edges, () => {
     updateDeterminismCheck();
+    updateCompletenessCheck();
   }, { immediate: true, deep: true });
 
   // Watch nodes and edges and update deadlock check
@@ -141,6 +161,7 @@ export function useFSMAnalysis(
       hasFinalState: structure.hasFinalState,
       allStatesReachable: allReachable,
       isDeterministic: determinismIssues.value.length === 0,
+      isComplete: completenessIssues.value.length === 0,
       isStronglyConnected: stronglyConnected,
       hasCycles: cyclesDetected,
       hasSelfLoops: selfLoops > 0,
@@ -157,6 +178,7 @@ export function useFSMAnalysis(
 
     return {
       determinismIssues: determinismIssues.value,
+      completenessIssues: completenessIssues.value,
       deadStates,
       unreachableStates,
     };
@@ -185,6 +207,7 @@ export function useFSMAnalysis(
   const hasIssues = computed(() => {
     return (
       issues.value.determinismIssues.length > 0 ||
+      issues.value.completenessIssues.length > 0 ||
       issues.value.deadStates.length > 0 ||
       issues.value.unreachableStates.length > 0 ||
       deadlocks.value.hasDeadlocks
@@ -211,8 +234,10 @@ export function useFSMAnalysis(
 
     // Async checking state
     checkingDeterminism,
+    checkingCompleteness,
     checkingDeadlocks,
     determinismIssues,
+    completenessIssues,
     deadlockAnalysis,
 
     // Combined analysis

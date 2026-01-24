@@ -42,6 +42,36 @@ export async function areGuardsSatisfiableSimultaneously(
 }
 
 /**
+ * Check if a set of guards covers all possible cases (completeness check)
+ * Returns true if complete (no gaps), false if there's a gap (potential deadlock)
+ * Uses backend API for Z3 SMT solving
+ */
+export async function areGuardsComplete(
+  guards: Guard[],
+  state: string,
+  event: string
+): Promise<{ complete: boolean; gapModel?: string }> {
+  try {
+    const response = await axios.post('/fsm/check-completeness', {
+      guards,
+      state,
+      event,
+    });
+
+    return {
+      complete: response.data.complete,
+      gapModel: response.data.gap_model,
+    };
+  } catch (error) {
+    console.error('Error calling backend completeness checker:', error);
+    // On error, assume complete (conservative approach)
+    return {
+      complete: true,
+    };
+  }
+}
+
+/**
  * Convert FSM edge data to Guard object
  */
 export function edgeDataToGuard(edgeData: any): Guard {

@@ -33,6 +33,12 @@ export interface DeterminismIssue {
   targets: string[];
 }
 
+export interface CompletenessIssue {
+  state: string;
+  event: string;
+  gapModel?: string;  // Counter-example showing inputs not covered by any guard
+}
+
 export interface DeadState {
   id: string;
   label: string;
@@ -74,6 +80,7 @@ export interface FSMProperties {
   hasFinalState: boolean;
   allStatesReachable: boolean;
   isDeterministic: boolean;
+  isComplete: boolean;  // True if all state-event pairs have complete guard coverage
   isStronglyConnected: boolean;
   hasCycles: boolean;
   hasSelfLoops: boolean;
@@ -82,6 +89,7 @@ export interface FSMProperties {
 
 export interface FSMIssues {
   determinismIssues: DeterminismIssue[];
+  completenessIssues: CompletenessIssue[];
   deadStates: DeadState[];
   unreachableStates: UnreachableState[];
 }
