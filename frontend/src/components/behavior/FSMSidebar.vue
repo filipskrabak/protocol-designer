@@ -60,6 +60,11 @@
       <EFSMVariablesPanel />
     </div>
 
+    <!-- Event Registry Panel -->
+    <div class="ma-4">
+      <FSMEventsPanel />
+    </div>
+
     <!-- Instructions -->
     <!--<v-card class="ma-4" elevation="1">
       <v-card-text>
@@ -81,6 +86,7 @@
 <script setup lang="ts">
 import useFSMDragAndDrop from './useFSMDragAndDrop'
 import EFSMVariablesPanel from './EFSMVariablesPanel.vue'
+import FSMEventsPanel from './FSMEventsPanel.vue'
 
 const { onDragStart } = useFSMDragAndDrop()
 </script>

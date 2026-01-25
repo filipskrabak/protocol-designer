@@ -504,6 +504,7 @@ async function runVerification() {
 
   // Run EFSM analysis if variables are defined
   const variables = currentFSM.value?.variables || []
+  const events = currentFSM.value?.events || []
   if (variables.length > 0) {
     console.log('🔬 Running EFSM verification with variables:', variables);
     const analysis = analyzeEFSM(nodes.value, edges.value, variables)
@@ -512,7 +513,7 @@ async function runVerification() {
 
     // Run DFS-based deadlock detection with guard evaluation
     try {
-      const deadlockAnalysis = await detectDeadlocks(nodes.value, edges.value, variables, true)
+      const deadlockAnalysis = await detectDeadlocks(nodes.value, edges.value, variables, events, true)
       console.log('Deadlock analysis results:', deadlockAnalysis);
       // The analysis results will be visible through the computed properties
     } catch (error) {

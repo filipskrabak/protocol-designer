@@ -1112,6 +1112,22 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
 
       scxmlElement.appendChild(datamodel);
 
+      // Serialize event registry
+      if (fsm.events && fsm.events.length > 0) {
+        console.log('Serializing events:', fsm.events);
+        const eventsElement = document.createElementNS(pdNamespace, "pd:events");
+        fsm.events.forEach(event => {
+          const eventElement = document.createElementNS(pdNamespace, "pd:event");
+          eventElement.setAttribute("name", event.name);
+          eventElement.setAttribute("type", event.type);
+          if (event.description) {
+            eventElement.setAttribute("description", event.description);
+          }
+          eventsElement.appendChild(eventElement);
+        });
+        scxmlElement.appendChild(eventsElement);
+      }
+
       // Serialize states
       fsm.nodes.forEach(node => {
         const stateElement = document.createElementNS(scxmlNamespace, "scxml:state");
@@ -1326,6 +1342,40 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
       const events: import("@/contracts/models").FSMEvent[] = [];
       const eventSet = new Set<string>();
 
+      // Parse event registry from pd:events (use wildcard to match namespaced elements)
+      let eventsElement: Element | undefined = undefined;
+      const allElements = scxmlElement.querySelectorAll("*");
+      for (let i = 0; i < allElements.length; i++) {
+        const el = allElements[i];
+        if (el.localName === "events") {
+          eventsElement = el;
+          break;
+        }
+      }
+
+      if (eventsElement) {
+        const eventElements: Element[] = [];
+        const eventChildren = eventsElement.querySelectorAll("*");
+        for (let i = 0; i < eventChildren.length; i++) {
+          const el = eventChildren[i];
+          if (el.localName === "event") {
+            eventElements.push(el);
+          }
+        }
+        console.log(`Loading ${eventElements.length} events from registry`);
+        eventElements.forEach(eventEl => {
+          const name = eventEl.getAttribute("name");
+          const type = eventEl.getAttribute("type") as import("@/contracts/models").EventType;
+          const description = eventEl.getAttribute("description") || undefined;
+
+          if (name && type && !eventSet.has(name)) {
+            eventSet.add(name);
+            events.push({ name, type, description });
+            console.log(`  Loaded event: ${name} (${type})`);
+          }
+        });
+      }
+
       // Parse states
       const states = scxmlElement.querySelectorAll("state");
       states.forEach(stateEl => {
@@ -1377,16 +1427,6 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
           const sourceHandle = transEl.getAttribute("pd:source_handle") || undefined;
           const targetHandle = transEl.getAttribute("pd:target_handle") || undefined;
           const useProtocolConditions = transEl.getAttribute("pd:use_protocol_conditions") === "true";
-
-          // Track events
-          if (event && !eventSet.has(event)) {
-            eventSet.add(event);
-            events.push({
-              id: v4(),
-              name: event,
-              description: `Event: ${event}`
-            });
-          }
 
           const edgeData: import("@/contracts/models").FSMEdgeData = {
             event,

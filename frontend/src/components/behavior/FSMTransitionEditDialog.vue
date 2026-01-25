@@ -20,17 +20,37 @@
 
       <v-card-text class="py-4">
         <v-form ref="form" @submit.prevent="saveTransition">
-          <!-- Event field -->
-          <v-text-field
+          <!-- Event field  -->
+          <v-select
             v-model="localData.event"
+            :items="eventItems"
+            item-title="displayName"
+            item-value="name"
             label="Event"
-            placeholder="e.g., buttonClick, timeout, userInput"
             prepend-icon="mdi-lightning-bolt"
             density="comfortable"
             variant="outlined"
             class="mb-3"
-            hint="The event that triggers this transition"
-          ></v-text-field>
+            clearable
+            hint="Select event from registry"
+            persistent-hint
+          >
+            <template v-slot:item="{ item, props }">
+              <v-list-item v-bind="props">
+                <template v-slot:prepend>
+                  <v-chip :color="getEventColor(item.raw.type)" size="small" variant="flat" style="margin-right: 10px;">
+                    {{ item.raw.type }}
+                  </v-chip>
+                </template>
+              </v-list-item>
+            </template>
+            <template v-slot:selection="{ item }">
+              <v-chip :color="getEventColor(item.raw.type)" size="small" variant="flat" class="me-2" v-if="item.raw.type">
+                {{ item.raw.type }}
+              </v-chip>
+              {{ item.raw.name }}
+            </template>
+          </v-select>
 
           <!-- Condition Type Toggle -->
           <div class="mb-4 ms-10">
@@ -279,7 +299,8 @@
 
 <script setup lang="ts">
 import { reactive, watch, computed, ref } from 'vue'
-import type { FSMEdgeData, ProtocolFieldCondition, FieldOption } from '@/contracts/models'
+import type { FSMEdgeData, ProtocolFieldCondition, FieldOption, EventType } from '@/contracts/models'
+import { getEventSCXMLName } from '@/contracts/models'
 import { useProtocolStore } from '@/store/ProtocolStore'
 
 interface Props {
@@ -314,6 +335,31 @@ const localData = reactive<FSMEdgeData>({
   action: '',
   description: ''
 })
+
+// Computed: Available events from FSM registry
+const availableEvents = computed(() => {
+  const fsm = protocolStore.getCurrentFSM()
+  return fsm?.events || []
+})
+
+// Event items for dropdown
+const eventItems = computed(() => {
+  return availableEvents.value.map(event => ({
+    ...event,
+    displayName: `${event.type}.${event.name}`
+  }))
+})
+
+// Helper to get event color
+function getEventColor(type: EventType): string {
+  switch (type) {
+    case 'input': return 'blue'
+    case 'output': return 'green'
+    case 'internal': return 'purple'
+    case 'timeout': return 'orange'
+    default: return 'grey'
+  }
+}
 
 // Computed: Check if protocol has fields
 const hasProtocolFields = computed(() => {
@@ -435,6 +481,7 @@ function saveTransition() {
     // Clean up empty values
     const cleanData: FSMEdgeData = {}
 
+    // Save event name (from registry or free text)
     if (localData.event?.trim()) {
       cleanData.event = localData.event.trim()
     }

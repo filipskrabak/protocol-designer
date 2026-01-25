@@ -19,6 +19,7 @@ declare module 'vue' {
     FieldTab: typeof import('./src/components/modals/fieldedittabs/FieldTab.vue')['default']
     FiniteStateMachine: typeof import('./src/components/behavior/FiniteStateMachine.vue')['default']
     FSMAnalysis: typeof import('./src/components/behavior/FSMAnalysis.vue')['default']
+    FSMEventsPanel: typeof import('./src/components/behavior/FSMEventsPanel.vue')['default']
     FSMSidebar: typeof import('./src/components/behavior/FSMSidebar.vue')['default']
     FSMStateEditDialog: typeof import('./src/components/behavior/FSMStateEditDialog.vue')['default']
     FSMStateNode: typeof import('./src/components/behavior/FSMStateNode.vue')['default']

@@ -4,31 +4,32 @@ import type {
   FSMNode,
   FSMEdge,
   ProgressDeadlock,
-  CircularWait,
-  EventStarvation,
-  DeadState,
   DeadlockAnalysis,
 } from './types';
+import {
+  detectDeadlocksConcreteBFS,
+  areVariablesBounded,
+} from './deadlockDetectorBFS';
 
 /**
  * Comprehensive deadlock detection
- * TODO: Implement your own deadlock detection algorithms here
  *
- * Suggested implementation steps:
- * 1. Build adjacency list from edges
- * 2. Find initial states
- * 3. Use BFS/DFS to explore reachable states
- * 4. For EFSM: evaluate guards with variable states
- * 5. Detect various deadlock types:
- *    - Progress deadlocks (can't reach final state)
- *    - Circular waits (cycles in dependencies)
- *    - Event starvation (events never reachable)
- *    - Terminal non-final states (stuck states)
+ * Implementation:
+ * - Uses concrete BFS exploration for EFSM with bounded variables
+ * - Explores state space with actual variable values
+ * - Detects progress deadlocks (states where no transitions are enabled)
+ *
+ * Future enhancements:
+ * - Circular wait detection (cycles in dependencies)
+ * - Event starvation detection (events never reachable)
+ * - Terminal non-final state detection
+ * - Symbolic (SMT-based) exploration for larger state spaces
  */
 export async function detectDeadlocks(
   nodes: FSMNode[],
   edges: FSMEdge[],
   variables?: import('@/contracts/models').EFSMVariable[],
+  events?: import('@/contracts/models').FSMEvent[],
   generateDetails: boolean = false
 ): Promise<DeadlockAnalysis> {
   console.log('🔬 Deadlock detection called with:', {
@@ -38,14 +39,38 @@ export async function detectDeadlocks(
     generateDetails
   });
 
-  // TODO: Implement your deadlock detection here
+  let progressDeadlocks: ProgressDeadlock[] = [];
 
-  // Stub implementation - returns no deadlocks
+  // Check if we have variables (EFSM) and they are bounded
+  if (variables && variables.length > 0) {
+    console.log('🔍 Running EFSM deadlock detection with concrete BFS');
+
+    // Check if variables have bounded domains
+    const bounded = areVariablesBounded(variables);
+    if (!bounded) {
+      console.warn('⚠️ Some variables are unbounded - deadlock detection may be incomplete');
+    }
+
+    // Run concrete BFS deadlock detection with CONSERVATIVE event semantics
+    // Use events from FSM registry if provided, otherwise empty array
+    progressDeadlocks = detectDeadlocksConcreteBFS(nodes, edges, variables, events || [], {
+      maxDepth: 50,
+      maxNodes: 10000,
+      timeoutMs: 5000,
+    });
+  } else {
+    console.log('ℹ️ No variables defined - skipping EFSM deadlock detection');
+    // For plain FSM without variables, we would need simpler deadlock detection
+    // This is not implemented yet
+  }
+
+  const hasDeadlocks = progressDeadlocks.length > 0;
+
   return {
-    progressDeadlocks: [],
-    circularWaits: [],
-    eventStarvation: [],
-    terminalNonFinalStates: [],
-    hasDeadlocks: false,
+    progressDeadlocks,
+    circularWaits: [], // TODO: Implement circular wait detection
+    eventStarvation: [], // TODO: Implement event starvation detection
+    terminalNonFinalStates: [], // TODO: Implement terminal non-final detection
+    hasDeadlocks,
   };
 }

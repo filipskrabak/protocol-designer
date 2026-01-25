@@ -149,11 +149,20 @@ export interface FSMEdge {
   label?: string; // Display label
 }
 
+export type EventType = 'input' | 'output' | 'internal' | 'timeout';
+
 export interface FSMEvent {
-  id: string;
-  name: string;
+  name: string;            // Unique name: "recv_ACK" (used as identifier)
+  type: EventType;         // Classification: input, output, internal, timeout
   description?: string;
-  parameters?: Record<string, any>; // Event parameters/data
+}
+
+/**
+ * Get SCXML event name with dot notation
+ * Examples: "input.recv_ACK", "output.send_SYN", "timeout.retry"
+ */
+export function getEventSCXMLName(event: FSMEvent): string {
+  return `${event.type}.${event.name}`;
 }
 
 export interface FiniteStateMachine {
