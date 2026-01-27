@@ -58,6 +58,13 @@ export interface ProgressDeadlock {
   reason: string;
 }
 
+export interface ConditionalDeadlock {
+  stateId: string;
+  label: string;
+  reason: string;
+  requiredInputs: string[]; // INPUT events needed to progress
+}
+
 export interface CircularWait {
   states: string[];
   labels: string[];
@@ -71,10 +78,18 @@ export interface EventStarvation {
 
 export interface DeadlockAnalysis {
   progressDeadlocks: ProgressDeadlock[];
+  conditionalDeadlocks: ConditionalDeadlock[]; // States blocked waiting for INPUT events
   circularWaits: CircularWait[];
   eventStarvation: EventStarvation[];
   terminalNonFinalStates: DeadState[];
   hasDeadlocks: boolean;
+  hasCycles: boolean; // True if executable cycles detected during state space exploration
+  explorationStats?: {
+    exploredNodes: number;
+    uniqueConfigurations: number;
+    maxDepthReached: number;
+    timeElapsedMs: number;
+  };
   details?: Map<string, import('@/contracts/models').DeadlockDetails>; // Detailed info per deadlock state
 }
 

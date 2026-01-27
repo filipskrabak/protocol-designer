@@ -43,7 +43,7 @@ const DEFAULT_CONFIG: DeadlockDetectionConfig = {
 };
 
 /**
- * Check if a transition can fire based on CONSERVATIVE event semantics
+ * Check if a transition can fire based on event semantics
  *
  * Event availability (CONSERVATIVE approach for soundness):
  * - INPUT: event_possible = FALSE (cannot guarantee environment provides)
@@ -55,13 +55,15 @@ const DEFAULT_CONFIG: DeadlockDetectionConfig = {
  * @param variableState - Current variable values
  * @param variables - Variable definitions
  * @param events - Event registry
+ * @param allowInputs - If true, INPUT events can fire (optimistic mode)
  * @returns true if transition can fire
  */
 function canTransitionFire(
   edge: FSMEdge,
   variableState: VariableState,
   variables: EFSMVariable[],
-  events: FSMEvent[]
+  events: FSMEvent[],
+  allowInputs: boolean = false
 ): boolean {
   // 1. Check guard condition
   // 2. Check event availability (CONSERVATIVE)
@@ -91,12 +93,12 @@ function canTransitionFire(
     return true;
   }
 
-  // 3. Apply CONSERVATIVE event semantics
+  // 3. Apply event semantics
   switch (event.type) {
     case 'input':
       // INPUT: From environment - cannot guarantee it will occur
-      // event_possible = FALSE
-      return false;
+      // In optimistic mode (allowInputs=true), we explore these paths but mark them as conditional
+      return allowInputs;
 
     case 'output':
       // OUTPUT: Protocol controls - can emit when ready
@@ -153,7 +155,15 @@ export function detectDeadlocksConcreteBFS(
   variables: EFSMVariable[],
   events: FSMEvent[] = [],
   config: Partial<DeadlockDetectionConfig> = {}
-): ProgressDeadlock[] {
+): {
+  deadlocks: ProgressDeadlock[];
+  conditionalDeadlocks: { stateId: string; label: string; reason: string; requiredInputs: string[] }[];
+  hasCycles: boolean;
+  maxDepth: number;
+  timeElapsedMs: number;
+  exploredNodes: number;
+  uniqueConfigurations: number
+} {
   const cfg = { ...DEFAULT_CONFIG, ...config };
 
   console.group('🔍 Concrete BFS Deadlock Detection');
@@ -165,6 +175,9 @@ export function detectDeadlocksConcreteBFS(
 
   const startTime = Date.now();
   const deadlocks: ProgressDeadlock[] = [];
+  const conditionalDeadlocks: { stateId: string; label: string; reason: string; requiredInputs: string[] }[] = [];
+  let cycleDetected = false;
+  let maxDepthReached = 0;
 
   // Find initial states
   const initialStates = nodes.filter(n => n.data?.type === 'initial');
@@ -250,25 +263,41 @@ export function detectDeadlocksConcreteBFS(
 
     const isFinal = currentStateNode.data?.type === 'final';
 
-    // Log current configuration
-    if (exploredConfigurations % 100 === 0) {
-      console.log(`📍 Exploring configuration ${exploredConfigurations}: state=${currentStateNode.data?.label || current.stateId}, depth=${current.depth}`);
-    }
+    // Log current configuration (more detailed for debugging)
+    console.log(`\n📍 Exploring: state=${currentStateNode.data?.label || current.stateId}, depth=${current.depth}, vars=${JSON.stringify(current.variableState)}`);
 
     // Get outgoing edges from this state
     const outgoing = outgoingEdges.get(current.stateId) || [];
+    console.log(`  → ${outgoing.length} outgoing transitions`);
 
     // Try to find at least one enabled transition
     let foundEnabledTransition = false;
+    const availableInputs: string[] = [];
 
     for (const edge of outgoing) {
-      // Check if transition can fire (guard + event availability)
-      const canFire = canTransitionFire(edge, current.variableState, variables, events);
+      const targetNode = nodes.find(n => n.id === edge.target);
+      const eventName = edge.data?.event || '(epsilon)';
+      const guardStr = typeof edge.data?.condition === 'string' ? edge.data.condition :
+                       edge.data?.condition?.type === 'manual' ? edge.data?.condition.text : '';
+
+      console.log(`    Checking: ${eventName} → ${targetNode?.data?.label || edge.target}${guardStr ? ` [${guardStr}]` : ''}`);
+
+      // Check if transition can fire (guard + event availability) - OPTIMISTIC mode
+      const canFire = canTransitionFire(edge, current.variableState, variables, events, true);
+      console.log(`      Can fire: ${canFire}`);
 
       if (canFire) {
-        // Transition is enabled!
-        foundEnabledTransition = true;
+        // Check if this is an INPUT event
+        const event = events.find(e => e.name === eventName);
+        if (event?.type === 'input') {
+          availableInputs.push(eventName);
+          // Don't set foundEnabledTransition - INPUT events require environment cooperation
+        } else {
+          // Non-INPUT transition available (OUTPUT, TIMEOUT, INTERNAL, epsilon)
+          foundEnabledTransition = true;
+        }
 
+        // Transition is enabled - execute action and explore successor
         const action = edge.data?.action;
 
         // Execute action to get new variable state
@@ -282,28 +311,47 @@ export function detectDeadlocksConcreteBFS(
           trace: [...current.trace, edge.id],
         };
 
+        // Track max depth
+        maxDepthReached = Math.max(maxDepthReached, successor.depth);
+
         // Check if we've seen this configuration
         const successorKey = serializeConfiguration(successor.stateId, successor.variableState);
         if (!visited.has(successorKey)) {
           queue.push(successor);
+        } else {
+          // Found a cycle - we're revisiting a state with same variable values
+          cycleDetected = true;
         }
       }
     }
 
-    // Check for deadlock: no enabled transitions and not a final state
+    // Determine if this is a deadlock
     if (!foundEnabledTransition && !isFinal) {
-      console.log(`🔴 DEADLOCK FOUND at state: ${currentStateNode.data?.label || current.stateId}`);
-      console.log('   Variable values:', current.variableState);
-      console.log('   Trace length:', current.trace.length);
-      console.log('   Depth:', current.depth);
+      if (availableInputs.length > 0) {
+        // CONDITIONAL DEADLOCK: Only INPUT events available
+        console.log(`🟡 CONDITIONAL DEADLOCK at state: ${currentStateNode.data?.label || current.stateId}`);
+        console.log('   Requires INPUT events:', availableInputs);
+        console.log('   Variable values:', current.variableState);
 
-      const deadlock: ProgressDeadlock = {
-        stateId: current.stateId,
-        label: currentStateNode.data?.label || current.stateId,
-        reason: `No enabled transitions with variable state: ${JSON.stringify(current.variableState)}`,
-      };
+        conditionalDeadlocks.push({
+          stateId: current.stateId,
+          label: currentStateNode.data?.label || current.stateId,
+          reason: `Blocked waiting for INPUT events: ${availableInputs.join(', ')}`,
+          requiredInputs: availableInputs,
+        });
+      } else {
+        // HARD DEADLOCK: No transitions at all
+        console.log(`🔴 DEADLOCK FOUND at state: ${currentStateNode.data?.label || current.stateId}`);
+        console.log('   Variable values:', current.variableState);
+        console.log('   Trace length:', current.trace.length);
+        console.log('   Depth:', current.depth);
 
-      deadlocks.push(deadlock);
+        deadlocks.push({
+          stateId: current.stateId,
+          label: currentStateNode.data?.label || current.stateId,
+          reason: `No enabled transitions with variable state: ${JSON.stringify(current.variableState)}`,
+        });
+      }
     }
   }
 
@@ -319,12 +367,30 @@ export function detectDeadlocksConcreteBFS(
   if (deadlocks.length > 0) {
     console.log('🔴 Deadlocks detected:', deadlocks);
   } else {
-    console.log('✅ No deadlocks found');
+    console.log('✅ No hard deadlocks found');
   }
+
+  if (conditionalDeadlocks.length > 0) {
+    console.log('🟡 Conditional deadlocks detected:', conditionalDeadlocks);
+  }
+
+  if (cycleDetected) {
+    console.log('🔄 Executable cycles detected during exploration');
+  }
+
+  console.log(`📏 Maximum depth reached: ${maxDepthReached}`);
 
   console.groupEnd();
 
-  return deadlocks;
+  return {
+    deadlocks,
+    conditionalDeadlocks,
+    hasCycles: cycleDetected,
+    maxDepth: maxDepthReached,
+    timeElapsedMs: elapsedTime,
+    exploredNodes,
+    uniqueConfigurations: exploredConfigurations,
+  };
 }
 
 /**

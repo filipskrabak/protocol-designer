@@ -14,7 +14,7 @@ import type {
 } from '@/utils/fsm/types';
 import {
   buildAdjacencyList,
-  hasCycles,
+  hasCycles, // Fallback for FSMs without variables
   isStronglyConnected,
   longestPath,
   countSelfLoops,
@@ -153,9 +153,17 @@ export function useFSMAnalysis(
       maxDepth = Math.max(maxDepth, depth);
     }
 
-    const cyclesDetected = hasCycles(nodes.value, adjacency);
     const stronglyConnected = isStronglyConnected(nodes.value, adjacency);
     const selfLoops = countSelfLoops(edges.value);
+
+    // Use deadlock analysis for accurate cycle detection (based on actual state space exploration)
+    // Fallback to simple graph-based detection if deadlock analysis hasn't run or has no variables
+    const cyclesDetected = deadlockAnalysis.value.hasCycles !== undefined
+      ? deadlockAnalysis.value.hasCycles
+      : hasCycles(nodes.value, adjacency);
+
+    // Use exploration depth from deadlock analysis if available, otherwise calculate from graph
+    const actualMaxDepth = deadlockAnalysis.value.explorationStats?.maxDepthReached ?? maxDepth;
 
     return {
       hasInitialState: structure.hasInitialState,
@@ -166,7 +174,7 @@ export function useFSMAnalysis(
       isStronglyConnected: stronglyConnected,
       hasCycles: cyclesDetected,
       hasSelfLoops: selfLoops > 0,
-      maxDepth,
+      maxDepth: actualMaxDepth,
     };
   });
 

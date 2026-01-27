@@ -53,24 +53,42 @@ export async function detectDeadlocks(
 
     // Run concrete BFS deadlock detection with CONSERVATIVE event semantics
     // Use events from FSM registry if provided, otherwise empty array
-    progressDeadlocks = detectDeadlocksConcreteBFS(nodes, edges, variables, events || [], {
+    const result = detectDeadlocksConcreteBFS(nodes, edges, variables, events || [], {
       maxDepth: 50,
       maxNodes: 10000,
       timeoutMs: 5000,
     });
+
+    progressDeadlocks = result.deadlocks;
+
+    return {
+      progressDeadlocks,
+      conditionalDeadlocks: result.conditionalDeadlocks,
+      circularWaits: [], // TODO: Implement circular wait detection
+      eventStarvation: [], // TODO: Implement event starvation detection
+      terminalNonFinalStates: [], // TODO: Implement terminal non-final detection
+      hasDeadlocks: progressDeadlocks.length > 0,
+      hasCycles: result.hasCycles,
+      explorationStats: {
+        exploredNodes: result.exploredNodes,
+        uniqueConfigurations: result.uniqueConfigurations,
+        maxDepthReached: result.maxDepth,
+        timeElapsedMs: result.timeElapsedMs,
+      },
+    };
   } else {
     console.log('ℹ️ No variables defined - skipping EFSM deadlock detection');
     // For plain FSM without variables, we would need simpler deadlock detection
     // This is not implemented yet
   }
 
-  const hasDeadlocks = progressDeadlocks.length > 0;
-
   return {
     progressDeadlocks,
-    circularWaits: [], // TODO: Implement circular wait detection
-    eventStarvation: [], // TODO: Implement event starvation detection
-    terminalNonFinalStates: [], // TODO: Implement terminal non-final detection
-    hasDeadlocks,
+    conditionalDeadlocks: [],
+    circularWaits: [],
+    eventStarvation: [],
+    terminalNonFinalStates: [],
+    hasDeadlocks: progressDeadlocks.length > 0,
+    hasCycles: false, // No cycle detection without variables
   };
 }

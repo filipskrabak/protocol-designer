@@ -202,13 +202,22 @@ export function parseActionExpression(action: string, variables: EFSMVariable[])
     const assignMatch = statement.match(/^\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*(.+)\s*$/);
 
     if (!assignMatch) {
+      // Check if it's an event emission (e.g., send_connect, send_WILLMSG)
+      // Event emissions are typically identifiers that start with send_ or recv_
+      const eventMatch = statement.match(/^\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*$/);
+
+      if (eventMatch) {
+        // Valid event emission - skip it (we don't track event emissions in state)
+        continue;
+      }
+
       errors.push(`Invalid assignment: ${statement}`);
       warnings.push({
         type: 'invalid_expression',
         severity: 'error',
         location: { expression: statement },
         message: `Invalid action statement: ${statement}`,
-        suggestion: 'Actions should be in format: variable = expression'
+        suggestion: 'Actions should be in format: variable = expression or event_name'
       });
       continue;
     }

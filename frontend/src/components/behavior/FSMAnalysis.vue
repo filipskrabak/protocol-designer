@@ -324,15 +324,32 @@
                   {{ deadlocks.hasDeadlocks ? 'Deadlocks Detected' : 'Deadlock Free' }}
                 </v-list-item-title>
                 <v-list-item-subtitle class="text-wrap">
-                  State space exploration using DFS
+                  State space exploration using BFS
                 </v-list-item-subtitle>
+                <template v-if="deadlocks.explorationStats">
+                  <v-list-item-subtitle class="text-wrap">
+                    <div class="mt-2 text-caption">
+                      Explored nodes: {{ deadlocks.explorationStats.exploredNodes }}
+                    </div>
+                  </v-list-item-subtitle>
+                  <v-list-item-subtitle class="text-wrap">
+                    <div class="mt-2 text-caption">
+                      Unique configurations: {{ deadlocks.explorationStats.uniqueConfigurations }}
+                    </div>
+                  </v-list-item-subtitle>
+                  <v-list-item-subtitle class="text-wrap">
+                    <div class="mt-2 text-caption">
+                      Time elapsed: {{ deadlocks.explorationStats.timeElapsedMs }} ms
+                    </div>
+                  </v-list-item-subtitle>
+                </template>
               </v-list-item>
             </v-list>
 
             <!-- Deadlock Details -->
             <div v-if="deadlocks.hasDeadlocks && deadlocks.progressDeadlocks.length > 0" class="mt-4">
               <v-divider class="mb-3"></v-divider>
-              <div class="text-subtitle-2 mb-2">Detected Deadlocks ({{ deadlocks.progressDeadlocks.length }}):</div>
+              <div class="text-subtitle-2 mb-2">Deadlocks ({{ deadlocks.progressDeadlocks.length }}):</div>
               <v-alert
                 v-for="d in deadlocks.progressDeadlocks"
                 :key="`deadlock-${d.stateId}`"
@@ -358,6 +375,30 @@
                 </div>
                 <div class="text-caption mt-1">
                   <strong>Reason:</strong> {{ d.reason }}
+                </div>
+              </v-alert>
+            </div>
+
+            <!-- Conditional Deadlocks (Environment-Dependent) -->
+            <div v-if="deadlocks.conditionalDeadlocks && deadlocks.conditionalDeadlocks.length > 0" class="mt-4">
+              <v-divider class="mb-3"></v-divider>
+              <div class="text-subtitle-2 mb-2">Conditional Deadlocks ({{ deadlocks.conditionalDeadlocks.length }}):</div>
+              <v-alert
+                v-for="d in deadlocks.conditionalDeadlocks"
+                :key="`conditional-${d.stateId}`"
+                type="warning"
+                variant="tonal"
+                density="compact"
+                class="mb-2"
+              >
+                <div class="text-body-2">
+                  <strong>State:</strong> {{ d.label }}
+                </div>
+                <div class="text-caption mt-1">
+                  <strong>Reason:</strong> {{ d.reason }}
+                </div>
+                <div class="text-caption mt-1">
+                  Progress depends ONLY on input event with no fallback: <strong>{{ d.requiredInputs.join(', ') }}</strong>
                 </div>
               </v-alert>
             </div>
@@ -529,7 +570,7 @@ async function runVerification() {
     efsmWarnings.value = analysis.warnings
     efsmStats.value = analysis.stats
 
-    // Run DFS-based deadlock detection with guard evaluation
+    // Run BFS-based deadlock detection with guard evaluation
     try {
       const result = await detectDeadlocks(nodes.value, edges.value, variables, events, true)
       console.log('Deadlock analysis results:', result);

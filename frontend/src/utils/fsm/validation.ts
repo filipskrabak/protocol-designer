@@ -19,29 +19,6 @@ import {
 } from './z3-checker';
 
 /**
- * Get a signature for a condition to compare conditions for determinism (legacy method)
- * @deprecated Use Z3-based checking instead for more accurate determinism analysis
- */
-export function getConditionSignature(condition: any): string {
-  if (!condition) return '';
-
-  if (condition.type === 'protocol') {
-    // Sort the conditions by field_id, operator, and value for consistent comparison
-    const sorted = [...(condition.conditions || [])].sort((a, b) => {
-      if (a.field_id !== b.field_id) return a.field_id.localeCompare(b.field_id);
-      if (a.operator !== b.operator) return a.operator.localeCompare(b.operator);
-      return String(a.value).localeCompare(String(b.value));
-    });
-    return JSON.stringify(sorted);
-  } else if (condition.type === 'manual') {
-    // For manual conditions, use the trimmed text as signature
-    return (condition.text || '').trim();
-  }
-
-  return '';
-}
-
-/**
  * Check if FSM is deterministic using Z3 SMT solver
  * Returns list of states with non-deterministic transitions
  *

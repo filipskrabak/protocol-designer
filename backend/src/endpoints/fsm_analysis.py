@@ -4,6 +4,7 @@ FSM Determinism Checking Endpoint using Z3
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import List, Optional, Literal, Any
+from ..z3_utils import parse_manual_expression as parse_manual_expr
 
 router = APIRouter()
 
@@ -111,49 +112,6 @@ async def check_guards_satisfiability(request: CheckGuardsRequest):
             else:
                 return True
 
-        # Helper function to parse manual expression
-        def parse_manual_expression(expression: str):
-            if not expression or not expression.strip():
-                return True
-
-            expr = expression.strip()
-
-            # Handle AND
-            if '&&' in expr:
-                parts = expr.split('&&')
-                sub_exprs = [parse_manual_expression(p.strip()) for p in parts]
-                return And(*sub_exprs)
-
-            # Handle OR
-            if '||' in expr:
-                parts = expr.split('||')
-                sub_exprs = [parse_manual_expression(p.strip()) for p in parts]
-                return Or(*sub_exprs)
-
-            # Handle single comparison: x > 10, y == 5, etc.
-            import re
-            match = re.match(r'^\s*(\w+)\s*(==|!=|>=|<=|>|<)\s*(-?\d+)\s*$', expr)
-            if match:
-                var_name, operator, value_str = match.groups()
-                value = int(value_str)
-                var = get_variable(var_name)
-
-                if operator == '==':
-                    return var == value
-                elif operator == '!=':
-                    return var != value
-                elif operator == '>':
-                    return var > value
-                elif operator == '<':
-                    return var < value
-                elif operator == '>=':
-                    return var >= value
-                elif operator == '<=':
-                    return var <= value
-
-            # If can't parse, treat as always true (conservative)
-            return True
-
         # Helper function to convert guard to Z3 expression
         def guard_to_z3(guard: Guard):
             if guard.type == 'always_true' or (not guard.protocolConditions and not guard.manualExpression):
@@ -164,7 +122,7 @@ async def check_guards_satisfiability(request: CheckGuardsRequest):
                 return And(*conditions) if len(conditions) > 1 else conditions[0]
 
             if guard.type == 'manual' and guard.manualExpression:
-                return parse_manual_expression(guard.manualExpression)
+                return parse_manual_expr(guard.manualExpression, get_variable)
 
             return True
 
@@ -252,49 +210,6 @@ async def check_guards_completeness(request: CheckCompletenessRequest):
             else:
                 return True
 
-        # Helper function to parse manual expression
-        def parse_manual_expression(expression: str):
-            if not expression or not expression.strip():
-                return True
-
-            expr = expression.strip()
-
-            # Handle AND
-            if '&&' in expr:
-                parts = expr.split('&&')
-                sub_exprs = [parse_manual_expression(p.strip()) for p in parts]
-                return And(*sub_exprs)
-
-            # Handle OR
-            if '||' in expr:
-                parts = expr.split('||')
-                sub_exprs = [parse_manual_expression(p.strip()) for p in parts]
-                return Or(*sub_exprs)
-
-            # Handle single comparison: x > 10, y == 5, etc.
-            import re
-            match = re.match(r'^\s*(\w+)\s*(==|!=|>=|<=|>|<)\s*(-?\d+)\s*$', expr)
-            if match:
-                var_name, operator, value_str = match.groups()
-                value = int(value_str)
-                var = get_variable(var_name)
-
-                if operator == '==':
-                    return var == value
-                elif operator == '!=':
-                    return var != value
-                elif operator == '>':
-                    return var > value
-                elif operator == '<':
-                    return var < value
-                elif operator == '>=':
-                    return var >= value
-                elif operator == '<=':
-                    return var <= value
-
-            # If can't parse, treat as always true (conservative)
-            return True
-
         # Helper function to convert guard to Z3 expression
         def guard_to_z3(guard: Guard):
             if guard.type == 'always_true' or (not guard.protocolConditions and not guard.manualExpression):
@@ -305,7 +220,7 @@ async def check_guards_completeness(request: CheckCompletenessRequest):
                 return And(*conditions) if len(conditions) > 1 else conditions[0]
 
             if guard.type == 'manual' and guard.manualExpression:
-                return parse_manual_expression(guard.manualExpression)
+                return parse_manual_expr(guard.manualExpression, get_variable)
 
             return True
 
