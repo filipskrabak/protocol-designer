@@ -49,13 +49,15 @@ export async function areGuardsSatisfiableSimultaneously(
 export async function areGuardsComplete(
   guards: Guard[],
   state: string,
-  event: string
+  event: string,
+  variables?: any[]
 ): Promise<{ complete: boolean; gapModel?: string }> {
   try {
     const response = await axios.post('/fsm/check-completeness', {
       guards,
       state,
       event,
+      variables,
     });
 
     return {

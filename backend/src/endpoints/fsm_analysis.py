@@ -33,11 +33,21 @@ class CheckGuardsResponse(BaseModel):
     error: Optional[str] = None
 
 
+class EFSMVariable(BaseModel):
+    """EFSM variable definition with bounds"""
+    name: str
+    type: Literal['int', 'bool', 'enum']
+    minValue: Optional[int] = None
+    maxValue: Optional[int] = None
+    enumValues: Optional[List[str]] = None
+
+
 class CheckCompletenessRequest(BaseModel):
     """Request to check if a set of guards covers all possible cases"""
     guards: List[Guard]
     state: str
     event: str
+    variables: Optional[List[EFSMVariable]] = None
 
 
 class CheckCompletenessResponse(BaseModel):
@@ -305,6 +315,26 @@ async def check_guards_completeness(request: CheckCompletenessRequest):
         # If no guards or all are "always_true", it's complete
         if not guard_expressions or all(expr is True for expr in guard_expressions):
             return CheckCompletenessResponse(complete=True)
+
+        # Variable bounds as constraints
+        if request.variables:
+            for var_def in request.variables:
+                var = get_variable(var_def.name)
+
+                if var_def.type == 'int':
+                    # Add min/max bounds for integer variables
+                    if var_def.minValue is not None:
+                        solver.add(var >= var_def.minValue)
+                    if var_def.maxValue is not None:
+                        solver.add(var <= var_def.maxValue)
+
+                elif var_def.type == 'bool':
+                    # Boolean: constrain to 0 or 1
+                    solver.add(Or(var == 0, var == 1))
+
+                elif var_def.type == 'enum' and var_def.enumValues:
+                    # Enum: constrain to valid indices
+                    solver.add(And(var >= 0, var < len(var_def.enumValues)))
 
         # Create the union of all guards: G1 OR G2 OR ... OR Gn
         union_of_guards = Or(*guard_expressions)

@@ -96,6 +96,9 @@ export async function checkDeterminism(edges: FSMEdge[]): Promise<DeterminismIss
                   state,
                   event: event || '(empty)',
                   targets: [t1.target, t2.target],
+                  guard1,
+                  guard2,
+                  counterExample: result.model,
                 });
 
                 // Log detailed information for debugging
@@ -145,7 +148,7 @@ export async function checkDeterminism(edges: FSMEdge[]): Promise<DeterminismIss
  * 3. Use Z3 to check if NOT(G1 OR G2 OR ... OR Gn) is satisfiable
  * 4. If satisfiable, there's a gap (potential local deadlock)
  */
-export async function checkCompleteness(edges: FSMEdge[]): Promise<CompletenessIssue[]> {
+export async function checkCompleteness(edges: FSMEdge[], variables?: any[]): Promise<CompletenessIssue[]> {
   const issues: CompletenessIssue[] = [];
 
   // Group transitions by source state and event
@@ -174,7 +177,7 @@ export async function checkCompleteness(edges: FSMEdge[]): Promise<CompletenessI
 
       try {
         // Check if guards cover all possible cases
-        const result = await areGuardsComplete(guards, state, event);
+        const result = await areGuardsComplete(guards, state, event, variables);
 
         if (!result.complete) {
           // Gap detected - guards don't cover all cases!

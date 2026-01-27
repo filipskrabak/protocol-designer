@@ -31,6 +31,9 @@ export interface DeterminismIssue {
   state: string;
   event: string;
   targets: string[];
+  guard1?: any;  // First conflicting guard
+  guard2?: any;  // Second conflicting guard
+  counterExample?: string;  // Z3 model showing the conflict
 }
 
 export interface CompletenessIssue {

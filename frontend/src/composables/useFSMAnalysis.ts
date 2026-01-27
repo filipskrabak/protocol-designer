@@ -31,7 +31,8 @@ import { detectDeadlocks } from '@/utils/fsm/deadlock';
 
 export function useFSMAnalysis(
   nodes: ComputedRef<FSMNode[]>,
-  edges: ComputedRef<FSMEdge[]>
+  edges: ComputedRef<FSMEdge[]>,
+  variables?: ComputedRef<any[]>
 ) {
   // Ref to store determinism issues (async computed)
   const determinismIssues: Ref<DeterminismIssue[]> = ref([]);
@@ -70,7 +71,7 @@ export function useFSMAnalysis(
   async function updateCompletenessCheck() {
     checkingCompleteness.value = true;
     try {
-      completenessIssues.value = await checkCompleteness(edges.value);
+      completenessIssues.value = await checkCompleteness(edges.value, variables?.value);
     } catch (error) {
       console.error('Error checking completeness:', error);
       completenessIssues.value = [];

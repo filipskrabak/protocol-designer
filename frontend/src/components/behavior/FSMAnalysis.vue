@@ -19,6 +19,26 @@
         <v-chip size="small" variant="tonal" color="info" prepend-icon="mdi-stop-circle">
           {{ metrics.finalStates }} Final
         </v-chip>
+
+        <!-- Quick Status -->
+        <v-chip
+          v-if="!properties.allStatesReachable || !properties.isDeterministic || !properties.isComplete || !properties.hasInitialState || issues.deadStates.length > 0 || deadlocks.hasDeadlocks"
+          size="small"
+          variant="flat"
+          :color="!properties.hasInitialState || deadlocks.hasDeadlocks ? 'error' : 'warning'"
+          prepend-icon="mdi-alert"
+        >
+          Issues Found
+        </v-chip>
+        <v-chip
+          v-else
+          size="small"
+          variant="flat"
+          color="success"
+          prepend-icon="mdi-check-circle"
+        >
+          All Checks Pass
+        </v-chip>
       </template>
 
       <!-- Refresh Button -->
@@ -56,6 +76,15 @@
       </v-alert>
     </v-card-text>
 
+    <v-card-text v-else-if="isAnalyzing">
+      <v-alert type="info" variant="tonal">
+        <div class="d-flex align-center">
+          <v-progress-circular indeterminate size="20" width="2" class="me-3"></v-progress-circular>
+          <span>Running verification...</span>
+        </div>
+      </v-alert>
+    </v-card-text>
+
     <v-card-text v-else-if="!hasAnalysis">
       <v-alert type="info" variant="tonal">
         Click the refresh button to run property verification
@@ -78,8 +107,8 @@
               <!-- Reachability -->
               <v-list-item>
                 <template v-slot:prepend>
-                  <v-icon :color="properties.allStatesReachable ? 'success' : 'error'">
-                    {{ properties.allStatesReachable ? 'mdi-check' : 'mdi-close' }}
+                  <v-icon :color="properties.allStatesReachable ? 'success' : 'warning'">
+                    {{ properties.allStatesReachable ? 'mdi-check' : 'mdi-alert' }}
                   </v-icon>
                 </template>
                 <v-list-item-title class="text-wrap">Reachability</v-list-item-title>
@@ -101,25 +130,67 @@
                 <v-list-item-title class="text-wrap">Determinism</v-list-item-title>
                 <v-list-item-subtitle class="text-wrap">
                   Checks whether the guards on outgoing transitions from each state are mutually exclusive (using Z3 SMT solver).
-                  <p v-if="!properties.isDeterministic && issues.determinismIssues.length > 0">
-                    {{ issues.determinismIssues.length }} conflicting transitions
-                  </p>
+                  <div v-if="!properties.isDeterministic && issues.determinismIssues.length > 0" class="mt-2">
+                    <v-alert
+                      v-for="(issue, idx) in issues.determinismIssues"
+                      :key="`det-${idx}`"
+                      type="warning"
+                      variant="tonal"
+                      density="compact"
+                      class="mb-2"
+                    >
+                      <div class="text-body-2">
+                        <strong>State:</strong> {{ getStateLabel(issue.state) }}<br>
+                        <strong>Event:</strong> {{ issue.event }}<br>
+                        <strong>Target states:</strong> {{ issue.targets.map(t => getStateLabel(t)).join(' and ') }}
+                      </div>
+                      <div v-if="issue.guard1 || issue.guard2" class="text-caption mt-2">
+                        <div v-if="issue.guard1" class="mb-1">
+                          <strong>Guard 1:</strong> <code class="font-mono">{{ formatGuard(issue.guard1) }}</code>
+                        </div>
+                        <div v-if="issue.guard2">
+                          <strong>Guard 2:</strong> <code class="font-mono">{{ formatGuard(issue.guard2) }}</code>
+                        </div>
+                      </div>
+                      <div v-if="issue.counterExample" class="text-caption mt-2 font-mono">
+                        <strong>Counter-example:</strong> {{ issue.counterExample }}
+                      </div>
+                    </v-alert>
+                  </div>
                 </v-list-item-subtitle>
               </v-list-item>
 
               <!-- Completeness -->
               <v-list-item>
                 <template v-slot:prepend>
-                  <v-icon :color="properties.isComplete ? 'success' : 'error'">
-                    {{ properties.isComplete ? 'mdi-check' : 'mdi-close' }}
+                  <v-icon :color="properties.isComplete ? 'success' : 'warning'">
+                    {{ properties.isComplete ? 'mdi-check' : 'mdi-alert' }}
                   </v-icon>
                 </template>
                 <v-list-item-title class="text-wrap">Completeness</v-list-item-title>
                 <v-list-item-subtitle class="text-wrap">
                   Checks whether guards cover all possible cases to prevent local deadlocks (using Z3 SMT solver).
-                  <p v-if="!properties.isComplete && issues.completenessIssues.length > 0">
-                    {{ issues.completenessIssues.length }} state-event pairs with incomplete coverage
-                  </p>
+                  <div v-if="!properties.isComplete && issues.completenessIssues.length > 0" class="mt-2">
+                    <v-alert
+                      v-for="(issue, idx) in issues.completenessIssues"
+                      :key="`comp-${idx}`"
+                      type="warning"
+                      variant="tonal"
+                      density="compact"
+                      class="mb-2"
+                    >
+                      <div class="text-body-2">
+                        <strong>State:</strong> {{ getStateLabel(issue.state) }}<br>
+                        <strong>Event:</strong> {{ issue.event }}
+                      </div>
+                      <div class="text-caption mt-1">
+                        <strong>Issue:</strong> Guards don't cover all possible variable values - potential deadlock
+                      </div>
+                      <div v-if="issue.gapModel" class="text-caption mt-1 font-mono">
+                        <strong>Counter-example:</strong> {{ issue.gapModel }}
+                      </div>
+                    </v-alert>
+                  </div>
                 </v-list-item-subtitle>
               </v-list-item>
 
@@ -225,124 +296,69 @@
                 {{ deadlocks.hasDeadlocks ? 'mdi-lock-alert' : 'mdi-lock-open-check' }}
               </v-icon>
               <span class="font-weight-medium">
-                Deadlock Check
+                Deadlock Analysis
               </span>
             </div>
           </v-expansion-panel-title>
           <v-expansion-panel-text>
-            <v-list density="compact" lines="two">
-              <!-- Progress Deadlocks -->
-              <v-list-item>
-                <template v-slot:prepend>
-                  <v-icon :color="deadlocks.progressDeadlocks.length === 0 ? 'success' : 'error'">
-                    {{ deadlocks.progressDeadlocks.length === 0 ? 'mdi-check' : 'mdi-close' }}
-                  </v-icon>
-                </template>
-                <v-list-item-title class="text-wrap">Progress Deadlock Free</v-list-item-title>
-                <v-list-item-subtitle v-if="deadlocks.progressDeadlocks.length > 0" class="text-wrap">
-                  {{ deadlocks.progressDeadlocks.length }} state(s):
-                  <template v-for="(d, idx) in deadlocks.progressDeadlocks" :key="d.stateId">
-                    <span>{{ d.label }}</span>
-                    <v-btn
-                      v-if="currentFSM?.variables && currentFSM.variables.length > 0"
-                      icon
-                      size="x-small"
-                      variant="text"
-                      color="primary"
-                      @click="showDeadlockInfo(d.stateId, 'progress')"
-                      class="ml-1"
-                    >
-                      <v-icon size="small">mdi-information</v-icon>
-                      <v-tooltip activator="parent">Show trace details</v-tooltip>
-                    </v-btn>
-                    <span v-if="idx < deadlocks.progressDeadlocks.length - 1">; </span>
-                  </template>
-                </v-list-item-subtitle>
-                <v-list-item-subtitle v-else class="text-wrap">
-                  All reachable states can eventually reach a final state
-                </v-list-item-subtitle>
-              </v-list-item>
+            <!-- Variables required notice -->
+            <v-alert
+              v-if="!currentFSM?.variables || currentFSM.variables.length === 0"
+              type="info"
+              variant="tonal"
+              density="compact"
+              class="mb-3"
+            >
+              Deadlock detection requires EFSM variables to be defined. Add variables to enable comprehensive deadlock analysis.
+            </v-alert>
 
-              <!-- Circular Waits -->
+            <v-list v-else density="compact" lines="two">
+              <!-- Deadlock Detection Result -->
               <v-list-item>
                 <template v-slot:prepend>
-                  <v-icon :color="deadlocks.circularWaits.length === 0 ? 'success' : 'warning'">
-                    {{ deadlocks.circularWaits.length === 0 ? 'mdi-check' : 'mdi-alert' }}
+                  <v-icon :color="deadlocks.hasDeadlocks ? 'error' : 'success'">
+                    {{ deadlocks.hasDeadlocks ? 'mdi-close' : 'mdi-check' }}
                   </v-icon>
                 </template>
-                <v-list-item-title class="text-wrap">No Circular Dependencies</v-list-item-title>
-                <v-list-item-subtitle v-if="deadlocks.circularWaits.length > 0" class="text-wrap">
-                  {{ deadlocks.circularWaits.length }} circular wait cycle(s) detected in state dependencies
-                </v-list-item-subtitle>
-                <v-list-item-subtitle v-else class="text-wrap">
-                  No circular wait conditions found
-                </v-list-item-subtitle>
-              </v-list-item>
-
-              <!-- Event Starvation -->
-              <v-list-item>
-                <template v-slot:prepend>
-                  <v-icon :color="deadlocks.eventStarvation.length === 0 ? 'success' : 'warning'">
-                    {{ deadlocks.eventStarvation.length === 0 ? 'mdi-check' : 'mdi-alert' }}
-                  </v-icon>
-                </template>
-                <v-list-item-title class="text-wrap">No Event Starvation</v-list-item-title>
-                <v-list-item-subtitle v-if="deadlocks.eventStarvation.length > 0" class="text-wrap">
-                  {{ deadlocks.eventStarvation.length }} event(s):
-                  {{ deadlocks.eventStarvation.map(e => formatEventStarvation(e)).join('; ') }}
-                </v-list-item-subtitle>
-                <v-list-item-subtitle v-else class="text-wrap">
-                  All events can be triggered from reachable states
-                </v-list-item-subtitle>
-              </v-list-item>
-
-              <!-- Terminal Non-Final States -->
-              <v-list-item>
-                <template v-slot:prepend>
-                  <v-icon :color="deadlocks.terminalNonFinalStates.length === 0 ? 'success' : 'warning'">
-                    {{ deadlocks.terminalNonFinalStates.length === 0 ? 'mdi-check' : 'mdi-alert' }}
-                  </v-icon>
-                </template>
-                <v-list-item-title class="text-wrap">No Terminal Non-Final States</v-list-item-title>
-                <v-list-item-subtitle v-if="deadlocks.terminalNonFinalStates.length > 0" class="text-wrap">
-                  {{ deadlocks.terminalNonFinalStates.length }} state(s):
-                  <template v-for="(state, idx) in deadlocks.terminalNonFinalStates" :key="state.id">
-                    <span>{{ state.label }}</span>
-                    <v-btn
-                      v-if="currentFSM?.variables && currentFSM.variables.length > 0"
-                      icon
-                      size="x-small"
-                      variant="text"
-                      color="primary"
-                      @click="showDeadlockInfo(state.id, 'terminal')"
-                      class="ml-1"
-                    >
-                      <v-icon size="small">mdi-information</v-icon>
-                      <v-tooltip activator="parent">Show trace details</v-tooltip>
-                    </v-btn>
-                    <span v-if="idx < deadlocks.terminalNonFinalStates.length - 1">, </span>
-                  </template>
-                </v-list-item-subtitle>
-                <v-list-item-subtitle v-else class="text-wrap">
-                  All non-final states have valid outgoing transitions
+                <v-list-item-title class="text-wrap">
+                  {{ deadlocks.hasDeadlocks ? 'Deadlocks Detected' : 'Deadlock Free' }}
+                </v-list-item-title>
+                <v-list-item-subtitle class="text-wrap">
+                  State space exploration using DFS
                 </v-list-item-subtitle>
               </v-list-item>
             </v-list>
 
-            <!-- Detailed Cycle Information -->
-            <div v-if="deadlocks.circularWaits.length > 0" class="mt-4">
+            <!-- Deadlock Details -->
+            <div v-if="deadlocks.hasDeadlocks && deadlocks.progressDeadlocks.length > 0" class="mt-4">
               <v-divider class="mb-3"></v-divider>
-              <div class="text-subtitle-2 mb-2">Circular Wait Details:</div>
+              <div class="text-subtitle-2 mb-2">Detected Deadlocks ({{ deadlocks.progressDeadlocks.length }}):</div>
               <v-alert
-                v-for="(cycle, index) in deadlocks.circularWaits"
-                :key="'cycle-' + index"
-                type="warning"
+                v-for="d in deadlocks.progressDeadlocks"
+                :key="`deadlock-${d.stateId}`"
+                type="error"
                 variant="tonal"
                 density="compact"
                 class="mb-2"
               >
-                <div class="text-caption">Cycle {{ index + 1 }}:</div>
-                <div class="font-mono text-body-2">{{ cycle.labels.join(' → ') }} → {{ cycle.labels[0] }}</div>
+                <div class="text-body-2">
+                  <strong>State:</strong> {{ d.label }}
+                  <v-btn
+                    v-if="currentFSM?.variables && currentFSM.variables.length > 0"
+                    icon
+                    size="x-small"
+                    variant="text"
+                    color="primary"
+                    @click="showDeadlockInfo(d.stateId, 'progress')"
+                    class="ml-1"
+                  >
+                    <v-icon size="small">mdi-information</v-icon>
+                    <v-tooltip activator="parent">Show detailed trace</v-tooltip>
+                  </v-btn>
+                </div>
+                <div class="text-caption mt-1">
+                  <strong>Reason:</strong> {{ d.reason }}
+                </div>
               </v-alert>
             </div>
           </v-expansion-panel-text>
@@ -359,7 +375,7 @@
                 {{ efsmWarnings.length === 0 ? 'mdi-check-circle' : 'mdi-alert' }}
               </v-icon>
               <span class="font-weight-medium">
-                EFSM Warnings
+                Variable/Guard Validation
                 <v-chip
                   v-if="efsmWarnings.length > 0"
                   size="x-small"
@@ -495,8 +511,10 @@ const edges = computed<FSMEdge[]>(() => {
   }))
 })
 
+const variables = computed(() => currentFSM.value?.variables || [])
+
 // Use the composable for analysis
-const { metrics, properties, issues, deadlocks } = useFSMAnalysis(nodes, edges)
+const { metrics, properties, issues, deadlocks, deadlockAnalysis } = useFSMAnalysis(nodes, edges, variables)
 
 // Manual verification function
 async function runVerification() {
@@ -513,15 +531,24 @@ async function runVerification() {
 
     // Run DFS-based deadlock detection with guard evaluation
     try {
-      const deadlockAnalysis = await detectDeadlocks(nodes.value, edges.value, variables, events, true)
-      console.log('Deadlock analysis results:', deadlockAnalysis);
-      // The analysis results will be visible through the computed properties
+      const result = await detectDeadlocks(nodes.value, edges.value, variables, events, true)
+      console.log('Deadlock analysis results:', result);
+      // Update the composable's deadlock analysis to show results in UI
+      deadlockAnalysis.value = result
     } catch (error) {
       console.error('Error during EFSM verification:', error);
     }
   } else {
     efsmWarnings.value = []
     efsmStats.value = null
+    // Reset deadlock analysis when no variables
+    deadlockAnalysis.value = {
+      progressDeadlocks: [],
+      circularWaits: [],
+      eventStarvation: [],
+      terminalNonFinalStates: [],
+      hasDeadlocks: false,
+    }
   }
 
   // Simulate brief analysis time for UX
@@ -578,17 +605,25 @@ function formatStateLabels(states: { id: string; label: string }[]): string {
   return states.map(s => s.label).join(', ')
 }
 
-// Helper to format progress deadlock details
-function formatProgressDeadlock(deadlock: { stateId: string; label: string; reason: string }): string {
-  return `${deadlock.label}: ${deadlock.reason}`
+// Helper to get a single state label by ID
+function getStateLabel(stateId: string): string {
+  const node = nodes.value.find(n => n.id === stateId)
+  return node?.data?.label || stateId
 }
 
-// Helper to format event starvation details
-function formatEventStarvation(starvation: { event: string; reachableFrom: number; totalStates: number }): string {
-  if (starvation.reachableFrom === 0) {
-    return `${starvation.event} (unreachable)`
+// Helper to format guard object for display
+function formatGuard(guard: any): string {
+  if (!guard) return '(none)'
+  if (guard.type === 'manual' && guard.manualExpression) {
+    return guard.manualExpression
   }
-  return `${starvation.event} (only ${starvation.reachableFrom}/${starvation.totalStates} states)`
+  if (guard.type === 'protocol' && guard.conditions) {
+    return JSON.stringify(guard.conditions)
+  }
+  if (typeof guard === 'string') {
+    return guard
+  }
+  return JSON.stringify(guard)
 }
 
 // Helper functions for warning severity
