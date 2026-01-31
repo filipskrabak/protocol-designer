@@ -3,6 +3,7 @@ name: Deploy to Server (FIIT protocol-designer.app)
 on:
   push:
     branches: [ "main" ]
+  workflow_dispatch:
 
 jobs:
   deploy:
