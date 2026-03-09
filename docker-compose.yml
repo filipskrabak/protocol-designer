@@ -2,8 +2,6 @@ services:
     db:
         image: postgres:16.3-alpine
         restart: unless-stopped
-        ports:
-            - "5432:5432"
         volumes:
             - ./backend/postgres_data:/var/lib/postgresql/data
         environment:
@@ -20,8 +18,8 @@ services:
             context: ./backend
             dockerfile: Dockerfile
         restart: unless-stopped
-        expose:
-            - 8000
+        ports:
+            - "127.0.0.1:8000:8000"
         environment:
             - DATABASE_HOST=db
             - DATABASE_PORT=5432
