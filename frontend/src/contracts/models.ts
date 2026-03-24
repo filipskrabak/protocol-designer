@@ -31,6 +31,7 @@ export interface Protocol {
   created_at: string; // timestamp
   fields: Field[];
   finite_state_machines?: FiniteStateMachine[];
+  colored_petri_nets?: ColoredPetriNet[];
 }
 
 export interface EncapsulatedProtocol {
@@ -199,7 +200,90 @@ export interface EFSMVariable {
   initialValue?: number | boolean | string;
 }
 
-// Guard Analysis and Warnings
+// ─── Colored Petri Net (CPN) Data Structures ─────────────────────────────────
+
+/**
+ * Supported color set types (thesis-scoped subset of CPN-ML):
+ *   unit  — a single anonymous token (plain P/T net place)
+ *   bool  — true / false
+ *   int   — bounded integer [intMin..intMax]
+ *   enum  — finite enumeration of named values
+ */
+export type ColorSetType = 'unit' | 'bool' | 'int' | 'enum';
+
+export interface ColorSet {
+  id: string;
+  name: string;
+  type: ColorSetType;
+  description?: string;
+  // int only
+  intMin?: number;
+  intMax?: number;
+  // enum only
+  enumValues?: string[];
+}
+
+/** A CPN variable bound to a color set — used in inscription expressions */
+export interface CPNVariable {
+  id: string;
+  name: string;
+  colorSetId: string;
+  description?: string;
+}
+
+/**
+ * A place node in the CPN graph.
+ * initialMarking is a multiset expression string, e.g. "1`CONNECT ++ 2`ACK"
+ * An empty string means the place starts empty.
+ */
+export interface CPNPlace {
+  id: string;
+  name: string;
+  colorSetId: string;
+  initialMarking: string;
+  position: { x: number; y: number };
+  description?: string;
+}
+
+/** A transition node in the CPN graph. */
+export interface CPNTransition {
+  id: string;
+  name: string;
+  guard?: string; // boolean expression, e.g. "n > 0"
+  position: { x: number; y: number };
+  description?: string;
+}
+
+/**
+ * A directed arc between a place and a transition (or vice-versa).
+ * inscription is a multiset expression string, e.g. "1`m" or "n`ACK"
+ * Bipartiteness must be enforced by the UI (place↔transition only).
+ */
+export interface CPNArc {
+  id: string;
+  sourceId: string;
+  targetId: string;
+  sourceHandle?: string;
+  targetHandle?: string;
+  arcType: 'place-to-transition' | 'transition-to-place';
+  inscription: string;
+  description?: string;
+}
+
+/** Top-level CPN model — one protocol can hold multiple CPNs. */
+export interface ColoredPetriNet {
+  id: string;
+  name: string;
+  description: string;
+  places: CPNPlace[];
+  transitions: CPNTransition[];
+  arcs: CPNArc[];
+  colorSets: ColorSet[];
+  variables: CPNVariable[];
+  metadata?: Record<string, any>;
+}
+
+// ─── Guard Analysis and Warnings ─────────────────────────────────────────────
 
 export type GuardWarningType = 'overflow' | 'underflow' | 'contradiction' | 'ambiguous' | 'unreachable' | 'unbounded' | 'undefined_variable' | 'type_mismatch' | 'invalid_expression';
 export type GuardWarningSeverity = 'error' | 'warning' | 'info';

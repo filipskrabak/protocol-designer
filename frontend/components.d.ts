@@ -7,6 +7,16 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    ColoredPetriNet: typeof import('./src/components/cpn/ColoredPetriNet.vue')['default']
+    CPNAnalysis: typeof import('./src/components/cpn/CPNAnalysis.vue')['default']
+    CPNArcEdge: typeof import('./src/components/cpn/CPNArcEdge.vue')['default']
+    CPNArcEditDialog: typeof import('./src/components/cpn/CPNArcEditDialog.vue')['default']
+    CPNColorSetBuilder: typeof import('./src/components/cpn/CPNColorSetBuilder.vue')['default']
+    CPNNodeEditDialog: typeof import('./src/components/cpn/CPNNodeEditDialog.vue')['default']
+    CPNPlaceNode: typeof import('./src/components/cpn/CPNPlaceNode.vue')['default']
+    CPNSidebar: typeof import('./src/components/cpn/CPNSidebar.vue')['default']
+    CPNTransitionNode: typeof import('./src/components/cpn/CPNTransitionNode.vue')['default']
+    CPNVariableEditor: typeof import('./src/components/cpn/CPNVariableEditor.vue')['default']
     DeadlockDetailsModal: typeof import('./src/components/behavior/DeadlockDetailsModal.vue')['default']
     EFSMVariablesPanel: typeof import('./src/components/behavior/EFSMVariablesPanel.vue')['default']
     EncapsulationMultipleSelectModal: typeof import('./src/components/modals/EncapsulationMultipleSelectModal.vue')['default']

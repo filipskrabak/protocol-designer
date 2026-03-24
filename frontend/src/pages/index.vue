@@ -36,12 +36,18 @@
         />
 
         <!-- Behavior Category -->
-        <v-list-subheader class="mt-4">Behavior</v-list-subheader>
+        <v-list-subheader class="mt-4">Behavior Modeling and Verification</v-list-subheader>
         <v-list-item
           prepend-icon="mdi-state-machine"
-          title="Finite State Machine"
+          title="Extended FSM (EFSM)"
           value="fsm"
           @click="selectTab(4)"
+        />
+        <v-list-item
+          prepend-icon="mdi-graph"
+          title="Colored Petri Nets (CPNs)"
+          value="cpn"
+          @click="selectTab(5)"
         />
       </v-list>
     </v-navigation-drawer>
@@ -69,6 +75,11 @@
             <FSMEditor />
           </v-container>
         </v-window-item>
+        <v-window-item :value="5">
+          <v-container fluid>
+            <CPNEditor />
+          </v-container>
+        </v-window-item>
       </v-window>
     </v-main>
   </v-layout>
@@ -79,6 +90,7 @@ import ProtocolViewer from "@/components/ProtocolViewer.vue";
 import ProtocolProperties from "@/components/ProtocolProperties.vue";
 import ProtocolEncapsulation from "@/components/ProtocolEncapsulation.vue";
 import FSMEditor from "@/components/behavior/FiniteStateMachine.vue";
+import CPNEditor from "@/components/cpn/ColoredPetriNet.vue";
 import { useSidebar } from "@/composables/useSidebar";
 
 import { ref } from "vue";
@@ -110,6 +122,9 @@ async function selectTab(tabNumber: number) {
       break;
     case 4:
       selectedNavItem.value = ['fsm'];
+      break;
+    case 5:
+      selectedNavItem.value = ['cpn'];
       break;
   }
 

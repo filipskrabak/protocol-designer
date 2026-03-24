@@ -24,6 +24,7 @@ import { ref } from "vue";
 
 import router from "@/router";
 import _ from "lodash";
+import { exportToPNML, importFromPNML } from "@/utils/cpn/pnml";
 
 export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
   // State
@@ -57,6 +58,13 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
       this.renderScale();
       this.setSvgSize();
       this.getMetadata();
+
+      // Ensure CPNs and FSMs are properly serialized to SVG before saving
+      // Note: These update rawProtocolData but we only save once
+      await this.saveCPNChangesWithoutSave();
+      await this.saveFSMChangesWithoutSave();
+
+      // Single save after all metadata is updated
       await this.saveCurrentProtocol();
 
       await router.push("/protocols/" + this.protocolStore.protocol.id);
@@ -119,8 +127,8 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
 
       // iterate over all properties of the protocol object
       for (const [key, value] of Object.entries(this.protocolStore.protocol)) {
-        // Skip fields, since they are handled separately
-        if (key === "fields") {
+        // Skip fields, CPNs, and FSMs, since they are handled separately
+        if (key === "fields" || key === "colored_petri_nets" || key === "finite_state_machines") {
           continue;
         }
 
@@ -732,6 +740,9 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
         this.protocolStore.currentFSMId = null;
       }
 
+      // Load CPNs from SVG metadata (JSON under <cpn:data>)
+      this.loadCPNsFromMetadata();
+
       // Ensure SCXML namespace is set before capturing outerHTML
       const svgElement = document.querySelector("svg");
       if (svgElement) {
@@ -1029,6 +1040,164 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
       await this.saveCurrentProtocol();
 
       console.log("FSM changes saved to SVG and server");
+    },
+
+    /**
+     * Saves CPN changes to the SVG metadata and updates the protocol file on the server.
+     * Each CPN is serialized as a HL-PNML <net> element inside <metadata>,
+     * mirroring how FSMs are stored as <scxml:scxml> elements.
+     */
+    async saveCPNChanges() {
+      if (!this.svgWrapper) {
+        console.warn("Cannot save CPN changes: svgWrapper not defined");
+        return;
+      }
+      const svgElement = document.querySelector("svg");
+      if (!svgElement) {
+        console.warn("SVG element not found");
+        return;
+      }
+      const metadata = svgElement.querySelector("metadata");
+      if (!metadata) {
+        console.warn("metadata element not found");
+        return;
+      }
+      // Remove existing PNML elements and legacy <cpn:data> JSON elements
+      Array.from(metadata.children)
+        .filter(el => el.localName === "pnml" || (el.localName === "data" && el.namespaceURI?.includes("cpn")))
+        .forEach(el => el.remove());
+      const cpns = this.protocolStore.protocol.colored_petri_nets;
+      if (cpns && cpns.length > 0) {
+        const parser = new DOMParser();
+        for (const cpn of cpns) {
+          const pnmlXml = exportToPNML(cpn);
+          const pnmlDoc = parser.parseFromString(pnmlXml, "application/xml");
+          const pnmlEl = pnmlDoc.querySelector("pnml");
+          if (pnmlEl) {
+            metadata.appendChild(document.importNode(pnmlEl, true));
+          }
+        }
+        console.log(`Added ${cpns.length} CPN(s) to SVG metadata as PNML`);
+      }
+      this.rawProtocolData = svgElement.outerHTML;
+      await this.saveCurrentProtocol();
+      console.log("CPN changes saved to SVG and server");
+    },
+
+    /**
+     * Saves CPN changes to the SVG metadata WITHOUT calling saveCurrentProtocol().
+     * Used internally by initialize() to batch updates before a single save.
+     */
+    async saveCPNChangesWithoutSave() {
+      if (!this.svgWrapper) {
+        console.warn("Cannot save CPN changes: svgWrapper not defined");
+        return;
+      }
+      const svgElement = document.querySelector("svg");
+      if (!svgElement) {
+        console.warn("SVG element not found");
+        return;
+      }
+      const metadata = svgElement.querySelector("metadata");
+      if (!metadata) {
+        console.warn("metadata element not found");
+        return;
+      }
+      // Remove existing PNML elements and legacy <cpn:data> JSON elements
+      Array.from(metadata.children)
+        .filter(el => el.localName === "pnml" || (el.localName === "data" && el.namespaceURI?.includes("cpn")))
+        .forEach(el => el.remove());
+      const cpns = this.protocolStore.protocol.colored_petri_nets;
+      if (cpns && cpns.length > 0) {
+        const parser = new DOMParser();
+        for (const cpn of cpns) {
+          const pnmlXml = exportToPNML(cpn);
+          const pnmlDoc = parser.parseFromString(pnmlXml, "application/xml");
+          const pnmlEl = pnmlDoc.querySelector("pnml");
+          if (pnmlEl) {
+            metadata.appendChild(document.importNode(pnmlEl, true));
+          }
+        }
+        console.log(`Added ${cpns.length} CPN(s) to SVG metadata as PNML`);
+      }
+      this.rawProtocolData = svgElement.outerHTML;
+      console.log("CPN changes serialized to SVG");
+    },
+
+    /**
+     * Saves FSM changes to the SVG WITHOUT calling saveCurrentProtocol().
+     * Used internally by initialize() to batch updates before a single save.
+     */
+    async saveFSMChangesWithoutSave() {
+      if (!this.svgWrapper) {
+        console.warn("Cannot save FSM changes: svgWrapper not defined");
+        return;
+      }
+
+      // Get SVG element
+      const svgElement = document.querySelector("svg");
+      if (!svgElement) {
+        console.warn("SVG element not found");
+        return;
+      }
+
+      // Ensure SCXML namespace is set
+      svgElement.setAttribute("xmlns:scxml", "http://www.w3.org/2005/07/scxml");
+
+      // Get metadata element
+      const metadata = svgElement.querySelector("metadata");
+      if (!metadata) {
+        console.warn("metadata element not found");
+        return;
+      }
+
+      // Remove existing SCXML elements
+      const existingScxmlElements = metadata.querySelectorAll("scxml");
+      existingScxmlElements.forEach(el => el.remove());
+
+      // Add updated FSM SCXML elements
+      const fsms = this.protocolStore.protocol.finite_state_machines;
+      if (fsms && fsms.length > 0) {
+        fsms.forEach(fsm => {
+          const scxmlElement = this.serializeFSMToSCXML(fsm);
+          metadata.appendChild(scxmlElement);
+        });
+        console.log(`Added ${fsms.length} FSM(s) to SVG as SCXML`);
+      }
+
+      // Update raw protocol data
+      this.rawProtocolData = svgElement.outerHTML;
+
+      console.log("FSM changes serialized to SVG");
+    },
+
+    /**
+     * Loads CPN models from SVG metadata.
+     * Each CPN is stored as a HL-PNML <net> element (child of <metadata>).
+     * Should be called after getFSMsFromSVG() in the SVG load flow.
+     */
+    loadCPNsFromMetadata() {
+      const svgElement = document.querySelector("svg");
+      if (!svgElement) return;
+      const metadata = svgElement.querySelector("metadata");
+      if (!metadata) return;
+      const pnmlElements = Array.from(metadata.children).filter(el => el.localName === "pnml");
+      if (pnmlElements.length === 0) return;
+      const cpns: import("@/contracts/models").ColoredPetriNet[] = [];
+      const serializer = new XMLSerializer();
+      for (const pnmlEl of pnmlElements) {
+        const pnmlXml = serializer.serializeToString(pnmlEl);
+        try {
+          const { cpn } = importFromPNML(pnmlXml);
+          cpns.push(cpn);
+        } catch (e) {
+          console.error("Failed to parse CPN from PNML:", e);
+        }
+      }
+      if (cpns.length > 0) {
+        this.protocolStore.protocol.colored_petri_nets = cpns;
+        console.log(`Loaded ${cpns.length} CPN(s) from SVG metadata as PNML`);
+      }
     },
 
     /**
