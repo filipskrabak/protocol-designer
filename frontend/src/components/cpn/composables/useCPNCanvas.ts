@@ -116,8 +116,9 @@ export function useCPNCanvas(
   }
 
   function onNodesChange(changes: any[]) {
-    const hasMoveOrRemove = changes.some(c => c.type === 'position' || c.type === 'remove')
-    if (hasMoveOrRemove) saveCPNFromCanvas()
+    const hasFinishedMove = changes.some(c => c.type === 'position' && !c.dragging)
+    const hasRemove = changes.some(c => c.type === 'remove')
+    if (hasFinishedMove || hasRemove) saveCPNFromCanvas()
   }
 
   function onEdgesChange(changes: any[]) {

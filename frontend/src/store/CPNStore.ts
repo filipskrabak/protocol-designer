@@ -40,6 +40,7 @@ export const useCPNStore = defineStore("CPNStore", {
     isAnalysisRunning: false,
     invariants: [] as CPNInvariant[],
     isInvariantsRunning: false,
+    _saveTimer: null as ReturnType<typeof setTimeout> | null,
   }),
 
   actions: {
@@ -57,7 +58,11 @@ export const useCPNStore = defineStore("CPNStore", {
     },
 
     _triggerSave() {
-      useProtocolRenderStore().saveCPNChanges();
+      if (this._saveTimer) clearTimeout(this._saveTimer);
+      this._saveTimer = setTimeout(() => {
+        this._saveTimer = null;
+        useProtocolRenderStore().saveCPNChanges();
+      }, 300);
     },
 
     // ── CRUD ─────────────────────────────────────────────────────────────────
