@@ -93,7 +93,7 @@ async def upload_protocol_svg(protocol_id: str, file, current_user, db: Session)
                 # Basic validation: check for states
                 states = scxml_el.findall(f".//{scxml_ns}state")
                 if not states:
-                    raise HTTPException(status_code=400, detail="SCXML element has no states")
+                    continue
 
                 # Check that all states have IDs
                 for state in states:

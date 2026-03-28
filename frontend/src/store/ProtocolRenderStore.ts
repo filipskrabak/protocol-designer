@@ -57,7 +57,28 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
       this.renderSVG();
       this.renderScale();
       this.setSvgSize();
+
+      // Preserve CPNs and FSMs before getMetadata() calls clearProtocol(),
+      // which wipes them from memory. renderSVG() has already cleared PNML/SCXML
+      // from the DOM, so getMetadata() would find nothing and lose this data.
+      const savedCPNs = this.protocolStore.protocol.colored_petri_nets
+        ? [...this.protocolStore.protocol.colored_petri_nets]
+        : [];
+      const savedFSMs = this.protocolStore.protocol.finite_state_machines
+        ? [...this.protocolStore.protocol.finite_state_machines]
+        : [];
+      const savedFSMId = this.protocolStore.currentFSMId;
+
       this.getMetadata();
+
+      // Restore CPNs and FSMs that clearProtocol() wiped
+      if (savedCPNs.length > 0) {
+        this.protocolStore.protocol.colored_petri_nets = savedCPNs;
+      }
+      if (savedFSMs.length > 0) {
+        this.protocolStore.protocol.finite_state_machines = savedFSMs;
+        this.protocolStore.currentFSMId = savedFSMId;
+      }
 
       // Ensure CPNs and FSMs are properly serialized to SVG before saving
       // Note: These update rawProtocolData but we only save once
