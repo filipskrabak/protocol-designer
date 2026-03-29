@@ -155,9 +155,12 @@ export function parseInscription(inscription: string, bindings: Bindings = {}): 
 
 /**
  * Parse an initial marking string.
- * Same syntax as arc inscription.
+ * Same syntax as arc inscriptions, but 0 means empty
  */
 export function parseInitialMarking(marking: string, bindings: Bindings = {}): Multiset {
+  const trimmed = marking.trim();
+  // 0 = empty marking
+  if (trimmed === "0") return new Map();
   return parseInscription(marking, bindings);
 }
 

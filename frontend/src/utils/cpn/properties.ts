@@ -54,12 +54,14 @@ export function checkReachability(
 //  2. Deadlock-freedom
 
 /**
- * A marking is a deadlock if no transition is enabled in it.
- * Deadlock-freedom passes iff no reachable marking is a deadlock.
+ * Reports dead markings (markings with no enabled transitions) as a neutral
+ * observation, matching CPN Tools behaviour. Dead markings are expected for
+ * procedure nets that terminate — they are not treated as failures.
+ * The caller decides whether the reported dead markings are acceptable.
  */
 export function checkDeadlockFreedom(cpn: ColoredPetriNet, stateSpace: StateSpaceResult): CPNPropertyResult {
   const placeNameById = new Map(cpn.places.map(p => [p.id, p.name]));
-  const deadlocks: Record<string, string>[] = [];
+  const deadMarkings: Record<string, string>[] = [];
 
   for (const [key, _marking] of stateSpace.markings) {
     const enabled = stateSpace.enabledTransitions.get(key);
@@ -68,22 +70,22 @@ export function checkDeadlockFreedom(cpn: ColoredPetriNet, stateSpace: StateSpac
       for (const [pid, tokens] of Object.entries(markingToObject(_marking))) {
         named[placeNameById.get(pid) ?? pid] = tokens;
       }
-      deadlocks.push(named);
-      if (deadlocks.length >= 5) break; // collect up to 5 deadlock examples
+      deadMarkings.push(named);
+      if (deadMarkings.length >= 5) break; // collect up to 5 examples
     }
   }
 
-  if (deadlocks.length === 0) {
+  if (deadMarkings.length === 0) {
     return {
       passed: true,
-      message: `No deadlocks found in ${stateSpace.stateCount} reachable marking${stateSpace.stateCount !== 1 ? "s" : ""}${stateSpace.truncated ? " (exploration truncated)" : ""}`,
+      message: `No dead markings in ${stateSpace.stateCount} reachable marking${stateSpace.stateCount !== 1 ? "s" : ""}${stateSpace.truncated ? " (exploration truncated)" : ""}`,
     };
   }
 
   return {
-    passed: false,
-    message: `${deadlocks.length} deadlock marking${deadlocks.length > 1 ? "s" : ""} found${stateSpace.truncated ? " (exploration was truncated; more may exist)" : ""}`,
-    counterexample: deadlocks,
+    passed: true,
+    message: `${deadMarkings.length} dead marking${deadMarkings.length > 1 ? "s" : ""} (terminal state${deadMarkings.length > 1 ? "s" : ""})${stateSpace.truncated ? " (exploration truncated, more may exist)" : ""}`,
+    witness: deadMarkings,
   };
 }
 

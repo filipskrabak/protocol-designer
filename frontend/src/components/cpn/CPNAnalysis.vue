@@ -146,24 +146,22 @@
           <v-expansion-panel-title>
             <div class="d-flex align-center">
               <v-icon
-                :color="results!.deadlockFreedom?.passed ? 'success' : 'error'"
+                :color="(results!.deadlockFreedom?.witness as any[])?.length ? 'warning' : 'success'"
                 class="me-2"
               >
-                {{ results!.deadlockFreedom?.passed ? 'mdi-lock-open-check' : 'mdi-lock-alert' }}
+                {{ (results!.deadlockFreedom?.witness as any[])?.length ? 'mdi-lock' : 'mdi-lock-open' }}
               </v-icon>
-              <span class="font-weight-medium">Deadlock Analysis</span>
+              <span class="font-weight-medium">Dead Markings / Deadlocks</span>
             </div>
           </v-expansion-panel-title>
           <v-expansion-panel-text>
             <v-list density="compact" lines="two">
               <v-list-item>
                 <template v-slot:prepend>
-                  <v-icon :color="results!.deadlockFreedom?.passed ? 'success' : 'error'">
-                    {{ results!.deadlockFreedom?.passed ? 'mdi-check' : 'mdi-close' }}
-                  </v-icon>
+                  <v-icon color="success">mdi-check</v-icon>
                 </template>
                 <v-list-item-title class="text-wrap">
-                  {{ results!.deadlockFreedom?.passed ? 'Deadlock Free' : 'Deadlocks Detected' }}
+                  {{ (results!.deadlockFreedom?.witness as any[])?.length ? 'Terminal states found' : 'No dead markings' }}
                 </v-list-item-title>
                 <v-list-item-subtitle class="text-wrap">
                   State space exploration via bounded BFS.
@@ -172,23 +170,23 @@
               </v-list-item>
             </v-list>
 
-            <!-- Counterexample trace -->
-            <div v-if="results!.deadlockFreedom?.counterexample?.length" class="mt-4">
+            <!-- Dead marking list -->
+            <div v-if="(results!.deadlockFreedom?.witness as any[] | undefined)?.length" class="mt-4">
               <v-divider class="mb-3" />
               <div class="text-subtitle-2 mb-2">
-                Counterexample ({{ results!.deadlockFreedom.counterexample.length }} steps):
+                Dead markings ({{ (results!.deadlockFreedom!.witness as any[]).length }}):
               </div>
               <v-list density="compact">
                 <v-list-item
-                  v-for="(step, i) in results!.deadlockFreedom.counterexample"
+                  v-for="(step, i) in (results!.deadlockFreedom!.witness as any[])"
                   :key="i"
                 >
-                  <v-list-item-title class="text-caption font-weight-medium">Deadlock marking {{ i + 1 }}</v-list-item-title>
+                  <v-list-item-title class="text-caption font-weight-medium">Terminal marking {{ i + 1 }}</v-list-item-title>
                   <v-list-item-subtitle class="text-caption">
                     <span
                       v-for="([place, tokens], j) in Object.entries(step)"
                       :key="j"
-                    >{{ place }}: {{ tokens }}<span v-if="j < Object.entries(step).length - 1">, </span></span>
+                    >{{ place }}: {{ tokens }}<span v-if="j < Object.entries(step as Record<string,string>).length - 1">, </span></span>
                   </v-list-item-subtitle>
                 </v-list-item>
               </v-list>
@@ -314,7 +312,7 @@ const propertyRows = computed(() => {
   if (!results.value) return []
   return [
     { key: 'reachability',    label: 'Reachability',     result: results.value.reachability },
-    { key: 'deadlockFreedom', label: 'Deadlock-freedom', result: results.value.deadlockFreedom },
+    { key: 'deadlockFreedom', label: 'Dead Markings', result: results.value.deadlockFreedom },
     { key: 'liveness',        label: 'Liveness',         result: livenessAggregate.value },
     { key: 'boundedness',     label: 'Boundedness',      result: results.value.boundedness },
   ]
