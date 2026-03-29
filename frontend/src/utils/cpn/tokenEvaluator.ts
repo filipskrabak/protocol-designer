@@ -99,7 +99,7 @@ function evalArith(expr: string, bindings: Bindings): number {
   }
   // Only allow safe numeric expression characters
   if (!/^[\d\s()+\-*/.]+$/.test(substituted)) {
-    throw new Error(`Unsafe count expression: "${substituted}"`);
+    throw new Error(`Invalid expression: "${substituted}"`);
   }
   // eslint-disable-next-line no-new-func
   const result = Function(`"use strict"; return (${substituted})`)();

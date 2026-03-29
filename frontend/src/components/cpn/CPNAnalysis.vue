@@ -60,7 +60,7 @@
       density="compact"
       class="ma-4"
     >
-      Exploration truncated at {{ results!.stateCount }} markings - results may be incomplete.
+      Exploration stopped at {{ results!.stateCount }} markings due to exploration limit.
     </v-alert>
 
     <v-divider />
@@ -351,7 +351,7 @@ async function runAnalysis() {
 
     if (verification.truncated || verification.bindingLimitHit) {
       notificationStore.showNotification({
-        message: `Exploration truncated at ${verification.stateCount} markings. Results may be incomplete.`,
+        message: `Exploration stopped at ${verification.stateCount} markings. Results may be incomplete.`,
         timeout: 6000,
         color: 'warning',
         icon: 'mdi-alert',

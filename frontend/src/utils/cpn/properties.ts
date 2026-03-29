@@ -132,12 +132,29 @@ export function checkBoundedness(
 
   const unbounded = bounds.filter((b) => b.maxTokens > k);
 
-  if (unbounded.length === 0) {
+  // When exploration was truncated, check for places whose token count grew significantly
+  // Heuristic: Max observed tokens > 10% of the total markings explored -> likely unbounded
+  const likelyUnbounded = stateSpace.truncated
+    ? bounds.filter((b) => b.maxTokens > stateSpace.stateCount * 0.1)
+    : [];
+
+  if (unbounded.length === 0 && likelyUnbounded.length === 0) {
     const maxOverall = Math.max(0, ...bounds.map((b) => b.maxTokens));
     return {
       passed: true,
       message: `All places are ${k === Infinity ? "" : `${k}-`}bounded (max ${maxOverall} token${maxOverall !== 1 ? "s" : ""} observed)${stateSpace.truncated ? " (exploration truncated)" : ""}`,
       bounds,
+    };
+  }
+
+  if (likelyUnbounded.length > 0 && unbounded.length === 0) {
+    // Truncation-detected unboundedness: exploration stopped but token counts
+    // were still rising - report as failure with a clear explanation.
+    return {
+      passed: false,
+      message: `Exploration stopped at ${stateSpace.stateCount} markings - ${likelyUnbounded.length} place${likelyUnbounded.length > 1 ? "s appear" : " appears"} unbounded, because token count kept growing: ${likelyUnbounded.map((b) => `${b.placeName} (max ${b.maxTokens} observed)`).join(", ")}`,
+      bounds,
+      counterexample: likelyUnbounded.map((b) => ({ place: b.placeName, maxTokens: b.maxTokens })),
     };
   }
 

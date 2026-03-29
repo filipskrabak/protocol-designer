@@ -16,6 +16,7 @@
           persistent-hint
           class="mb-3"
           style="font-family: monospace"
+          :error-messages="inscriptionError ? [inscriptionError] : []"
         />
 
         <v-select
@@ -48,13 +49,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import type { CPNArcEdgeData } from './CPNArcEdge.vue'
+import type { CPNVariable } from '@/contracts/models'
+import { parseInscription } from '@/utils/cpn/tokenEvaluator'
 
 const props = defineProps<{
   modelValue: boolean
   edgeId: string
   edgeData: CPNArcEdgeData | null
+  variables?: CPNVariable[]
 }>()
 
 const emit = defineEmits<{
@@ -86,6 +90,57 @@ watch(
   },
   { immediate: true },
 )
+
+// Fake bindings to detect undeclated vars
+const dummyBindings = computed<Record<string, string>>(() => {
+  const out: Record<string, string> = {}
+  for (const v of (props.variables ?? [])) {
+    out[v.name] = '0'
+  }
+  return out
+})
+
+/**
+ * Returns an error string if the inscription is invalid, otherwise null.
+ * Checks:
+ *   1. Syntax / parse errors (malformed expressions)
+ *   2. Identifier tokens that are not declared variables or numeric/bool literals
+ */
+const inscriptionError = computed<string | null>(() => {
+  const insc = form.value.inscription?.trim()
+  if (!insc || insc.toLowerCase() === 'empty') return null
+
+  // Try to parse, this catches syntax errors
+  try {
+    parseInscription(insc, dummyBindings.value)
+  } catch (e: any) {
+    return e?.message ?? 'Invalid inscription'
+  }
+  // Get all identifier tokens from color positions
+  const declaredNames = new Set(Object.keys(dummyBindings.value))
+  const parts = insc.split('++')
+  const undeclared: string[] = []
+
+  for (const part of parts) {
+    const p = part.trim()
+    if (!p) continue
+    const btIdx = p.indexOf('`')
+    const colorToken = (btIdx === -1 ? p : p.slice(btIdx + 1)).trim()
+    // Skip numeric literals, bool literals, and declared variables
+    const isNumeric = /^-?\d+(\.\d+)?$/.test(colorToken)
+    const isBool = colorToken === 'true' || colorToken === 'false'
+    const isUnit = colorToken === '()'
+    if (!isNumeric && !isBool && !isUnit && !declaredNames.has(colorToken)) {
+      undeclared.push(colorToken)
+    }
+  }
+
+  if (undeclared.length > 0) {
+    return `Undeclared variable${undeclared.length > 1 ? 's' : ''}: ${undeclared.join(', ')} - add ${undeclared.length > 1 ? 'them' : 'it'} in the Variable Editor`
+  }
+
+  return null
+})
 
 function save() {
   emit('save', props.edgeId, { ...form.value })

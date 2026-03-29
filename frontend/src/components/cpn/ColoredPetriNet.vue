@@ -148,6 +148,7 @@
       v-model="arcEditDialog"
       :edge-id="editingEdgeId"
       :edge-data="editingEdgeData"
+      :variables="currentCPN?.variables"
       @save="saveArcEdit"
       @delete="deleteArc"
     />
