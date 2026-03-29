@@ -78,11 +78,11 @@ class CPNArc(BaseModel):
 class ColoredPetriNetInput(BaseModel):
     id: str
     name: str
-    description: str
-    author: str
-    version: str
-    created_at: str
-    updated_at: str
+    description: str = ""
+    author: Optional[str] = None
+    version: Optional[str] = None
+    created_at: Optional[str] = None
+    updated_at: Optional[str] = None
     protocol_id: Optional[str] = None
     places: List[CPNPlace]
     transitions: List[CPNTransition]
