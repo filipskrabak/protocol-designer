@@ -100,14 +100,20 @@ export interface PlaceBounds {
  * Compute token bounds for every place.
  * Boundedness passes iff every place's max token count ≤ k.
  *
+ * Layer 1 (structural): places covered by an S-invariant are definitively
+ * bounded regardless of exploration completeness.
+ * Layer 2 (exploration): uncovered places are checked against the state space.
+ *
  * @param cpn         The CPN (for place names)
  * @param stateSpace  Exploration result
  * @param k           Bound to check (default: Infinity — just measure actual bounds)
+ * @param invariants  Pre-computed S-invariants (avoids recomputing if already available)
  */
 export function checkBoundedness(
   cpn: ColoredPetriNet,
   stateSpace: StateSpaceResult,
   k: number = Infinity,
+  invariants?: CPNInvariant[],
 ): CPNPropertyResult & { bounds: PlaceBounds[] } {
   const placeNameById = new Map<string, string>(cpn.places.map((p) => [p.id, p.name]));
   const maxTokensPerPlace = new Map<string, number>();
@@ -130,29 +136,58 @@ export function checkBoundedness(
     maxTokens: maxTokensPerPlace.get(p.id) ?? 0,
   }));
 
-  const unbounded = bounds.filter((b) => b.maxTokens > k);
+  // Step 1: Structural proof via S-invariants
+  // A place covered by at least one P-semiflow is definitively bounded, independently of whether exploration was truncated.
+  const inv = invariants ?? computeSInvariants(cpn);
+  const structurallyCovered = new Set<string>();
+  for (const invar of inv) {
+    for (const [placeId, coeff] of Object.entries(invar.coefficients)) {
+      if (coeff > 0) structurallyCovered.add(placeId);
+    }
+  }
 
-  // When exploration was truncated, check for places whose token count grew significantly
-  // Heuristic: Max observed tokens > 10% of the total markings explored -> likely unbounded
+  const uncoveredIds = new Set(cpn.places.map((p) => p.id).filter((id) => !structurallyCovered.has(id)));
+
+  if (uncoveredIds.size === 0 && inv.length > 0) {
+    // Every place is structurally bounded — no exploration needed.
+    const invLabels = inv.map((i) => i.label).join("; ");
+    return {
+      passed: true,
+      message: `All places proven bounded by S-invariants: ${invLabels}`,
+      bounds,
+    };
+  }
+
+  // Step 2: Exploration check for uncovered places
+  // Only flag places that are NOT structurally covered.
+  const unbounded = bounds.filter((b) => uncoveredIds.has(b.placeId) && b.maxTokens > k);
+
+  // When exploration was truncated, check for uncovered places whose token count
+  // grew significantly, which is a strong signal that they are unbounded
+  // Heuristic: max observed tokens > 10% of the total markings explored -> likely unbounded
   const likelyUnbounded = stateSpace.truncated
-    ? bounds.filter((b) => b.maxTokens > stateSpace.stateCount * 0.1)
+    ? bounds.filter((b) => uncoveredIds.has(b.placeId) && b.maxTokens > stateSpace.stateCount * 0.1)
     : [];
 
   if (unbounded.length === 0 && likelyUnbounded.length === 0) {
     const maxOverall = Math.max(0, ...bounds.map((b) => b.maxTokens));
+    const coveredNote =
+      structurallyCovered.size > 0
+        ? ` (${structurallyCovered.size} place${structurallyCovered.size > 1 ? "s" : ""} proven by S-invariants)`
+        : "";
     return {
       passed: true,
-      message: `All places are ${k === Infinity ? "" : `${k}-`}bounded (max ${maxOverall} token${maxOverall !== 1 ? "s" : ""} observed)${stateSpace.truncated ? " (exploration truncated)" : ""}`,
+      message: `All places are ${k === Infinity ? "" : `${k}-`}bounded (max ${maxOverall} token${maxOverall !== 1 ? "s" : ""} observed)${stateSpace.truncated ? " (exploration truncated)" : ""}${coveredNote}`,
       bounds,
     };
   }
 
   if (likelyUnbounded.length > 0 && unbounded.length === 0) {
     // Truncation-detected unboundedness: exploration stopped but token counts
-    // were still rising - report as failure with a clear explanation.
+    // were still rising,  report as failure with a clear explanation.
     return {
       passed: false,
-      message: `Exploration stopped at ${stateSpace.stateCount} markings - ${likelyUnbounded.length} place${likelyUnbounded.length > 1 ? "s appear" : " appears"} unbounded, because token count kept growing: ${likelyUnbounded.map((b) => `${b.placeName} (max ${b.maxTokens} observed)`).join(", ")}`,
+      message: `Exploration stopped at ${stateSpace.stateCount} markings — ${likelyUnbounded.length} place${likelyUnbounded.length > 1 ? "s appear" : " appears"} unbounded, because token count kept growing: ${likelyUnbounded.map((b) => `${b.placeName} (max ${b.maxTokens} observed)`).join(", ")}`,
       bounds,
       counterexample: likelyUnbounded.map((b) => ({ place: b.placeName, maxTokens: b.maxTokens })),
     };
@@ -411,11 +446,11 @@ export function checkAllProperties(
 
   const deadlockFreedom = checkDeadlockFreedom(cpn, stateSpace);
 
-  const boundedness = checkBoundedness(cpn, stateSpace);
+  const invariants = computeSInvariants(cpn);
+
+  const boundedness = checkBoundedness(cpn, stateSpace, Infinity, invariants);
 
   const liveness = checkLiveness(cpn, stateSpace);
-
-  const invariants = computeSInvariants(cpn);
 
   return {
     reachability,
