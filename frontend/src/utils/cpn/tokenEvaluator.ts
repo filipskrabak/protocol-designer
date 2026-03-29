@@ -17,7 +17,7 @@
  *   "empty"              → {}
  */
 
-// ── Types ─────────────────────────────────────────────────────────────────────
+//  Types
 
 /** A multiset maps a color value (string key) to a non-negative count. */
 export type Multiset = Map<string, number>;
@@ -25,7 +25,7 @@ export type Multiset = Map<string, number>;
 /** Variable bindings: maps variable name → its current bound value (as string). */
 export type Bindings = Record<string, string | number | boolean>;
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+//  Helpers
 
 /** Merge (add) two multisets together. Mutates `base` in-place. */
 export function addMultisets(base: Multiset, addition: Multiset): Multiset {
@@ -109,7 +109,7 @@ function evalArith(expr: string, bindings: Bindings): number {
   return Math.round(result);
 }
 
-// ── Primary API ───────────────────────────────────────────────────────────────
+//  Primary API
 
 /**
  * Parse a CPN arc inscription into a Multiset.

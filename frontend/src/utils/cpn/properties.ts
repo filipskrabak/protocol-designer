@@ -19,7 +19,7 @@ import {
   tokensOnPlace,
 } from "./stateSpace";
 
-// ── 1. Reachability ───────────────────────────────────────────────────────────
+//  1. Reachability
 
 /**
  * Check if any reachable marking satisfies the predicate.
@@ -51,7 +51,7 @@ export function checkReachability(
   };
 }
 
-// ── 2. Deadlock-freedom ───────────────────────────────────────────────────────
+//  2. Deadlock-freedom
 
 /**
  * A marking is a deadlock if no transition is enabled in it.
@@ -87,7 +87,7 @@ export function checkDeadlockFreedom(cpn: ColoredPetriNet, stateSpace: StateSpac
   };
 }
 
-// ── 3. Boundedness ────────────────────────────────────────────────────────────
+//  3. Boundedness
 
 /** Per-place max token count across all reachable markings. */
 export interface PlaceBounds {
@@ -149,7 +149,7 @@ export function checkBoundedness(
   };
 }
 
-// ── 4. Liveness ───────────────────────────────────────────────────────────────
+//  4. Liveness
 
 /**
  * A transition is live (L1-live / weakly live) iff it is enabled in at
@@ -195,7 +195,7 @@ export function checkLiveness(
   return results;
 }
 
-// ── 5. Structural S-invariants (frontend, token-count only) ──────────────────
+//  5. Structural S-invariants (frontend, token-count only)
 
 /**
  * Compute potential S-invariants for a pure P/T projection of the CPN
@@ -316,7 +316,7 @@ export function computeSInvariants(cpn: ColoredPetriNet): CPNInvariant[] {
   return invariants;
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+//  Helpers
 
 /**
  * Estimate the total token weight of an arc inscription (colour-unaware).
@@ -360,7 +360,7 @@ function toSmallIntegers(a: number, r: number): [number, number] {
   return [1, Math.round(r)];
 }
 
-// ── Run all properties ────────────────────────────────────────────────────────
+//  Run all properties
 
 export interface CPNVerificationResults {
   reachability: CPNPropertyResult;

@@ -60,7 +60,7 @@
       density="compact"
       class="ma-4"
     >
-      Exploration truncated at {{ results!.stateCount }} markings — results may be incomplete.
+      Exploration truncated at {{ results!.stateCount }} markings - results may be incomplete.
     </v-alert>
 
     <v-divider />
@@ -333,7 +333,7 @@ async function runAnalysis() {
   cpnStore.clearResults()
 
   try {
-    // ── Tier 1: Frontend bounded BFS exploration ────────────────────────────
+    //  Tier 1: Frontend bounded BFS exploration
     const stateSpace = exploreStateSpace(cpn)
     const verification = checkAllProperties(cpn, stateSpace)
 
@@ -358,7 +358,7 @@ async function runAnalysis() {
       })
     }
 
-    // ── Tier 2: Backend Z3 S-invariants (best-effort, non-blocking) ────────
+    //  Tier 2: Backend Z3 S-invariants (best-effort, non-blocking)
     try {
       const response = await axios.post('/api/cpn/analyze', { cpn })
       if (response.data?.invariants?.length) {

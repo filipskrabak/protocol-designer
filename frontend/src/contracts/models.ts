@@ -200,7 +200,7 @@ export interface EFSMVariable {
   initialValue?: number | boolean | string;
 }
 
-// ─── Colored Petri Net (CPN) Data Structures ─────────────────────────────────
+//  Colored Petri Net (CPN) Data Structures
 
 /**
  * Supported color set types (thesis-scoped subset of CPN-ML):
@@ -283,7 +283,7 @@ export interface ColoredPetriNet {
   metadata?: Record<string, any>;
 }
 
-// ─── Guard Analysis and Warnings ─────────────────────────────────────────────
+//  Guard Analysis and Warnings
 
 export type GuardWarningType = 'overflow' | 'underflow' | 'contradiction' | 'ambiguous' | 'unreachable' | 'unbounded' | 'undefined_variable' | 'type_mismatch' | 'invalid_expression';
 export type GuardWarningSeverity = 'error' | 'warning' | 'info';

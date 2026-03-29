@@ -4,7 +4,7 @@ import type { ColoredPetriNet } from "@/contracts/models";
 import { useProtocolStore } from "./ProtocolStore";
 import { useProtocolRenderStore } from "./ProtocolRenderStore";
 
-// ─── Analysis result types (kept here to avoid bloating models.ts) ───────────
+//  Analysis result types
 
 export interface CPNPropertyResult {
   passed: boolean;
@@ -31,7 +31,7 @@ export interface CPNInvariant {
   label: string;    // human-readable, e.g. "2·Disconnected + 1·Active = 1"
 }
 
-// ─── Store ────────────────────────────────────────────────────────────────────
+//  Store
 
 export const useCPNStore = defineStore("CPNStore", {
   state: () => ({
@@ -44,7 +44,7 @@ export const useCPNStore = defineStore("CPNStore", {
   }),
 
   actions: {
-    // ── Helpers ──────────────────────────────────────────────────────────────
+    //  Helpers
 
     _protocolStore() {
       return useProtocolStore();
@@ -65,7 +65,7 @@ export const useCPNStore = defineStore("CPNStore", {
       }, 300);
     },
 
-    // ── CRUD ─────────────────────────────────────────────────────────────────
+    //  CRUD
 
     /** Add a brand-new empty CPN to the current protocol. */
     addCPN(partial?: Partial<ColoredPetriNet>): ColoredPetriNet {
@@ -144,7 +144,7 @@ export const useCPNStore = defineStore("CPNStore", {
       this.invariants = [];
     },
 
-    // ── Analysis state helpers ────────────────────────────────────────────────
+    //  Analysis state helpers
 
     setAnalysisResults(results: CPNAnalysisResults | null) {
       this.analysisResults = results;

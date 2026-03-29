@@ -228,7 +228,7 @@ import CPNArcEdge from './CPNArcEdge.vue'
 import type { CPNArcEdgeData } from './CPNArcEdge.vue'
 import { initCPNFromProtocol } from '@/utils/cpn/colorSetGenerator'
 
-// ── VueFlow setup ────────────────────────────────────────────────────────────
+//  VueFlow setup
 const nodeTypes = {
   cpnPlace: markRaw(CPNPlaceNode),
   cpnTransition: markRaw(CPNTransitionNode),
@@ -244,7 +244,7 @@ const { addEdges, nodes, edges, setNodes, setEdges } = useVueFlow()
 const { onDragOver, onDrop, onDragLeave } = useCPNDragAndDrop()
 const { saveCPNFromCanvas, loadCPNToCanvas } = useCPNPersistence(nodes, edges, setNodes, setEdges)
 
-// ── Dialog state ─────────────────────────────────────────────────────────────
+//  Dialog state
 const nodeEditDialog = ref(false)
 const editingNodeId = ref('')
 const editingNodeData = ref<CPNPlaceNodeData | CPNTransitionNodeData | null>(null)
@@ -260,7 +260,7 @@ const deletingCPNId = ref('')
 const deletingCPNName = ref('')
 const clearConfirmDialog = ref(false)
 
-// ── Canvas operations ────────────────────────────────────────────────────────
+//  Canvas operations
 function openArcEditDialog(edgeId: string, edgeData: CPNArcEdgeData) {
   editingEdgeId.value = edgeId
   editingEdgeData.value = edgeData
@@ -276,7 +276,7 @@ function openNodeEditDialog(nodeId: string, nodeData: CPNPlaceNodeData | CPNTran
 const { isValidConnection, handleConnect, onEdgeClick, onNodeClick, onNodesChange, onEdgesChange } =
   useCPNCanvas(nodes, edges, addEdges, saveCPNFromCanvas, openArcEditDialog, openNodeEditDialog)
 
-// ── Stores ────────────────────────────────────────────────────────────────────
+//  Stores
 const cpnStore = useCPNStore()
 const protocolStore = useProtocolStore()
 const notificationStore = useNotificationStore()
@@ -307,7 +307,7 @@ const cpnName = computed({
   },
 })
 
-// ── Node/edge edit save handlers ──────────────────────────────────────────────
+//  Node/edge edit save handlers
 function saveNodeEdit(nodeId: string, data: CPNPlaceNodeData | CPNTransitionNodeData) {
   const node = nodes.value.find(n => n.id === nodeId)
   if (node) {
@@ -337,7 +337,7 @@ function deleteArc(edgeId: string) {
   arcEditDialog.value = false
 }
 
-// ── CPN lifecycle ──────────────────────────────────────────────────────────────
+//  CPN lifecycle
 function createNewCPN() {
   const protocol = protocolStore.protocol
   // Auto-generate color sets from fields when fields are available
@@ -393,7 +393,7 @@ function executeClear() {
   clearConfirmDialog.value = false
 }
 
-// ── Mount ──────────────────────────────────────────────────────────────────────
+//  Mount
 onMounted(() => {
   if (cpnList.value.length === 0) {
     createNewCPN()

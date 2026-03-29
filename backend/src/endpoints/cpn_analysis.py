@@ -30,7 +30,7 @@ from src.auth.jwthandler import get_current_user
 router = APIRouter()
 
 
-# ── Pydantic models mirroring frontend ColoredPetriNet types ─────────────────
+#  Pydantic models mirroring frontend ColoredPetriNet types
 
 class ColorSet(BaseModel):
     id: str
@@ -96,7 +96,7 @@ class CPNAnalysisRequest(BaseModel):
     cpn: ColoredPetriNetInput
 
 
-# ── Response models ────────────────────────────────────────────────────────────
+#  Response models
 
 class CPNPropertyResult(BaseModel):
     passed: bool
@@ -127,7 +127,7 @@ class CPNAnalysisResponse(BaseModel):
     invariants: List[CPNInvariant]
 
 
-# ── Helpers ────────────────────────────────────────────────────────────────────
+#  Helpers
 
 def _estimate_arc_weight(inscription: str) -> int:
     """
@@ -155,7 +155,7 @@ def _initial_token_count(marking: str) -> int:
     return _estimate_arc_weight(marking)
 
 
-# ── S-invariant computation ────────────────────────────────────────────────────
+#  S-invariant computation
 
 def _compute_s_invariants_z3(cpn: ColoredPetriNetInput) -> List[CPNInvariant]:
     """
@@ -260,7 +260,7 @@ def _compute_s_invariants_z3(cpn: ColoredPetriNetInput) -> List[CPNInvariant]:
     return invariants
 
 
-# ── Endpoint ───────────────────────────────────────────────────────────────────
+#  Endpoint
 
 @router.post("/api/cpn/analyze", response_model=CPNAnalysisResponse)
 async def analyze_cpn(

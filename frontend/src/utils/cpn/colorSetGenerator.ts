@@ -77,7 +77,7 @@ export function initCPNFromProtocol(protocol: Protocol): ColoredPetriNet {
   }
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+//  Helpers
 
 function fieldToColorSet(field: Field): ColorSet {
   // 1-bit fields → bool

@@ -29,7 +29,7 @@ import {
   type Bindings,
 } from "./tokenEvaluator";
 
-// ── Constants ─────────────────────────────────────────────────────────────────
+//  Constants
 
 const MAX_MARKINGS = 10_000;
 const MAX_BINDINGS = 20_000;
@@ -40,7 +40,7 @@ const MAX_BINDINGS = 20_000;
  */
 const MAX_INT_RANGE = 256;
 
-// ── Types ─────────────────────────────────────────────────────────────────────
+//  Types
 
 /** A CPN marking is a map from place ID → multiset of tokens on that place. */
 export type Marking = Map<string, Multiset>;
@@ -82,7 +82,7 @@ export interface StateSpaceResult {
   stateCount: number;
 }
 
-// ── Color value enumeration ───────────────────────────────────────────────────
+//  Color value enumeration
 
 /**
  * Enumerate all possible values of a colour set as strings.
@@ -110,7 +110,7 @@ function enumerateColorSet(cs: ColorSet): string[] | null {
   }
 }
 
-// ── Binding enumeration ───────────────────────────────────────────────────────
+//  Binding enumeration
 
 /**
  * Generate all possible bindings for the variables used in a transition's
@@ -206,7 +206,7 @@ function cartesianProduct(varList: string[], domains: string[][]): Bindings[] {
   return results;
 }
 
-// ── Marking utilities ─────────────────────────────────────────────────────────
+//  Marking utilities
 
 /** Compute the initial marking from the CPN's place initial markings. */
 function computeInitialMarking(cpn: ColoredPetriNet): Marking {
@@ -260,7 +260,7 @@ export function markingToObject(marking: Marking): Record<string, string> {
   return obj;
 }
 
-// ── Transition firing ─────────────────────────────────────────────────────────
+//  Transition firing
 
 /**
  * Check if a transition can fire with a specific binding in a given marking.
@@ -331,7 +331,7 @@ function fireTransition(
   return newMarking;
 }
 
-// ── Main exploration ──────────────────────────────────────────────────────────
+//  Main exploration
 
 /**
  * Run bounded BFS state-space exploration for the given CPN.
@@ -462,7 +462,7 @@ export function exploreStateSpace(cpn: ColoredPetriNet): StateSpaceResult {
   };
 }
 
-// ── Utility: format a binding for display ─────────────────────────────────────
+//  Utility: format a binding for display
 
 export function formatBinding(binding: Bindings): string {
   const entries = Object.entries(binding);

@@ -14,11 +14,11 @@ import type {
   CPNVariable,
 } from "@/contracts/models";
 
-// ── Namespace constants ──────────────────────────────────────────────────────
+//  Namespace constants
 const PNML_NS = "http://www.pnml.org/version-2009/grammar/pnml";
 const HLPNG_NS = "http://www.pnml.org/version-2009/grammar/highlevelnet";
 
-// ── Export ───────────────────────────────────────────────────────────────────
+//  Export
 
 /**
  * Serialises a ColoredPetriNet to a HL-PNML XML string.
@@ -39,7 +39,7 @@ export function exportToPNML(cpn: ColoredPetriNet): string {
   lines.push(`      <description>${esc(cpn.description ?? "")}</description>`);
   lines.push(`    </toolspecific>`);
 
-  // ── Declaration block (color sets + variables) ────────────────────────────
+  //  Declaration block (color sets + variables)
   lines.push(`    <declaration>`);
   lines.push(`      <structure>`);
   lines.push(`        <declarations>`);
@@ -64,7 +64,7 @@ export function exportToPNML(cpn: ColoredPetriNet): string {
   lines.push(`      </structure>`);
   lines.push(`    </declaration>`);
 
-  // ── Page ──────────────────────────────────────────────────────────────────
+  //  Page
   lines.push(`    <page id="page0">`);
   lines.push(`      <name><text>Page</text></name>`);
 
@@ -87,7 +87,7 @@ export function exportToPNML(cpn: ColoredPetriNet): string {
   return lines.join("\n");
 }
 
-// ── Import ────────────────────────────────────────────────────────────────────
+//  Import
 
 export interface PNMLImportResult {
   cpn: ColoredPetriNet;
@@ -129,7 +129,7 @@ export function importFromPNML(xml: string): PNMLImportResult {
   const transitions: CPNTransition[] = [];
   const arcs: CPNArc[] = [];
 
-  // ── Declarations ──────────────────────────────────────────────────────────
+  //  Declarations
   for (const decl of Array.from(doc.querySelectorAll("declaration > structure > declarations > *"))) {
     const tag = decl.localName;
 
@@ -143,19 +143,19 @@ export function importFromPNML(xml: string): PNMLImportResult {
     // unknown declaration types are silently skipped
   }
 
-  // ── Places ────────────────────────────────────────────────────────────────
+  //  Places
   for (const placeEl of Array.from(doc.querySelectorAll("page > place"))) {
     const place = parsePlace(placeEl, colorSets, warnings);
     if (place) places.push(place);
   }
 
-  // ── Transitions ───────────────────────────────────────────────────────────
+  //  Transitions
   for (const trEl of Array.from(doc.querySelectorAll("page > transition"))) {
     const tr = parseTransition(trEl, warnings);
     if (tr) transitions.push(tr);
   }
 
-  // ── Arcs ──────────────────────────────────────────────────────────────────
+  //  Arcs
   for (const arcEl of Array.from(doc.querySelectorAll("page > arc"))) {
     const arc = parseArc(arcEl, places, transitions, warnings);
     if (arc) arcs.push(arc);
@@ -188,7 +188,7 @@ export function validatePNML(xml: string): string[] {
   }
 }
 
-// ── Serialization helpers ─────────────────────────────────────────────────────
+//  Serialization helpers
 
 function serializeColorSet(cs: ColorSet): string[] {
   const lines: string[] = [];
@@ -319,7 +319,7 @@ function serializeArc(arc: CPNArc): string[] {
   return lines;
 }
 
-// ── Parse helpers ─────────────────────────────────────────────────────────────
+//  Parse helpers
 
 function parseNamedSort(el: Element, warnings: string[]): ColorSet | null {
   const id = el.getAttribute("id") ?? crypto.randomUUID();
