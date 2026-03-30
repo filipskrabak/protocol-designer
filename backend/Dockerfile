@@ -27,4 +27,4 @@ USER api
 
 EXPOSE 8000
 
-CMD /home/api/.local/bin/alembic upgrade head && /home/api/.local/bin/uvicorn src.__main__:app --reload --host 0.0.0.0
+CMD sh -c 'until /home/api/.local/bin/alembic upgrade head; do echo "DB not ready, retrying in 3s..."; sleep 3; done && /home/api/.local/bin/uvicorn src.__main__:app --reload --host 0.0.0.0'

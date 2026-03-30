@@ -12,11 +12,11 @@ import os
 config = context.config
 
 section = config.config_ini_section
-config.set_section_option(section, "DB_USER", os.environ.get("DATABASE_USER"))
-config.set_section_option(section, "DB_PASS", os.environ.get("DATABASE_PASSWORD"))
-config.set_section_option(section, "DB_IP", os.environ.get("DATABASE_HOST"))
-config.set_section_option(section, "DB_PORT", os.environ.get("DATABASE_PORT"))
-config.set_section_option(section, "DB_NAME", os.environ.get("DATABASE_NAME"))
+config.set_section_option(section, "DB_USER", os.environ.get("DATABASE_USER", ""))
+config.set_section_option(section, "DB_PASS", os.environ.get("DATABASE_PASSWORD", ""))
+config.set_section_option(section, "DB_IP", os.environ.get("DATABASE_HOST", ""))
+config.set_section_option(section, "DB_PORT", os.environ.get("DATABASE_PORT", ""))
+config.set_section_option(section, "DB_NAME", os.environ.get("DATABASE_NAME", ""))
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
