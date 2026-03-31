@@ -70,10 +70,11 @@ defineProps<CPNTransitionNodeProps>()
   font-weight: 600;
   text-align: center;
   padding: 0 4px;
-  max-width: 50px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  max-width: 46px;
+  word-break: break-word;
+  white-space: normal;
+  line-height: 1.2;
+  overflow-wrap: break-word;
 }
 
 .guard-badge {

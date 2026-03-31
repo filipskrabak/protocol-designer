@@ -78,11 +78,12 @@ defineProps<CPNPlaceNodeProps>()
   font-size: 11px;
   font-weight: 600;
   text-align: center;
-  padding: 0 4px;
-  max-width: 60px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  padding: 0 6px;
+  max-width: 64px;
+  word-break: break-word;
+  white-space: normal;
+  line-height: 1.2;
+  overflow-wrap: break-word;
 }
 
 .marking-badge {
@@ -105,9 +106,9 @@ defineProps<CPNPlaceNodeProps>()
   color: #1565c0;
   font-weight: 500;
   max-width: 80px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  text-align: center;
+  word-break: break-word;
+  white-space: normal;
 }
 
 .connection-handle {
