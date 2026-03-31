@@ -42,7 +42,7 @@ export function useCPNPersistence(
           id: node.id,
           name: d.label,
           colorSetId: d.colorSetId,
-          initialMarking: d.initialMarking ?? '0',
+          initialMarking: d.initialMarking ?? '',
           position: node.position,
           description: d.description,
         })

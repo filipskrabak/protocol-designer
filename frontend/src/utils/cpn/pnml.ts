@@ -392,7 +392,7 @@ function parsePlace(
   }
 
   const initialMarking =
-    el.querySelector("initialMarking structure useroperator")?.getAttribute("declaration") ?? "0";
+    el.querySelector("initialMarking structure useroperator")?.getAttribute("declaration") ?? "";
 
   const pos = parsePosition(el);
 

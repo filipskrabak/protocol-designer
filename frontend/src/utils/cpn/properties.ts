@@ -378,7 +378,7 @@ export function computeSInvariants(cpn: ColoredPetriNet): CPNInvariant[] {
  * Falls back to 1 on parse errors.
  */
 function estimateArcWeight(inscription: string): number {
-  if (!inscription || inscription.trim() === "" || inscription.trim().toLowerCase() === "empty") {
+  if (!inscription || inscription.trim() === "" || inscription.trim() === "0" || inscription.trim().toLowerCase() === "empty") {
     return 0;
   }
   // Sum up the count portions from each ++ part
@@ -399,6 +399,7 @@ function estimateArcWeight(inscription: string): number {
 
 /** Parse an initial marking string to get total token count (colour-unaware). */
 function parseInitialMarkingCount(marking: string): number {
+  if (!marking || marking.trim() === "0") return 0;
   return estimateArcWeight(marking);
 }
 

@@ -6,7 +6,7 @@
       <div class="place-label">{{ data.label }}</div>
 
       <!-- Initial marking badge -->
-      <div v-if="data.initialMarking && data.initialMarking !== '0'" class="marking-badge">
+      <div v-if="data.initialMarking && data.initialMarking !== '0' && data.initialMarking !== ''" class="marking-badge">
         {{ data.initialMarking }}
       </div>
     </div>

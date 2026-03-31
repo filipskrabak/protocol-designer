@@ -71,7 +71,7 @@ export function useCPNDragAndDrop() {
         label: `P${(cpn?.places?.length ?? 0) + 1}`,
         colorSetId: defaultColorSetId,
         colorSetName: cpn?.colorSets?.[0]?.name,
-        initialMarking: '0',
+        initialMarking: '',
         kind: 'place',
       }
       newNode = { id: nodeId, type: 'cpnPlace', position, data }

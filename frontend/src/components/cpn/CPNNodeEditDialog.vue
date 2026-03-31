@@ -106,7 +106,7 @@ const colorSetItems = computed(() => {
 const form = ref({
   label: '',
   colorSetId: '',
-  initialMarking: '0',
+  initialMarking: '',
   guard: '',
   description: '',
 })
