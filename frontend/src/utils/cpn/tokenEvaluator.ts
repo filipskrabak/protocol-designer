@@ -189,8 +189,14 @@ export function evaluateGuard(guard: string | undefined, bindings: Bindings = {}
     } else if (typeof val === "number") {
       replacement = String(val);
     } else {
-      // String value: wrap in quotes for comparison expressions
-      replacement = JSON.stringify(val);
+      // String value: if it looks like a boolean literal, substitute unquoted
+      // so guards like "will == true" evaluate correctly.
+      if (val === "true" || val === "false") {
+        replacement = val;
+      } else {
+        // Wrap in quotes for string comparison expressions
+        replacement = JSON.stringify(val);
+      }
     }
     expr = expr.replace(new RegExp(`\\b${v}\\b`, "g"), replacement);
   }
