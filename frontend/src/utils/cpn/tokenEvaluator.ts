@@ -77,6 +77,13 @@ function resolveColor(token: string, bindings: Bindings): string {
   if (trimmed in bindings) {
     return String(bindings[trimmed]);
   }
+  // Try arithmetic expression (handles n-1, n+1, n*2, etc.)
+  try {
+    const result = evalArith(trimmed, bindings);
+    return String(result);
+  } catch {
+    // Not arithmetic — fall through to literal
+  }
   // Otherwise treat as a literal (integer, enum name, bool)
   return trimmed;
 }

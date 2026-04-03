@@ -58,7 +58,7 @@ export function useCPNCanvas(
   }
 
   /**
-   * Connect handler — creates a new arc edge with default inscription.
+   * Connect handler - creates a new arc edge with default inscription.
    */
   function handleConnect(connection: any) {
     if (!isValidConnection(connection)) return

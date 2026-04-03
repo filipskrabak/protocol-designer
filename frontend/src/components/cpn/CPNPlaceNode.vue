@@ -34,7 +34,7 @@ export interface CPNPlaceNodeData {
   colorSetName?: string
   initialMarking: string
   description?: string
-  /** Node kind — used by isValidConnection to enforce bipartiteness */
+  /** Node kind - used by isValidConnection to enforce bipartiteness */
   kind: 'place'
 }
 

@@ -130,7 +130,15 @@ const inscriptionError = computed<string | null>(() => {
     const isNumeric = /^-?\d+(\.\d+)?$/.test(colorToken)
     const isBool = colorToken === 'true' || colorToken === 'false'
     const isUnit = colorToken === '()'
-    if (!isNumeric && !isBool && !isUnit && !declaredNames.has(colorToken)) {
+    // Allow arithmetic expressions that reference only declared variables (e.g. n-1, n+1)
+    const isArith = (() => {
+      let test = colorToken
+      for (const name of declaredNames) {
+        test = test.replace(new RegExp(`\\b${name}\\b`, 'g'), '0')
+      }
+      return /^[\d\s()+\-*/.]+$/.test(test)
+    })()
+    if (!isNumeric && !isBool && !isUnit && !isArith && !declaredNames.has(colorToken)) {
       undeclared.push(colorToken)
     }
   }

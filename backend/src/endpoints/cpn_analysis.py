@@ -1,5 +1,5 @@
 """
-CPN Analysis Endpoint — S-invariant computation via Z3
+CPN Analysis Endpoint - S-invariant computation via Z3
 
 Receives a ColoredPetriNet definition and returns:
   - Verification property summaries (token-count bounded checks)

@@ -69,6 +69,19 @@
             </v-btn>
           </v-col>
 
+          <!-- Duplicate CPN -->
+          <v-col cols="auto">
+            <v-btn
+              @click="duplicateCPN"
+              prepend-icon="mdi-content-copy"
+              color="secondary"
+              variant="outlined"
+              class="mb-5"
+            >
+              Duplicate
+            </v-btn>
+          </v-col>
+
           <!-- Clear canvas -->
           <v-col cols="auto">
             <v-btn
@@ -366,6 +379,40 @@ function createNewCPN() {
     timeout: 2000,
     color: 'success',
     icon: 'mdi-check-circle',
+  })
+}
+
+function duplicateCPN() {
+  const cpn = currentCPN.value
+  if (!cpn) return
+  const duplicate: ColoredPetriNet = JSON.parse(JSON.stringify(cpn))
+  duplicate.id = uuidv4()
+  duplicate.name = `${cpn.name} (copy)`
+  // Re-assign new UUIDs to places, transitions and arcs so they don't collide
+  const idMap = new Map<string, string>()
+  duplicate.places = duplicate.places.map(p => {
+    const newId = uuidv4()
+    idMap.set(p.id, newId)
+    return { ...p, id: newId }
+  })
+  duplicate.transitions = duplicate.transitions.map(t => {
+    const newId = uuidv4()
+    idMap.set(t.id, newId)
+    return { ...t, id: newId }
+  })
+  duplicate.arcs = duplicate.arcs.map(a => ({
+    ...a,
+    id: uuidv4(),
+    sourceId: idMap.get(a.sourceId) ?? a.sourceId,
+    targetId: idMap.get(a.targetId) ?? a.targetId,
+  }))
+  cpnStore.addCPN(duplicate)
+  loadCPNToCanvas(duplicate.id)
+  notificationStore.showNotification({
+    message: `Duplicated as "${duplicate.name}"`,
+    timeout: 2000,
+    color: 'success',
+    icon: 'mdi-content-copy',
   })
 }
 

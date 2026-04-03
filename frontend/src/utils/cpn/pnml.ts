@@ -357,7 +357,7 @@ function parseNamedSort(el: Element, warnings: string[]): ColorSet | null {
     return { id, name, type: "enum", enumValues };
   }
 
-  warnings.push(`Unsupported sort type for namedsort "${name}" — skipped`);
+  warnings.push(`Unsupported sort type for namedsort "${name}" - skipped`);
   return null;
 }
 

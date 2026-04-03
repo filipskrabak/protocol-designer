@@ -58,7 +58,7 @@ export function useCPNPersistence(
       }
     }
 
-    // Map edges back to CPNArc — determine direction from place/transition lists
+    // Map edges back to CPNArc - determine direction from place/transition lists
     const placeIds = new Set(places.map(p => p.id))
     const arcs: CPNArc[] = edges.value.map(edge => {
       const d = (edge.data ?? {}) as CPNArcEdgeData

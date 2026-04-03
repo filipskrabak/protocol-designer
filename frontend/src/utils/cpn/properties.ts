@@ -2,10 +2,10 @@
  * properties.ts
  *
  * Checks CPN verification properties against a StateSpaceResult:
- *   1. Reachability — is a target marking reachable from the initial marking?
- *   2. Deadlock-freedom — no reachable marking has zero enabled transitions
- *   3. Boundedness — every place has at most k tokens in all reachable markings
- *   4. Liveness — for each transition, is it enabled in at least one reachable marking?
+ *   1. Reachability - is a target marking reachable from the initial marking?
+ *   2. Deadlock-freedom - no reachable marking has zero enabled transitions
+ *   3. Boundedness - every place has at most k tokens in all reachable markings
+ *   4. Liveness - for each transition, is it enabled in at least one reachable marking?
  *
  * Also computes structural S-invariants (frontend-only, coefficient-based).
  */
@@ -56,7 +56,7 @@ export function checkReachability(
 /**
  * Reports dead markings (markings with no enabled transitions) as a neutral
  * observation, matching CPN Tools behaviour. Dead markings are expected for
- * procedure nets that terminate — they are not treated as failures.
+ * procedure nets that terminate - they are not treated as failures.
  * The caller decides whether the reported dead markings are acceptable.
  */
 export function checkDeadlockFreedom(cpn: ColoredPetriNet, stateSpace: StateSpaceResult): CPNPropertyResult {
@@ -108,7 +108,7 @@ export interface PlaceBounds {
  *
  * @param cpn         The CPN (for place names)
  * @param stateSpace  Exploration result
- * @param k           Bound to check (default: Infinity — just measure actual bounds)
+ * @param k           Bound to check (default: Infinity - just measure actual bounds)
  * @param invariants  Pre-computed S-invariants (avoids recomputing if already available)
  */
 export function checkBoundedness(
@@ -151,7 +151,7 @@ export function checkBoundedness(
   const uncoveredIds = new Set(cpn.places.map((p) => p.id).filter((id) => !structurallyCovered.has(id)));
 
   if (uncoveredIds.size === 0 && inv.length > 0) {
-    // Every place is structurally bounded — no exploration needed.
+    // Every place is structurally bounded - no exploration needed.
     const invLabels = inv.map((i) => i.label).join("; ");
     return {
       passed: true,
@@ -189,7 +189,7 @@ export function checkBoundedness(
     // were still rising,  report as failure with a clear explanation.
     return {
       passed: false,
-      message: `Exploration stopped at ${stateSpace.stateCount} markings — ${likelyUnbounded.length} place${likelyUnbounded.length > 1 ? "s appear" : " appears"} unbounded, because token count kept growing: ${likelyUnbounded.map((b) => `${b.placeName} (max ${b.maxTokens} observed)`).join(", ")}`,
+      message: `Exploration stopped at ${stateSpace.stateCount} markings - ${likelyUnbounded.length} place${likelyUnbounded.length > 1 ? "s appear" : " appears"} unbounded, because token count kept growing: ${likelyUnbounded.map((b) => `${b.placeName} (max ${b.maxTokens} observed)`).join(", ")}`,
       bounds,
       counterexample: likelyUnbounded.map((b) => ({ place: b.placeName, maxTokens: b.maxTokens })),
     };
@@ -242,7 +242,7 @@ export function checkLiveness(
         ? `Transition "${t.name}" is live (enabled in at least one reachable marking)`
         : stateSpace.truncated
           ? `Transition "${t.name}" was never enabled in the explored ${stateSpace.stateCount} markings (exploration was truncated)`
-          : `Transition "${t.name}" is dead — never enabled in any of the ${stateSpace.stateCount} reachable markings`,
+          : `Transition "${t.name}" is dead - never enabled in any of the ${stateSpace.stateCount} reachable markings`,
     };
   }
 
@@ -253,7 +253,7 @@ export function checkLiveness(
 
 /**
  * Compute potential S-invariants for a pure P/T projection of the CPN
- * (ignoring token colours — count-only).
+ * (ignoring token colours - count-only).
  *
  * Uses Farkas' algorithm (Gaussian elimination on the incidence matrix)
  * to find non-negative integer vectors c such that c·N = 0, where N is

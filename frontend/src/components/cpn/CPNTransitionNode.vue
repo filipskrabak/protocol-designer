@@ -26,7 +26,7 @@ export interface CPNTransitionNodeData {
   label: string
   guard?: string
   description?: string
-  /** Node kind — used by isValidConnection to enforce bipartiteness */
+  /** Node kind - used by isValidConnection to enforce bipartiteness */
   kind: 'transition'
 }
 

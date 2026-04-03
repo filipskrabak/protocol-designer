@@ -233,7 +233,7 @@
                 <v-list-item-subtitle class="text-wrap">
                   {{ results!.liveness?.[tr.id]?.passed
                     ? 'Live'
-                    : (results!.liveness?.[tr.id]?.message ?? 'Dead — never fired in explored state space') }}
+                    : (results!.liveness?.[tr.id]?.message ?? 'Dead - never fired in explored state space') }}
                 </v-list-item-subtitle>
               </v-list-item>
             </v-list>
@@ -363,7 +363,7 @@ async function runAnalysis() {
         cpnStore.setInvariants(response.data.invariants)
       }
     } catch {
-      // Backend not available — structural invariants from frontend already set
+      // Backend not available - structural invariants from frontend already set
     }
   } catch (e) {
     notificationStore.showNotification({
