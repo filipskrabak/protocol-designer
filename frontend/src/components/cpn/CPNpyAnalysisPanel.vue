@@ -6,7 +6,7 @@
         <span class="font-weight-medium">CPNpy Engine Verification</span>
         <v-chip v-if="cpnpyResult && cpnpyResult.error" size="x-small" color="error" variant="flat" class="ml-2">Error</v-chip>
         <v-chip v-else-if="cpnpyResult" size="x-small" color="deep-purple" variant="flat" class="ml-2">
-          {{ cpnpyResult.rgNodes }} states
+          {{ cpnpyResult.rgNodes }} markings
         </v-chip>
         <v-spacer />
         <v-btn
