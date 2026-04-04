@@ -50,6 +50,8 @@
         <v-icon>mdi-refresh</v-icon>
         <v-tooltip activator="parent" location="bottom">Run Verification</v-tooltip>
       </v-btn>
+
+
     </v-card-title>
 
     <!-- Truncation warning -->
@@ -240,6 +242,12 @@
           </v-expansion-panel-text>
         </v-expansion-panel>
 
+        <!-- CPNpy -->
+        <CPNpyAnalysisPanel
+          v-if="currentCPN"
+          :cpn="currentCPN"
+        />
+
         <!-- S-Invariants -->
         <v-expansion-panel v-if="invariants.length > 0">
           <v-expansion-panel-title>
@@ -273,13 +281,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import axios from 'axios'
 import { useCPNStore } from '@/store/CPNStore'
 import type { CPNPropertyResult } from '@/store/CPNStore'
 import { useNotificationStore } from '@/store/NotificationStore'
 import { exploreStateSpace } from '@/utils/cpn/stateSpace'
 import { checkAllProperties } from '@/utils/cpn/properties'
+import CPNpyAnalysisPanel from './CPNpyAnalysisPanel.vue'
 
 const cpnStore = useCPNStore()
 const notificationStore = useNotificationStore()

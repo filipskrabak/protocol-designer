@@ -96,6 +96,34 @@
           </v-col>
 
           <v-spacer />
+
+          <!-- Export PNML -->
+          <v-col cols="auto">
+            <v-btn
+              @click="downloadPNML"
+              prepend-icon="mdi-download"
+              color="teal"
+              variant="outlined"
+              class="mb-5"
+              :disabled="!currentCPN"
+            >
+              Export PNML
+            </v-btn>
+          </v-col>
+
+          <!-- Export .cpn (CPN Tools) -->
+          <v-col cols="auto">
+            <v-btn
+              @click="downloadCPNTools"
+              prepend-icon="mdi-download"
+              color="indigo"
+              variant="outlined"
+              class="mb-5"
+              :disabled="!currentCPN"
+            >
+              Export .cpn
+            </v-btn>
+          </v-col>
         </v-row>
       </v-card-text>
     </v-card>
@@ -241,6 +269,8 @@ import type { CPNTransitionNodeData } from './CPNTransitionNode.vue'
 import CPNArcEdge from './CPNArcEdge.vue'
 import type { CPNArcEdgeData } from './CPNArcEdge.vue'
 import { initCPNFromProtocol } from '@/utils/cpn/colorSetGenerator'
+import { exportToPNML } from '@/utils/cpn/pnml'
+import { exportToCPNTools } from '@/utils/cpn/cpntools'
 
 //  VueFlow setup
 const nodeTypes = {
@@ -349,6 +379,31 @@ function deleteArc(edgeId: string) {
   setEdges(edges.value.filter(e => e.id !== edgeId))
   saveCPNFromCanvas()
   arcEditDialog.value = false
+}
+
+//  Export helpers
+function downloadFile(content: string, filename: string, mimeType: string) {
+  const blob = new Blob([content], { type: mimeType })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
+function downloadPNML() {
+  const cpn = currentCPN.value
+  if (!cpn) return
+  const safeName = cpn.name.replace(/[^a-zA-Z0-9_-]/g, '_')
+  downloadFile(exportToPNML(cpn), `${safeName}.pnml`, 'application/xml')
+}
+
+function downloadCPNTools() {
+  const cpn = currentCPN.value
+  if (!cpn) return
+  const safeName = cpn.name.replace(/[^a-zA-Z0-9_-]/g, '_')
+  downloadFile(exportToCPNTools(cpn), `${safeName}.cpn`, 'application/xml')
 }
 
 //  CPN lifecycle

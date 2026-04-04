@@ -1,26 +1,17 @@
 """
 CPN Analysis Endpoint - S-invariant computation via Z3
 
-Receives a ColoredPetriNet definition and returns:
-  - Verification property summaries (token-count bounded checks)
-  - Structural S-invariants (using Z3 linear programming)
-
-This endpoint is Tier 2: the frontend already runs bounded BFS exploration
-(Tier 1). This backend computes Z3-based structural guarantees that are
-stronger than the finite state-space search.
+Receives a ColoredPetriNet definition and returns structural S-invariants
+computed via Z3 integer linear programming (Tier 2).
+The frontend handles Tier-1 bounded BFS exploration independently.
 """
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from typing import Dict, List, Optional, Any
-import json
-from datetime import datetime, timezone
 
 # Z3 is available in the backend container
 try:
-    from z3 import (
-        Solver, Int, Real, And, Or, Not, Sum, sat, unsat,
-        IntVal, ArithRef, BoolRef
-    )
+    from z3 import Solver, Int, Sum, sat
     Z3_AVAILABLE = True
 except ImportError:
     Z3_AVAILABLE = False
@@ -98,24 +89,6 @@ class CPNAnalysisRequest(BaseModel):
 
 #  Response models
 
-class CPNPropertyResult(BaseModel):
-    passed: bool
-    message: str
-    witness: Optional[Dict[str, Any]] = None
-    counterexample: Optional[List[Dict[str, Any]]] = None
-
-
-class CPNAnalysisResults(BaseModel):
-    reachability: Optional[CPNPropertyResult] = None
-    deadlockFreedom: Optional[CPNPropertyResult] = None
-    boundedness: Optional[CPNPropertyResult] = None
-    liveness: Optional[Dict[str, CPNPropertyResult]] = None
-    stateCount: int = 0
-    truncated: bool = False
-    bindingLimitHit: bool = False
-    runAt: str
-
-
 class CPNInvariant(BaseModel):
     coefficients: Dict[str, float]
     constant: Optional[float] = None
@@ -123,7 +96,6 @@ class CPNInvariant(BaseModel):
 
 
 class CPNAnalysisResponse(BaseModel):
-    results: CPNAnalysisResults
     invariants: List[CPNInvariant]
 
 
@@ -270,30 +242,12 @@ async def analyze_cpn(
     """
     Compute S-invariants for a ColoredPetriNet using Z3.
 
-    The frontend already runs bounded BFS exploration; this endpoint provides
+    The frontend handles Tier-1 BFS exploration; this endpoint provides
     stronger structural guarantees via integer linear programming.
-
-    Returns an empty results object (zeros/None) and the list of invariants.
-    The frontend merges invariants into its own analysis results display.
     """
     cpn = request.cpn
 
-    # Basic structural validation
     if not cpn.places:
         raise HTTPException(status_code=422, detail="CPN must have at least one place")
 
-    now = datetime.now(timezone.utc).isoformat()
-
-    # Compute S-invariants via Z3
-    invariants = _compute_s_invariants_z3(cpn)
-
-    # Results object: backend only provides invariants; BFS results
-    # come from the frontend tier-1 analysis.
-    results = CPNAnalysisResults(
-        stateCount=0,
-        truncated=False,
-        bindingLimitHit=False,
-        runAt=now,
-    )
-
-    return CPNAnalysisResponse(results=results, invariants=invariants)
+    return CPNAnalysisResponse(invariants=_compute_s_invariants_z3(cpn))

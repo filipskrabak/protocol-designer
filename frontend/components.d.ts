@@ -14,6 +14,7 @@ declare module 'vue' {
     CPNColorSetBuilder: typeof import('./src/components/cpn/CPNColorSetBuilder.vue')['default']
     CPNNodeEditDialog: typeof import('./src/components/cpn/CPNNodeEditDialog.vue')['default']
     CPNPlaceNode: typeof import('./src/components/cpn/CPNPlaceNode.vue')['default']
+    CPNpyAnalysisPanel: typeof import('./src/components/cpn/CPNpyAnalysisPanel.vue')['default']
     CPNSidebar: typeof import('./src/components/cpn/CPNSidebar.vue')['default']
     CPNTransitionNode: typeof import('./src/components/cpn/CPNTransitionNode.vue')['default']
     CPNVariableEditor: typeof import('./src/components/cpn/CPNVariableEditor.vue')['default']
