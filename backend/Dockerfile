@@ -1,11 +1,11 @@
-FROM alpine:3.17
+FROM python:3.10-slim
 
-# Install runtime and build dependencies
-RUN apk add --no-cache python3 py3-pip libpq postgresql-client curl \
-    && apk add --no-cache --virtual .build-deps \
-       gcc g++ make cmake musl-dev python3-dev libffi-dev
+# Install runtime dependencies
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libpq5 curl \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN adduser -D api
+RUN useradd -m api
 
 USER api
 
@@ -21,8 +21,6 @@ COPY . .
 USER root
 # static folder
 RUN chown -R api:api /home/api
-# Clean up build dependencies to reduce image size
-RUN apk del .build-deps
 USER api
 
 EXPOSE 8000
