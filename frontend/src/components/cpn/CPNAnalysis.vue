@@ -114,15 +114,77 @@
               <!-- Reachability -->
               <v-list-item>
                 <template v-slot:prepend>
-                  <v-icon :color="results!.reachability?.passed ? 'success' : 'warning'">
-                    {{ results!.reachability?.passed ? 'mdi-check' : 'mdi-alert' }}
+                  <v-icon
+                    :color="targetConditions.length === 0
+                      ? 'grey'
+                      : (results!.reachability?.passed ? 'success' : 'error')"
+                  >
+                    {{
+                      targetConditions.length === 0
+                        ? 'mdi-map-marker-question'
+                        : (results!.reachability?.passed ? 'mdi-check' : 'mdi-close-circle')
+                    }}
                   </v-icon>
                 </template>
                 <v-list-item-title class="text-wrap">Reachability</v-list-item-title>
                 <v-list-item-subtitle class="text-wrap">
-                  Checks that markings are reachable from the initial marking.
-                  <span v-if="results!.reachability?.message"> {{ results!.reachability.message }}</span>
+                  {{ results!.reachability?.message }}
                 </v-list-item-subtitle>
+              </v-list-item>
+
+              <!-- Target marking condition editor -->
+              <v-list-item class="pt-1 pb-2">
+                <div class="w-100">
+                  <div class="text-caption text-medium-emphasis mb-2">
+                    Conditions
+                    <span class="text-grey">(All must hold at the same time. Run verification to apply)</span>
+                  </div>
+
+                  <div
+                    v-for="(cond, idx) in targetConditions"
+                    :key="idx"
+                    class="d-flex align-center ga-2 mb-2"
+                  >
+                    <v-select
+                      v-model="cond.placeId"
+                      :items="placeItems"
+                      item-title="name"
+                      item-value="id"
+                      density="compact"
+                      variant="outlined"
+                      hide-details
+                      style="min-width: 140px; max-width: 190px"
+                    />
+                    <span class="text-body-2 flex-shrink-0">&ge;</span>
+                    <v-text-field
+                      v-model.number="cond.minTokens"
+                      type="number"
+                      density="compact"
+                      variant="outlined"
+                      hide-details
+                      :min="1"
+                      style="max-width: 68px"
+                    />
+                    <span class="text-caption text-medium-emphasis flex-shrink-0">tokens</span>
+                    <v-btn
+                      icon="mdi-close"
+                      size="x-small"
+                      variant="text"
+                      color="error"
+                      @click="removeCondition(idx)"
+                    />
+                  </div>
+
+                  <v-btn
+                    size="x-small"
+                    variant="tonal"
+                    prepend-icon="mdi-plus"
+                    :disabled="!currentCPN!.places.length"
+                    @click="addCondition"
+                  >
+                    Add condition
+                  </v-btn>
+                </div>
               </v-list-item>
 
               <!-- Boundedness -->
@@ -207,7 +269,7 @@
                 {{ livenessAggregate?.passed ? 'mdi-check-circle' : 'mdi-alert' }}
               </v-icon>
               <span class="font-weight-medium">
-                Liveness
+                Liveness (L1)
                 <v-chip
                   v-if="livenessAggregate && !livenessAggregate.passed"
                   size="x-small"
@@ -245,7 +307,9 @@
         <!-- CPNpy -->
         <CPNpyAnalysisPanel
           v-if="currentCPN"
+          ref="cpnpyPanel"
           :cpn="currentCPN"
+          :target-conditions="targetConditions"
         />
 
         <!-- S-Invariants -->
@@ -281,7 +345,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import axios from 'axios'
 import { useCPNStore } from '@/store/CPNStore'
 import type { CPNPropertyResult } from '@/store/CPNStore'
@@ -289,6 +353,7 @@ import { useNotificationStore } from '@/store/NotificationStore'
 import { exploreStateSpace } from '@/utils/cpn/stateSpace'
 import { checkAllProperties } from '@/utils/cpn/properties'
 import CPNpyAnalysisPanel from './CPNpyAnalysisPanel.vue'
+import { TargetMarkingCondition } from '@/contracts/models'
 
 const cpnStore = useCPNStore()
 const notificationStore = useNotificationStore()
@@ -297,9 +362,34 @@ const currentCPN = computed(() => cpnStore.getCurrentCPN())
 const results = computed(() => cpnStore.analysisResults)
 const invariants = computed(() => cpnStore.invariants)
 
+// ---- Target marking reachability query ----
+const targetConditions = ref<TargetMarkingCondition[]>([])
+const cpnpyPanel = ref<InstanceType<typeof CPNpyAnalysisPanel> | null>(null)
+
+// Reset all analysis state when the active CPN changes
+watch(() => cpnStore.currentCPNId, () => {
+  targetConditions.value = []
+  cpnStore.clearResults()
+  cpnpyPanel.value?.reset()
+})
+
+const placeItems = computed(() =>
+  currentCPN.value?.places.map((p) => ({ id: p.id, name: p.name })) ?? [],
+)
+
+function addCondition() {
+  const firstPlace = currentCPN.value?.places[0]
+  if (!firstPlace) return
+  targetConditions.value.push({ placeId: firstPlace.id, minTokens: 1 })
+}
+
+function removeCondition(idx: number) {
+  targetConditions.value.splice(idx, 1)
+}
+
 const hasAnalysis = computed(() => results.value !== null)
 
-// Aggregate liveness as a single pass/fail: pass iff all transitions are live
+// Aggregate liveness as a single pass/fail: pass if all transitions are live
 const livenessAggregate = computed((): CPNPropertyResult | undefined => {
   if (!results.value?.liveness) return undefined
   const entries = Object.values(results.value.liveness)
@@ -342,7 +432,7 @@ async function runAnalysis() {
   try {
     //  Tier 1: Frontend bounded BFS exploration
     const stateSpace = exploreStateSpace(cpn)
-    const verification = checkAllProperties(cpn, stateSpace)
+    const verification = checkAllProperties(cpn, stateSpace, targetConditions.value)
 
     cpnStore.setAnalysisResults({
       reachability:    verification.reachability,
@@ -365,7 +455,7 @@ async function runAnalysis() {
       })
     }
 
-    //  Tier 2: Backend Z3 S-invariants (best-effort, non-blocking)
+    //Tier 2: Backend Z3 S-invariants (best-effort, non-blocking)
     try {
       const response = await axios.post('/api/cpn/analyze', { cpn })
       if (response.data?.invariants?.length) {

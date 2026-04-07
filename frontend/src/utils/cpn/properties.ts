@@ -10,7 +10,7 @@
  * Also computes structural S-invariants (frontend-only, coefficient-based).
  */
 
-import type { ColoredPetriNet } from "@/contracts/models";
+import type { ColoredPetriNet, TargetMarkingCondition } from "@/contracts/models";
 import type { CPNPropertyResult, CPNInvariant } from "@/store/CPNStore";
 import {
   type StateSpaceResult,
@@ -49,6 +49,36 @@ export function checkReachability(
       ? `${description} was not found within the explored ${stateSpace.stateCount} markings (exploration was truncated)`
       : `${description} is not reachable (exhaustive search of ${stateSpace.stateCount} marking${stateSpace.stateCount !== 1 ? "s" : ""})`,
   };
+}
+
+/**
+ * Check if any reachable marking satisfies ALL given conditions
+ * (conjunction of per-place token-count lower bounds).
+ *
+ * @param stateSpace  Exploration result
+ * @param cpn         Needed for place names in the result message
+ * @param conditions  One or more per-place conditions (all must hold simultaneously)
+ */
+export function checkTargetReachability(
+  stateSpace: StateSpaceResult,
+  cpn: ColoredPetriNet,
+  conditions: TargetMarkingCondition[],
+): CPNPropertyResult {
+  if (conditions.length === 0) {
+    return {
+      passed: true,
+      message: "No target conditions specified.",
+    };
+  }
+  const placeNameById = new Map(cpn.places.map((p) => [p.id, p.name]));
+  const description = conditions
+    .map((c) => `${placeNameById.get(c.placeId) ?? c.placeId} \u2265 ${c.minTokens}`)
+    .join(" \u2227 ");
+  return checkReachability(
+    stateSpace,
+    (marking) => conditions.every((c) => tokensOnPlace(marking, c.placeId) >= c.minTokens),
+    description,
+  );
 }
 
 //  2. Deadlock-freedom
@@ -100,7 +130,7 @@ export interface PlaceBounds {
 
 /**
  * Compute token bounds for every place.
- * Boundedness passes iff every place's max token count ≤ k.
+ * Boundedness passes if every place's max token count <= k.
  *
  * Layer 1 (structural): places covered by an S-invariant are definitively
  * bounded regardless of exploration completeness.
@@ -239,7 +269,7 @@ export function checkLiveness(
     results[t.id] = {
       passed: enabled,
       message: enabled
-        ? `Transition "${t.name}" is live (enabled in at least one reachable marking)`
+        ? `Transition "${t.name}" is L1 live (enabled in at least one reachable marking)`
         : stateSpace.truncated
           ? `Transition "${t.name}" was never enabled in the explored ${stateSpace.stateCount} markings (exploration was truncated)`
           : `Transition "${t.name}" is dead - never enabled in any of the ${stateSpace.stateCount} reachable markings`,
@@ -439,13 +469,17 @@ export interface CPNVerificationResults {
 export function checkAllProperties(
   cpn: ColoredPetriNet,
   stateSpace: StateSpaceResult,
+  targetConditions: TargetMarkingCondition[] = [],
 ): CPNVerificationResults {
-  const reachability = checkReachability(
-    stateSpace,
-    // Default: at least the initial marking is reachable
-    () => true,
-    "initial marking",
-  );
+  const reachability =
+    targetConditions.length > 0
+      ? checkTargetReachability(stateSpace, cpn, targetConditions)
+      : {
+          passed: true,
+          message: `${stateSpace.stateCount} marking${
+            stateSpace.stateCount !== 1 ? "s" : ""
+          } reachable from initial marking. No target specified, please add conditions to query a specific state.`,
+        };
 
   const deadlockFreedom = checkDeadlockFreedom(cpn, stateSpace);
 

@@ -37,7 +37,7 @@
         <div class="text-body-2">
           <strong>cpnpy</strong> is a server-side state-space engine that exhaustively
           explores all reachable markings of your CPN. It computes reachability graphs,
-          SCCs, dead markings, transition liveness, place bounds, and home markings.
+          SCCs, dead markings, transition liveness (L4), place bounds, and home markings.
         </div>
         <div class="mt-2">
           <v-btn size="small" variant="tonal" color="deep-purple" prepend-icon="mdi-play" @click="runCpnpy()">
@@ -110,6 +110,29 @@
           </v-list>
         </div>
 
+        <!-- Target marking reachability (shown when queried) -->
+        <div v-if="cpnpyResult.targetReachability?.queried" class="mt-3">
+          <v-divider class="mb-2" />
+          <div class="text-subtitle-2 mb-2">Target Marking Reachability</div>
+          <v-list density="compact">
+            <v-list-item>
+              <template v-slot:prepend>
+                <v-icon :color="cpnpyResult.targetReachability.reachable ? 'success' : 'error'">
+                  {{ cpnpyResult.targetReachability.reachable ? 'mdi-check-circle' : 'mdi-close-circle' }}
+                </v-icon>
+              </template>
+              <v-list-item-title class="text-wrap text-body-2" style="font-family: monospace">
+                {{ cpnpyResult.targetReachability.description }}
+              </v-list-item-title>
+              <v-list-item-subtitle class="text-wrap">
+                {{ cpnpyResult.targetReachability.reachable
+                  ? `Reachable - ${cpnpyResult.targetReachability.matchingMarkings} matching marking${cpnpyResult.targetReachability.matchingMarkings !== 1 ? 's' : ''} found in complete state space`
+                  : 'Not reachable - exhaustive search of complete state space found no matching marking' }}
+              </v-list-item-subtitle>
+            </v-list-item>
+          </v-list>
+        </div>
+
         <!-- cpnpy-only extras -->
         <div class="mt-3">
           <v-divider class="mb-2" />
@@ -174,12 +197,21 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import axios from 'axios'
-import type { ColoredPetriNet } from '@/contracts/models'
+import type { ColoredPetriNet, TargetMarkingCondition } from '@/contracts/models'
+
 import { exportToCPNTools } from '@/utils/cpn/cpntools'
 
 const props = defineProps<{
   cpn: ColoredPetriNet
+  targetConditions?: TargetMarkingCondition[]
 }>()
+
+interface TargetReachabilityResult {
+  queried: boolean
+  reachable: boolean
+  matchingMarkings: number
+  description: string
+}
 
 interface CpnpyResult {
   available: boolean
@@ -194,6 +226,7 @@ interface CpnpyResult {
   homeMarkings: number
   placeBounds: Record<string, { min: number; max: number }>
   computationTimeMs: number
+  targetReachability?: TargetReachabilityResult
   error: string | null
 }
 
@@ -204,7 +237,11 @@ async function runCpnpy() {
   cpnpyRunning.value = true
   try {
     const xml = exportToCPNTools(props.cpn)
-    const response = await axios.post('/api/cpn/cpnpy-analyze', { xml })
+    const conditions = (props.targetConditions ?? []).map(c => {
+      const place = props.cpn.places.find(p => p.id === c.placeId)
+      return { placeName: place?.name ?? '', minTokens: c.minTokens }
+    }).filter(c => c.placeName !== '')
+    const response = await axios.post('/api/cpn/cpnpy-analyze', { xml, targetConditions: conditions })
     cpnpyResult.value = response.data
   } catch (e: any) {
     cpnpyResult.value = {
@@ -220,5 +257,9 @@ async function runCpnpy() {
   }
 }
 
-defineExpose({ runCpnpy, cpnpyRunning })
+function reset() {
+  cpnpyResult.value = null
+}
+
+defineExpose({ runCpnpy, cpnpyRunning, reset })
 </script>

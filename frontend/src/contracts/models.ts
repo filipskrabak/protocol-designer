@@ -204,10 +204,10 @@ export interface EFSMVariable {
 
 /**
  * Supported color set types (thesis-scoped subset of CPN-ML):
- *   unit  — a single anonymous token (plain P/T net place)
- *   bool  — true / false
- *   int   — bounded integer [intMin..intMax]
- *   enum  — finite enumeration of named values
+ *   unit - a single anonymous token (plain P/T net place)
+ *   bool - true / false
+ *   int - bounded integer [intMin..intMax]
+ *   enum - finite enumeration of named values
  */
 export type ColorSetType = 'unit' | 'bool' | 'int' | 'enum';
 
@@ -329,4 +329,9 @@ export interface DeadlockDetails {
   affectedStates: string[];
   warnings: GuardWarning[];
   description: string;
+}
+
+export interface TargetMarkingCondition {
+  placeId: string;
+  minTokens: number; // inclusive lower bound
 }

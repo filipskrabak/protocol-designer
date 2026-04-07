@@ -24,9 +24,6 @@ from src.auth.jwthandler import get_current_user
 
 router = APIRouter()
 
-# -----------------------------------------------------------------------------
-#  Optional cpnpy import (gracefully absent in environments without it)
-# -----------------------------------------------------------------------------
 try:
     from cpnpy.util.conversion.cpn_xml_to_json import cpn_xml_to_json as _cpn_xml_to_json
     from cpnpy.cpn import importer as _cpn_importer
@@ -43,7 +40,73 @@ except ImportError:
 
 
 # -----------------------------------------------------------------------------
-#  SML → Python translation helpers
+#  Target-marking reachability helpers
+# -----------------------------------------------------------------------------
+
+def _node_token_counts(node_key: Tuple) -> Dict[str, int]:
+    """Extract {place_name: token_count} from a normalised RG node key."""
+    _ts, places = node_key
+    return {name: len(toks) for name, toks in places}
+
+
+def _check_target_reachability(
+    analyzer: Any,
+    initial_key: Tuple,
+    conditions: List[Dict],
+) -> Dict[str, Any]:
+    """
+    Given a fully-built StateSpaceAnalyzer, find all nodes that satisfy
+    every condition and check whether any of them is reachable from the
+    initial marking.
+
+    conditions: list of {"placeName": str, "minTokens": int}
+    """
+    if not conditions:
+        return {"queried": False, "reachable": False, "matchingMarkings": 0, "description": ""}
+
+    description = " \u2227 ".join(
+        f'{c["placeName"]} \u2265 {c["minTokens"]}' for c in conditions
+    )
+
+    # Collect nodes that satisfy all conditions.
+    matching: List[Tuple] = [
+        node for node in analyzer.RG.nodes()
+        if all(
+            _node_token_counts(node).get(c["placeName"], 0) >= c["minTokens"]
+            for c in conditions
+        )
+    ]
+
+    if not matching:
+        return {
+            "queried": True,
+            "reachable": False,
+            "matchingMarkings": 0,
+            "description": description,
+        }
+
+    reachable_count = 0
+    for target in matching:
+        if target == initial_key:
+            reachable_count += 1
+            continue
+        try:
+            reached = analyzer.is_reachable(initial_key, target)
+        except Exception:
+            reached = False
+        if reached:
+            reachable_count += 1
+
+    return {
+        "queried": True,
+        "reachable": reachable_count > 0,
+        "matchingMarkings": reachable_count,
+        "description": description,
+    }
+
+
+# -----------------------------------------------------------------------------
+#  SML to Python translation helpers
 # -----------------------------------------------------------------------------
 
 def _sml_guard_to_python(raw: str) -> str:
@@ -84,7 +147,7 @@ def _fix_token(tok: Any) -> Any:
 
 
 # -----------------------------------------------------------------------------
-#  cpnpy empty-multiset bug workaround
+#  cpnpy empty-multiset bug workaround (this only happens in CPNpy. CPN Tools agrees with our implementation.)
 #  remove_tokens() leaves empty Multiset entries in _marking, causing
 #  semantically identical markings to hash differently depending on path.
 # -----------------------------------------------------------------------------
@@ -106,31 +169,26 @@ def _normalized_equiv(m: Any) -> Tuple:
 #  Core analysis pipeline
 # -----------------------------------------------------------------------------
 
-def run_cpnpy_analysis(xml_str: str) -> Dict[str, Any]:
+def run_cpnpy_analysis(xml_str: str, target_conditions: Optional[List[Dict]] = None) -> Dict[str, Any]:
     """
     Write XML to a temp file, run the full cpnpy state-space pipeline,
     and return a plain dict of results.
     """
-    with tempfile.NamedTemporaryFile(suffix=".cpn", mode="w",
-                                     encoding="iso-8859-1", delete=False) as fh:
+    with tempfile.NamedTemporaryFile(suffix=".cpn", mode="w", encoding="iso-8859-1", delete=False) as fh:
         fh.write(xml_str)
         tmp_path = fh.name
 
     try:
-        # 1. XML → cpnpy JSON dict
+        # 1. XML to cpnpy JSON dict
         data = _cpn_xml_to_json(tmp_path)
 
-        # 1b. Normalise unsupported colorset syntax before the cpnpy parser sees it.
-        #     CPN Tools allows ranged integer subsets: "colset X = int with lo..hi;"
-        #     cpnpy's ColorSetParser only recognises plain "int", so strip the
-        #     range clause — cpnpy does not enforce colour-set membership anyway.
+        # strip range (no support in cpnpy)
         data["colorSets"] = [
             re.sub(r"\bint\s+with\s+-?\d+\.\.-?\d+\b", "int", cs)
             for cs in data.get("colorSets", [])
         ]
 
-        # 2. Re-extract guards: cpn_xml_to_json reads <condition/annot/text>
-        #    but CPN Tools 4 / our exporter stores guards in <cond><text>.
+        # 2. adjust guards: cpn_xml_to_json reads <condition/annot/text> but CPN Tools 4 / our exporter stores guards in <cond><text>.
         tree = ET.parse(tmp_path)
         root = tree.getroot()
         trans_guard: Dict[str, str] = {}
@@ -170,6 +228,7 @@ def run_cpnpy_analysis(xml_str: str) -> Dict[str, Any]:
         cpn_obj, marking, context = _cpn_importer.import_cpn_from_json(data)
 
         # 6. Build corrected reachability graph
+        initial_node_key = _normalized_equiv(marking)
         analyzer = _StateSpaceAnalyzer(cpn_obj, marking, context)
         analyzer.RG = _build_rg(cpn_obj, marking, context,
                                  marking_equiv_func=_normalized_equiv)
@@ -201,6 +260,10 @@ def run_cpnpy_analysis(xml_str: str) -> Dict[str, Any]:
         stats = report.get("statistics", {})
         bounds = report.get("place_bounds", {})
 
+        target_reach = _check_target_reachability(
+            analyzer, initial_node_key, target_conditions or []
+        )
+
         return {
             "available": True,
             "rgNodes": stats.get("RG_nodes", 0),
@@ -214,6 +277,7 @@ def run_cpnpy_analysis(xml_str: str) -> Dict[str, Any]:
             "homeMarkings": len(report.get("home_markings", [])),
             "placeBounds": {k: {"min": v[0], "max": v[1]} for k, v in bounds.items()},
             "computationTimeMs": round(stats.get("computation_time", 0) * 1000, 2),
+            "targetReachability": target_reach,
             "error": None,
         }
     finally:
@@ -224,8 +288,21 @@ def run_cpnpy_analysis(xml_str: str) -> Dict[str, Any]:
 #  Response model + endpoint
 # -----------------------------------------------------------------------------
 
+class TargetCondition(BaseModel):
+    placeName: str
+    minTokens: int
+
+
+class TargetReachabilityResult(BaseModel):
+    queried: bool = False
+    reachable: bool = False
+    matchingMarkings: int = 0
+    description: str = ""
+
+
 class CPNpyRequest(BaseModel):
     xml: str
+    targetConditions: Optional[List[TargetCondition]] = None
 
 
 class CPNpyAnalysisResponse(BaseModel):
@@ -241,6 +318,7 @@ class CPNpyAnalysisResponse(BaseModel):
     homeMarkings: int = 0
     placeBounds: Dict[str, Dict[str, int]] = {}
     computationTimeMs: float = 0
+    targetReachability: Optional[TargetReachabilityResult] = None
     error: Optional[str] = None
 
 
@@ -250,12 +328,12 @@ async def cpnpy_analyze(
     current_user=Depends(get_current_user),
 ):
     """
-    Tier-3 CPN verification via cpnpy.
+    CPN verification via cpnpy.
 
     Accepts a CPN Tools 4.x XML string produced by the frontend's
     exportToCPNTools(), runs cpnpy's StateSpaceAnalyzer (with empty-multiset
     bug fix), and returns the full analysis: state counts, dead markings,
-    transition liveness, place bounds, SCC stats, and home markings.
+    transition L4 liveness, place bounds, SCC stats, and home markings.
     """
     if not CPNPY_AVAILABLE:
         return CPNpyAnalysisResponse(
@@ -264,7 +342,11 @@ async def cpnpy_analyze(
         )
 
     try:
-        result = run_cpnpy_analysis(request.xml)
+        conditions = [
+            {"placeName": c.placeName, "minTokens": c.minTokens}
+            for c in (request.targetConditions or [])
+        ]
+        result = run_cpnpy_analysis(request.xml, target_conditions=conditions)
         return CPNpyAnalysisResponse(**result)
     except Exception as exc:
         return CPNpyAnalysisResponse(
