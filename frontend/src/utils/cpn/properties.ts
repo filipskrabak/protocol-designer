@@ -6,17 +6,16 @@
  *   2. Deadlock-freedom - no reachable marking has zero enabled transitions
  *   3. Boundedness - every place has at most k tokens in all reachable markings
  *   4. Liveness - for each transition, is it enabled in at least one reachable marking?
- *
- * Also computes structural S-invariants (frontend-only, coefficient-based).
  */
 
 import type { ColoredPetriNet, TargetMarkingCondition } from "@/contracts/models";
-import type { CPNPropertyResult, CPNInvariant } from "@/store/CPNStore";
+import type { CPNPropertyResult } from "@/store/CPNStore";
 import {
   type StateSpaceResult,
   type Marking,
   markingToObject,
   tokensOnPlace,
+  checkUnboundednessKM,
 } from "./stateSpace";
 
 //  1. Reachability
@@ -130,22 +129,20 @@ export interface PlaceBounds {
 
 /**
  * Compute token bounds for every place.
- * Boundedness passes if every place's max token count <= k.
  *
- * Layer 1 (structural): places covered by an S-invariant are definitively
- * bounded regardless of exploration completeness.
- * Layer 2 (exploration): uncovered places are checked against the state space.
+ * If BFS completed the full state space, the observed per-place max is exact.
+ * If BFS was truncated, runs a Karp-Miller DFS to search for a domination
+ * witness (definitively unbounded) or confirm boundedness (no witness found
+ * within the node limit).
  *
- * @param cpn         The CPN (for place names)
- * @param stateSpace  Exploration result
- * @param k           Bound to check (default: Infinity - just measure actual bounds)
- * @param invariants  Pre-computed S-invariants (avoids recomputing if already available)
+ * @param cpn        The CPN (for place names)
+ * @param stateSpace Exploration result from exploreStateSpace()
+ * @param k          Bound to verify (default: Infinity — just measure)
  */
 export function checkBoundedness(
   cpn: ColoredPetriNet,
   stateSpace: StateSpaceResult,
   k: number = Infinity,
-  invariants?: CPNInvariant[],
 ): CPNPropertyResult & { bounds: PlaceBounds[] } {
   const placeNameById = new Map<string, string>(cpn.places.map((p) => [p.id, p.name]));
   const maxTokensPerPlace = new Map<string, number>();
@@ -168,68 +165,56 @@ export function checkBoundedness(
     maxTokens: maxTokensPerPlace.get(p.id) ?? 0,
   }));
 
-  // Step 1: Structural proof via S-invariants
-  // A place covered by at least one P-semiflow is definitively bounded, independently of whether exploration was truncated.
-  const inv = invariants ?? computeSInvariants(cpn);
-  const structurallyCovered = new Set<string>();
-  for (const invar of inv) {
-    for (const [placeId, coeff] of Object.entries(invar.coefficients)) {
-      if (coeff > 0) structurallyCovered.add(placeId);
+  const maxOverall = Math.max(0, ...bounds.map((b) => b.maxTokens));
+
+  // BFS completed the full state space: observed max is the exact bound.
+  if (!stateSpace.truncated) {
+    const unbounded = k < Infinity ? bounds.filter((b) => b.maxTokens > k) : [];
+    if (unbounded.length === 0) {
+      return {
+        passed: true,
+        message: `All places are bounded (max ${maxOverall} token${maxOverall !== 1 ? "s" : ""} observed across ${stateSpace.stateCount} reachable marking${stateSpace.stateCount !== 1 ? "s" : ""})`,
+        bounds,
+      };
     }
-  }
-
-  const uncoveredIds = new Set(cpn.places.map((p) => p.id).filter((id) => !structurallyCovered.has(id)));
-
-  if (uncoveredIds.size === 0 && inv.length > 0) {
-    // Every place is structurally bounded - no exploration needed.
-    const invLabels = inv.map((i) => i.label).join("; ");
-    return {
-      passed: true,
-      message: `All places proven bounded by S-invariants: ${invLabels}`,
-      bounds,
-    };
-  }
-
-  // Step 2: Exploration check for uncovered places
-  // Only flag places that are NOT structurally covered.
-  const unbounded = bounds.filter((b) => uncoveredIds.has(b.placeId) && b.maxTokens > k);
-
-  // When exploration was truncated, check for uncovered places whose token count
-  // grew significantly, which is a strong signal that they are unbounded
-  // Heuristic: max observed tokens > 10% of the total markings explored -> likely unbounded
-  const likelyUnbounded = stateSpace.truncated
-    ? bounds.filter((b) => uncoveredIds.has(b.placeId) && b.maxTokens > stateSpace.stateCount * 0.1)
-    : [];
-
-  if (unbounded.length === 0 && likelyUnbounded.length === 0) {
-    const maxOverall = Math.max(0, ...bounds.map((b) => b.maxTokens));
-    const coveredNote =
-      structurallyCovered.size > 0
-        ? ` (${structurallyCovered.size} place${structurallyCovered.size > 1 ? "s" : ""} proven by S-invariants)`
-        : "";
-    return {
-      passed: true,
-      message: `All places are ${k === Infinity ? "" : `${k}-`}bounded (max ${maxOverall} token${maxOverall !== 1 ? "s" : ""} observed)${stateSpace.truncated ? " (exploration truncated)" : ""}${coveredNote}`,
-      bounds,
-    };
-  }
-
-  if (likelyUnbounded.length > 0 && unbounded.length === 0) {
-    // Truncation-detected unboundedness: exploration stopped but token counts
-    // were still rising,  report as failure with a clear explanation.
     return {
       passed: false,
-      message: `Exploration stopped at ${stateSpace.stateCount} markings - ${likelyUnbounded.length} place${likelyUnbounded.length > 1 ? "s appear" : " appears"} unbounded, because token count kept growing: ${likelyUnbounded.map((b) => `${b.placeName} (max ${b.maxTokens} observed)`).join(", ")}`,
+      message: `${unbounded.length} place${unbounded.length > 1 ? "s are" : " is"} not ${k}-bounded: ${unbounded.map((b) => `${b.placeName} (max ${b.maxTokens})`).join(", ")}`,
       bounds,
-      counterexample: likelyUnbounded.map((b) => ({ place: b.placeName, maxTokens: b.maxTokens })),
+      counterexample: unbounded.map((b) => ({ place: b.placeName, maxTokens: b.maxTokens })),
     };
   }
 
+  // BFS was truncated: run Karp-Miller DFS to get a definitive answer.
+  const km = checkUnboundednessKM(cpn);
+
+  if (km.kind === "unbounded") {
+    const placeNames = km.unboundedPlaceIds
+      .map((id) => cpn.places.find((p) => p.id === id)?.name ?? id)
+      .join(", ");
+    return {
+      passed: false,
+      message: `Unbounded (Karp-Miller DFS): ${placeNames} grows without bound`,
+      bounds,
+      counterexample: km.unboundedPlaceIds.map((id) => ({
+        place: cpn.places.find((p) => p.id === id)?.name ?? id,
+      })),
+    };
+  }
+
+  if (km.kind === "bounded") {
+    return {
+      passed: true,
+      message: `All places bounded (Karp-Miller DFS)`,
+      bounds,
+    };
+  }
+
+  // inconclusive: KM hit the node limit — report as a warning.
   return {
     passed: false,
-    message: `${unbounded.length} place${unbounded.length > 1 ? "s are" : " is"} not ${k}-bounded: ${unbounded.map((b) => `${b.placeName} (max ${b.maxTokens})`).join(", ")}`,
+    message: `Exploration truncated at ${stateSpace.stateCount} markings. Karp-Miller search exceeded node limit; boundedness is inconclusive.`,
     bounds,
-    counterexample: unbounded.map((b) => ({ place: b.placeName, maxTokens: b.maxTokens })),
   };
 }
 
@@ -279,172 +264,6 @@ export function checkLiveness(
   return results;
 }
 
-//  5. Structural S-invariants (frontend, token-count only)
-
-/**
- * Compute potential S-invariants for a pure P/T projection of the CPN
- * (ignoring token colours - count-only).
- *
- * Uses Farkas' algorithm (Gaussian elimination on the incidence matrix)
- * to find non-negative integer vectors c such that c·N = 0, where N is
- * the incidence matrix (rows = places, columns = transitions).
- *
- * This is colour-unaware: each arc inscription is evaluated to its total
- * token count (sum of all multiset coefficients) using the empty binding.
- *
- * @param cpn  The CPN
- * @returns    Array of discovered invariants (may be empty)
- */
-export function computeSInvariants(cpn: ColoredPetriNet): CPNInvariant[] {
-  if (cpn.places.length === 0 || cpn.transitions.length === 0) return [];
-
-  const P = cpn.places.length;
-  const T = cpn.transitions.length;
-
-  // Map place/transition IDs to indices
-  const placeIndex = new Map<string, number>(cpn.places.map((p, i) => [p.id, i]));
-
-  // Build incidence matrix N[p][t] = (output_weight - input_weight)
-  // Weights are total token counts (colour-unaware)
-  const N: number[][] = Array.from({ length: P }, () => new Array(T).fill(0));
-
-  for (const arc of cpn.arcs) {
-    const count = estimateArcWeight(arc.inscription);
-    if (arc.arcType === "place-to-transition") {
-      const pi = placeIndex.get(arc.sourceId);
-      const ti = cpn.transitions.findIndex((t) => t.id === arc.targetId);
-      if (pi !== undefined && ti >= 0) N[pi][ti] -= count;
-    } else {
-      const pi = placeIndex.get(arc.targetId);
-      const ti = cpn.transitions.findIndex((t) => t.id === arc.sourceId);
-      if (pi !== undefined && ti >= 0) N[pi][ti] += count;
-    }
-  }
-
-  // Farkas-style: augment [N | I_P] and row-reduce, collect rows from I_P part
-  // Use rational arithmetic (numerator/denominator pairs) to stay integer
-  const invariants: CPNInvariant[] = [];
-
-  // Simple heuristic: for each transition t, check if N[:,t] = 0 everywhere
-  // (self-loop transitions trivially satisfy any invariant)
-  // Full Farkas is expensive for large nets; use a practical subset approach:
-  // Try all pairs of places and find conservation laws directly.
-
-  // For each pair (p, q), check if there exists c_p, c_q > 0 s.t. c_p*N[p] + c_q*N[q] = 0
-  const checked = new Set<string>();
-
-  for (let i = 0; i < P; i++) {
-    for (let j = i + 1; j < P; j++) {
-      const key = `${i},${j}`;
-      if (checked.has(key)) continue;
-      checked.add(key);
-
-      // Check if N[i] and N[j] are anti-proportional: c_i*N[i] + c_j*N[j] = 0 for all t
-      // This means: for all t, c_i*N[i][t] = -c_j*N[j][t]
-      // Either both are zero (trivial) or we can find the ratio
-      let ratio: number | null = null;
-      let valid = true;
-      for (let t = 0; t < T; t++) {
-        const ni = N[i][t];
-        const nj = N[j][t];
-        if (ni === 0 && nj === 0) continue;
-        if (ni === 0 || nj === 0) { valid = false; break; }
-        const r = -nj / ni;
-        if (ratio === null) {
-          ratio = r;
-        } else if (Math.abs(ratio - r) > 1e-9) {
-          valid = false;
-          break;
-        }
-      }
-
-      if (!valid || ratio === null) continue;
-      if (ratio <= 0) continue; // need positive coefficients
-
-      // Normalize to integers (find LCD)
-      const [ci, cj] = toSmallIntegers(1, ratio);
-      if (ci <= 0 || cj <= 0) continue;
-
-      const pi = cpn.places[i];
-      const pj = cpn.places[j];
-      const coefficients: Record<string, number> = {
-        [pi.id]: ci,
-        [pj.id]: cj,
-      };
-
-      // Compute conserved constant from initial marking
-      const initI = parseInitialMarkingCount(pi.initialMarking);
-      const initJ = parseInitialMarkingCount(pj.initialMarking);
-      const constant = ci * initI + cj * initJ;
-
-      const label = `${ci > 1 ? ci + "·" : ""}${pi.name} + ${cj > 1 ? cj + "·" : ""}${pj.name} = ${constant}`;
-
-      invariants.push({ coefficients, constant, label });
-    }
-  }
-
-  // Also try single-place invariants (place with all-zero incidence column → constant)
-  for (let i = 0; i < P; i++) {
-    const allZero = N[i].every((v) => v === 0);
-    if (allZero) {
-      const pi = cpn.places[i];
-      const initCount = parseInitialMarkingCount(pi.initialMarking);
-      invariants.push({
-        coefficients: { [pi.id]: 1 },
-        constant: initCount,
-        label: `${pi.name} = ${initCount} (constant place)`,
-      });
-    }
-  }
-
-  return invariants;
-}
-
-//  Helpers
-
-/**
- * Estimate the total token weight of an arc inscription (colour-unaware).
- * For unit arcs "1`x", returns 1. For "2`ACK ++ 3`SYN", returns 5.
- * Falls back to 1 on parse errors.
- */
-function estimateArcWeight(inscription: string): number {
-  if (!inscription || inscription.trim() === "" || inscription.trim() === "0" || inscription.trim().toLowerCase() === "empty") {
-    return 0;
-  }
-  // Sum up the count portions from each ++ part
-  let total = 0;
-  for (const part of inscription.split("++")) {
-    const p = part.trim();
-    const backtickIdx = p.indexOf("`");
-    if (backtickIdx === -1) {
-      total += 1;
-    } else {
-      const countStr = p.slice(0, backtickIdx).trim();
-      const n = parseInt(countStr, 10);
-      total += Number.isNaN(n) ? 1 : n;
-    }
-  }
-  return total;
-}
-
-/** Parse an initial marking string to get total token count (colour-unaware). */
-function parseInitialMarkingCount(marking: string): number {
-  if (!marking || marking.trim() === "0") return 0;
-  return estimateArcWeight(marking);
-}
-
-/** Convert a ratio (1 : r) to small positive integers (a : b) with a,b ≤ 100. */
-function toSmallIntegers(a: number, r: number): [number, number] {
-  // r = b/a, so b = r*a. Find smallest integer a s.t. r*a is also integer.
-  for (let scale = 1; scale <= 100; scale++) {
-    const b = Math.round(r * scale);
-    if (Math.abs(b - r * scale) < 1e-9 && b > 0) {
-      return [scale, b];
-    }
-  }
-  return [1, Math.round(r)];
-}
-
 //  Run all properties
 
 export interface CPNVerificationResults {
@@ -452,7 +271,6 @@ export interface CPNVerificationResults {
   deadlockFreedom: CPNPropertyResult;
   boundedness: CPNPropertyResult & { bounds: PlaceBounds[] };
   liveness: Record<string, CPNPropertyResult>;
-  invariants: CPNInvariant[];
   stateCount: number;
   truncated: boolean;
   bindingLimitHit: boolean;
@@ -483,9 +301,7 @@ export function checkAllProperties(
 
   const deadlockFreedom = checkDeadlockFreedom(cpn, stateSpace);
 
-  const invariants = computeSInvariants(cpn);
-
-  const boundedness = checkBoundedness(cpn, stateSpace, Infinity, invariants);
+  const boundedness = checkBoundedness(cpn, stateSpace, Infinity);
 
   const liveness = checkLiveness(cpn, stateSpace);
 
@@ -494,7 +310,6 @@ export function checkAllProperties(
     deadlockFreedom,
     boundedness,
     liveness,
-    invariants,
     stateCount: stateSpace.stateCount,
     truncated: stateSpace.truncated,
     bindingLimitHit: stateSpace.bindingLimitHit,

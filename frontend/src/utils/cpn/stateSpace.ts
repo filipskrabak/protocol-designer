@@ -476,3 +476,153 @@ export function tokensOnPlace(marking: Marking, placeId: string): number {
   if (!ms) return 0;
   return totalTokens(ms);
 }
+
+// ---------------------------------------------------------------------------
+// Karp-Miller witness finder
+// ---------------------------------------------------------------------------
+
+/** Maximum DFS nodes before reporting inconclusive. */
+const KM_MAX_NODES = 50_000;
+
+/**
+ * Result of the Karp-Miller unboundedness check.
+ *
+ * - 'bounded'     : DFS exhausted all reachable states without finding a witness.
+ *                   The net is definitively bounded.
+ * - 'unbounded'   : Found markings (ancestor, dominated) on a DFS path where
+ *                   dominated ≥ ancestor everywhere and strictly greater on at
+ *                   least one (place, color). The net is definitively unbounded.
+ * - 'inconclusive': KM_MAX_NODES was hit before exhaustion. No verdict.
+ */
+export type KarpMillerVerdict =
+  | { kind: 'bounded' }
+  | { kind: 'unbounded'; unboundedPlaceIds: string[]; witness: { ancestor: Marking; dominated: Marking } }
+  | { kind: 'inconclusive' };
+
+/**
+ * Determine whether `curr` strictly dominates `anc` in the Karp-Miller sense.
+ *
+ * `curr` dominates `anc` iff:
+ *   ∀ place p, ∀ color c : curr(p)(c) ≥ anc(p)(c)    [component-wise ≥]
+ *   ∃ place p, ∃ color c : curr(p)(c) > anc(p)(c)    [strictly greater somewhere]
+ *
+ * Returns the list of place IDs where curr is strictly greater, or null if
+ * curr does NOT dominate anc (some component of anc exceeds curr).
+ */
+function dominancePlaces(curr: Marking, anc: Marking, placeIds: string[]): string[] | null {
+  const greaterPlaces: string[] = [];
+  for (const pid of placeIds) {
+    const currMs = curr.get(pid) ?? new Map<string, number>();
+    const ancMs  = anc.get(pid)  ?? new Map<string, number>();
+    // If anc has any color where curr is smaller → not dominated
+    for (const [color, ancCount] of ancMs) {
+      if ((currMs.get(color) ?? 0) < ancCount) return null;
+    }
+    // Record places where curr is strictly larger
+    for (const [color, currCount] of currMs) {
+      if (currCount > (ancMs.get(color) ?? 0)) {
+        greaterPlaces.push(pid);
+        break; // one strict component per place is enough
+      }
+    }
+  }
+  // greaterPlaces.length === 0 means curr == anc exactly (not a domination)
+  return greaterPlaces.length > 0 ? greaterPlaces : null;
+}
+
+/**
+ * Check whether the CPN is bounded using a Karp-Miller DFS witness search.
+ *
+ * Algorithm (Karp & Miller, 1969):
+ *   Perform DFS from the initial marking maintaining an ancestor stack.
+ *   At each node, before recursing:
+ *     1. If the current marking strictly dominates any ancestor marking, that
+ *        pair is a witness: the same firing sequence can repeat, accumulating
+ *        tokens indefinitely → UNBOUNDED.
+ *     2. If the current marking equals an ancestor exactly, this is a cycle with
+ *        no token growth → backtrack (bounded on this path).
+ *   If DFS finishes without finding a witness → BOUNDED.
+ *   If KM_MAX_NODES is exhausted → INCONCLUSIVE.
+ *
+ * Soundness:
+ *   - Unbounded verdict is always correct (witness is a genuine domination).
+ *   - Bounded verdict is correct when DFS completes under the node limit.
+ *   - Inconclusive means the limit was hit without finding a witness.
+ */
+export function checkUnboundednessKM(cpn: ColoredPetriNet): KarpMillerVerdict {
+  // ---- Setup (mirrors exploreStateSpace) ----
+  const colorSetsById = new Map<string, ColorSet>(cpn.colorSets.map(cs => [cs.id, cs]));
+  const placesById    = new Map<string, CPNPlace>(cpn.places.map(p => [p.id, p]));
+  const variableToColorSet = new Map<string, string>(cpn.variables.map(v => [v.name, v.colorSetId]));
+
+  const inputArcsOf  = new Map<string, CPNArc[]>();
+  const outputArcsOf = new Map<string, CPNArc[]>();
+  for (const t of cpn.transitions) {
+    inputArcsOf.set(t.id, []);
+    outputArcsOf.set(t.id, []);
+  }
+  for (const arc of cpn.arcs) {
+    if (arc.arcType === 'place-to-transition') {
+      inputArcsOf.get(arc.targetId)!.push(arc);
+    } else {
+      outputArcsOf.get(arc.sourceId)!.push(arc);
+    }
+  }
+
+  const placeIds = cpn.places.map(p => p.id);
+
+  // onStack maps canonical key → marking for every node on the current DFS path.
+  // Serves dual purpose: ancestor iteration (dominance check) and cycle detection.
+  const onStack = new Map<string, Marking>();
+  let nodesVisited = 0;
+
+  function dfs(current: Marking): KarpMillerVerdict | null {
+    nodesVisited++;
+    if (nodesVisited > KM_MAX_NODES) return { kind: 'inconclusive' };
+
+    // 1. Dominance check against every ancestor on the current path
+    for (const anc of onStack.values()) {
+      const places = dominancePlaces(current, anc, placeIds);
+      if (places !== null) {
+        return {
+          kind: 'unbounded',
+          unboundedPlaceIds: places,
+          witness: { ancestor: anc, dominated: current },
+        };
+      }
+    }
+
+    // 2. Cycle detection: exact same marking already on path → bounded loop here
+    const key = markingToKey(current);
+    if (onStack.has(key)) return null;
+
+    // 3. Recurse into all successors
+    onStack.set(key, current);
+
+    for (const t of cpn.transitions) {
+      const inputArcs  = inputArcsOf.get(t.id)  ?? [];
+      const outputArcs = outputArcsOf.get(t.id) ?? [];
+      const inputPlaces = inputArcs.map(a => placesById.get(a.sourceId)!).filter(Boolean);
+      const bindings = enumerateBindings(t, inputArcs, inputPlaces, colorSetsById, variableToColorSet);
+
+      for (const binding of bindings) {
+        const consumed = checkEnabled(t, inputArcs, current, binding);
+        if (consumed === null) continue;
+
+        const next = fireTransition(t, inputArcs, outputArcs, current, binding);
+        const result = dfs(next);
+        if (result !== null) {
+          onStack.delete(key);
+          return result;
+        }
+      }
+    }
+
+    onStack.delete(key);
+    return null; // fully explored this branch, no witness
+  }
+
+  const initial = computeInitialMarking(cpn);
+  const result = dfs(initial);
+  return result ?? { kind: 'bounded' };
+}

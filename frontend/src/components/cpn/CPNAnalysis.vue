@@ -313,29 +313,51 @@
         />
 
         <!-- S-Invariants -->
-        <v-expansion-panel v-if="invariants.length > 0">
+        <v-expansion-panel v-if="hasAnalysis">
           <v-expansion-panel-title>
             <div class="d-flex align-center">
               <v-icon color="blue" class="me-2">mdi-function-variant</v-icon>
               <span class="font-weight-medium">
                 S-Invariants
-                <v-chip size="x-small" variant="flat" color="blue" class="ml-2">
+                <v-chip v-if="cpnStore.isInvariantsRunning" size="x-small" variant="flat" color="grey" class="ml-2">
+                  computing...
+                </v-chip>
+                <v-chip v-else-if="invariants.length > 0" size="x-small" variant="flat" color="blue" class="ml-2">
                   {{ invariants.length }}
+                </v-chip>
+                <v-chip v-else size="x-small" variant="flat" color="grey" class="ml-2">
+                  none
                 </v-chip>
               </span>
             </div>
           </v-expansion-panel-title>
           <v-expansion-panel-text>
-            <v-list density="compact">
-              <v-list-item v-for="(inv, i) in invariants" :key="i">
-                <template v-slot:prepend>
-                  <v-icon color="blue">mdi-equal</v-icon>
-                </template>
-                <v-list-item-title class="text-wrap text-body-2" style="font-family: 'Courier New', monospace">
-                  {{ inv.label }}
-                </v-list-item-title>
-              </v-list-item>
-            </v-list>
+            <!-- Loading -->
+            <v-alert v-if="cpnStore.isInvariantsRunning" type="info" variant="tonal" density="compact">
+              <div class="d-flex align-center">
+                <v-progress-circular indeterminate size="18" width="2" class="me-3" />
+                <span>Computing S-invariants</span>
+              </div>
+            </v-alert>
+
+            <!-- None found -->
+            <v-alert v-else-if="invariants.length === 0" type="info" variant="tonal" density="compact">
+              No S-invariants found
+            </v-alert>
+
+            <!-- Results -->
+            <template v-else>
+              <v-list density="compact">
+                <v-list-item v-for="(inv, i) in invariants" :key="i">
+                  <template v-slot:prepend>
+                    <v-icon color="blue">mdi-equal</v-icon>
+                  </template>
+                  <v-list-item-title class="text-wrap text-body-2" style="font-family: 'Courier New', monospace">
+                    {{ inv.label }}
+                  </v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </template>
           </v-expansion-panel-text>
         </v-expansion-panel>
 
@@ -427,10 +449,11 @@ async function runAnalysis() {
   const cpn = currentCPN.value
   if (!cpn) return
   cpnStore.isAnalysisRunning = true
+  cpnStore.isInvariantsRunning = true
   cpnStore.clearResults()
 
   try {
-    //  Tier 1: Frontend bounded BFS exploration
+    // Frontend bounded BFS exploration
     const stateSpace = exploreStateSpace(cpn)
     const verification = checkAllProperties(cpn, stateSpace, targetConditions.value)
 
@@ -444,7 +467,6 @@ async function runAnalysis() {
       bindingLimitHit: verification.bindingLimitHit,
       runAt:           verification.runAt,
     })
-    cpnStore.setInvariants(verification.invariants)
 
     if (verification.truncated || verification.bindingLimitHit) {
       notificationStore.showNotification({
@@ -455,14 +477,15 @@ async function runAnalysis() {
       })
     }
 
-    //Tier 2: Backend Z3 S-invariants (best-effort, non-blocking)
+    cpnStore.isAnalysisRunning = false
     try {
       const response = await axios.post('/api/cpn/analyze', { cpn })
-      if (response.data?.invariants?.length) {
-        cpnStore.setInvariants(response.data.invariants)
-      }
+      const backendInvariants = response.data?.invariants ?? []
+      cpnStore.setInvariants(backendInvariants)
     } catch {
-      // Backend not available - structural invariants from frontend already set
+      cpnStore.setInvariants([])
+    } finally {
+      cpnStore.isInvariantsRunning = false
     }
   } catch (e) {
     notificationStore.showNotification({
@@ -471,8 +494,8 @@ async function runAnalysis() {
       color: 'error',
       icon: 'mdi-alert-circle',
     })
-  } finally {
     cpnStore.isAnalysisRunning = false
+    cpnStore.isInvariantsRunning = false
   }
 }
 </script>
