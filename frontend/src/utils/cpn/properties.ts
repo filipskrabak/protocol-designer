@@ -168,7 +168,7 @@ export function checkBoundedness(
   const maxOverall = Math.max(0, ...bounds.map((b) => b.maxTokens));
 
   // BFS completed the full state space: observed max is the exact bound.
-  if (!stateSpace.truncated) {
+  if (!stateSpace.truncated && !stateSpace.bindingLimitHit) {
     const unbounded = k < Infinity ? bounds.filter((b) => b.maxTokens > k) : [];
     if (unbounded.length === 0) {
       return {
@@ -211,9 +211,12 @@ export function checkBoundedness(
   }
 
   // inconclusive: KM hit the node limit — report as a warning.
+  const truncationReason = stateSpace.bindingLimitHit
+    ? `binding limit hit`
+    : `marking limit hit at ${stateSpace.stateCount}`;
   return {
     passed: false,
-    message: `Exploration truncated at ${stateSpace.stateCount} markings. Karp-Miller search exceeded node limit; boundedness is inconclusive.`,
+    message: `BFS incomplete (${truncationReason}). Karp-Miller search also exceeded node limit; boundedness is inconclusive.`,
     bounds,
   };
 }

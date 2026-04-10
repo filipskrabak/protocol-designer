@@ -146,6 +146,65 @@ def _fix_token(tok: Any) -> Any:
     return tok
 
 
+def _parse_token_value(raw: str) -> Any:
+    """Parse a single token value string into a Python object."""
+    raw = raw.strip()
+    if raw in ("()", ""):
+        return ()
+    if raw == "true":  return True
+    if raw == "false": return False
+    try:
+        return int(raw)
+    except ValueError:
+        pass
+    try:
+        return float(raw)
+    except ValueError:
+        pass
+    return raw
+
+
+def _expand_multiset_marking(raw: str) -> Tuple[List[Any], List[float]]:
+    """
+    Correctly parse a CPN multiset marking string, expanding multiplicities.
+
+    Fixes cpnpy's parse_marking_expr which silently ignores the count before
+    the backtick (e.g. '100`()' is treated as one token instead of 100).
+
+    Returns (tokens, timestamps) — both parallel lists ready for the importer.
+    """
+    tokens: List[Any] = []
+    timestamps: List[float] = []
+    for part in raw.split("++"):
+        part = part.strip()
+        if not part or part in ("0", "empty"):
+            continue
+        # Strip @time suffix
+        time_val = 0.0
+        at_match = re.search(r"@([\d.]+)$", part)
+        if at_match:
+            try:
+                time_val = float(at_match.group(1))
+            except ValueError:
+                pass
+            part = part[: at_match.start()].strip()
+        bt = part.find("`")
+        if bt == -1:
+            tokens.append(_parse_token_value(part))
+            timestamps.append(time_val)
+            continue
+        count_str = part[:bt].strip()
+        color_str = part[bt + 1:].strip()
+        try:
+            count = int(count_str) if count_str else 1
+        except ValueError:
+            count = 1
+        tok = _parse_token_value(color_str)
+        tokens.extend([tok] * count)
+        timestamps.extend([time_val] * count)
+    return tokens, timestamps
+
+
 # -----------------------------------------------------------------------------
 #  cpnpy empty-multiset bug workaround (this only happens in CPNpy. CPN Tools agrees with our implementation.)
 #  remove_tokens() leaves empty Multiset entries in _marking, causing
@@ -220,9 +279,29 @@ def run_cpnpy_analysis(xml_str: str, target_conditions: Optional[List[Dict]] = N
                             seen.append(v)
                 t["variables"] = seen
 
-        # 4. Fix initial-marking boolean tokens (cpnpy returns strings)
-        for mk in data["initialMarking"].values():
-            mk["tokens"] = [_fix_token(tok) for tok in mk["tokens"]]
+        # 4. Fix initial markings: cpnpy's parser ignores the count multiplier
+        #    (e.g. 100`() is parsed as 1 token, not 100). Re-parse from the XML
+        #    ourselves using our own expander, and also fix boolean tokens.
+        for place_elem in root.findall(".//place"):
+            pname_elt = place_elem.find("text")
+            if pname_elt is None or not pname_elt.text:
+                continue
+            pname = pname_elt.text.strip()
+            initmark_elem = place_elem.find("initmark")
+            if initmark_elem is None:
+                continue
+            txt_elt = initmark_elem.find("text")
+            if txt_elt is None or not txt_elt.text:
+                continue
+            raw = txt_elt.text.strip()
+            if raw in ("", "0", "empty"):
+                data["initialMarking"].pop(pname, None)
+                continue
+            toks, stamps = _expand_multiset_marking(raw)
+            if toks:
+                data["initialMarking"][pname] = {"tokens": toks, "timestamps": stamps}
+            else:
+                data["initialMarking"].pop(pname, None)
 
         # 5. Build cpnpy model objects
         cpn_obj, marking, context = _cpn_importer.import_cpn_from_json(data)

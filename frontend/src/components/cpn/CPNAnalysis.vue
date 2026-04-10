@@ -372,10 +372,12 @@ import axios from 'axios'
 import { useCPNStore } from '@/store/CPNStore'
 import type { CPNPropertyResult } from '@/store/CPNStore'
 import { useNotificationStore } from '@/store/NotificationStore'
-import { exploreStateSpace } from '@/utils/cpn/stateSpace'
-import { checkAllProperties } from '@/utils/cpn/properties'
+import type { CPNVerificationResults } from '@/utils/cpn/properties'
+import StateSpaceWorker from '@/workers/stateSpace.worker?worker'
 import CPNpyAnalysisPanel from './CPNpyAnalysisPanel.vue'
 import { TargetMarkingCondition } from '@/contracts/models'
+import type { ColoredPetriNet } from '@/contracts/models'
+import type { WorkerRequest, WorkerResponse } from '@/workers/stateSpace.worker'
 
 const cpnStore = useCPNStore()
 const notificationStore = useNotificationStore()
@@ -444,6 +446,31 @@ const hasIssues = computed(() => {
   return propertyRows.value.some(p => p.result?.passed === false)
 })
 
+function runInWorker(
+  cpn: ColoredPetriNet,
+  targetConditions: TargetMarkingCondition[],
+  maxMarkings?: number,
+): Promise<CPNVerificationResults> {
+  return new Promise((resolve, reject) => {
+    const worker = new StateSpaceWorker()
+    worker.onmessage = (e: MessageEvent<WorkerResponse>) => {
+      worker.terminate()
+      if (e.data.type === 'result') resolve(e.data.data)
+      else reject(new Error(e.data.message))
+    }
+    worker.onerror = (e: ErrorEvent) => {
+      worker.terminate()
+      reject(new Error(e.message))
+    }
+    // Strip Vue reactive proxies — structured clone cannot clone Proxy objects
+    const req: WorkerRequest = {
+      cpn: JSON.parse(JSON.stringify(cpn)),
+      targetConditions: JSON.parse(JSON.stringify(targetConditions)),
+      maxMarkings,
+    }
+    worker.postMessage(req)
+  })
+}
 
 async function runAnalysis() {
   const cpn = currentCPN.value
@@ -453,9 +480,7 @@ async function runAnalysis() {
   cpnStore.clearResults()
 
   try {
-    // Frontend bounded BFS exploration
-    const stateSpace = exploreStateSpace(cpn)
-    const verification = checkAllProperties(cpn, stateSpace, targetConditions.value)
+    const verification = await runInWorker(cpn, targetConditions.value)
 
     cpnStore.setAnalysisResults({
       reachability:    verification.reachability,
@@ -498,4 +523,6 @@ async function runAnalysis() {
     cpnStore.isInvariantsRunning = false
   }
 }
+
+
 </script>

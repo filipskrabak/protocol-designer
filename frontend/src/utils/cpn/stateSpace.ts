@@ -31,8 +31,8 @@ import {
 
 //  Constants
 
-const MAX_MARKINGS = 10_000;
-const MAX_BINDINGS = 20_000;
+const MAX_MARKINGS = 50_000;
+const MAX_BINDINGS = 100_000;
 
 /**
  * Max integer range size to enumerate.
@@ -336,10 +336,15 @@ function fireTransition(
 /**
  * Run bounded BFS state-space exploration for the given CPN.
  *
- * @param cpn  The ColoredPetriNet to explore
- * @returns    StateSpaceResult
+ * @param cpn     The ColoredPetriNet to explore
+ * @param options Optional overrides for exploration limits
+ * @returns       StateSpaceResult
  */
-export function exploreStateSpace(cpn: ColoredPetriNet): StateSpaceResult {
+export function exploreStateSpace(
+  cpn: ColoredPetriNet,
+  options?: { maxMarkings?: number },
+): StateSpaceResult {
+  const markingLimit = options?.maxMarkings ?? MAX_MARKINGS;
   // Build lookup tables
   const colorSetsById = new Map<string, ColorSet>(cpn.colorSets.map((cs) => [cs.id, cs]));
   const placesById = new Map<string, CPNPlace>(cpn.places.map((p) => [p.id, p]));
@@ -433,7 +438,7 @@ export function exploreStateSpace(cpn: ColoredPetriNet): StateSpaceResult {
 
         // Add to graph if new
         if (!allMarkings.has(nextKey)) {
-          if (allMarkings.size >= MAX_MARKINGS) {
+          if (allMarkings.size >= markingLimit) {
             truncated = true;
             continue; // Don't add but continue exploring current marking's transitions
           }
@@ -576,7 +581,25 @@ export function checkUnboundednessKM(cpn: ColoredPetriNet): KarpMillerVerdict {
   const onStack = new Map<string, Marking>();
   let nodesVisited = 0;
 
-  function dfs(current: Marking): KarpMillerVerdict | null {
+  // Iterative DFS using an explicit work stack to avoid JS call-stack overflow.
+  // Each item is either:
+  //   { action: 'enter', marking } — explore this marking, push it onto the ancestor set
+  //   { action: 'exit',  key }     — remove the given key from the ancestor set (backtrack)
+  type WorkItem =
+    | { action: 'enter'; marking: Marking }
+    | { action: 'exit';  key: string };
+
+  const workStack: WorkItem[] = [{ action: 'enter', marking: computeInitialMarking(cpn) }];
+
+  while (workStack.length > 0) {
+    const item = workStack.pop()!;
+
+    if (item.action === 'exit') {
+      onStack.delete(item.key);
+      continue;
+    }
+
+    const current = item.marking;
     nodesVisited++;
     if (nodesVisited > KM_MAX_NODES) return { kind: 'inconclusive' };
 
@@ -594,11 +617,14 @@ export function checkUnboundednessKM(cpn: ColoredPetriNet): KarpMillerVerdict {
 
     // 2. Cycle detection: exact same marking already on path → bounded loop here
     const key = markingToKey(current);
-    if (onStack.has(key)) return null;
+    if (onStack.has(key)) continue;
 
-    // 3. Recurse into all successors
+    // 3. Add to ancestor set; schedule removal when this subtree is fully explored
     onStack.set(key, current);
+    workStack.push({ action: 'exit', key });
 
+    // 4. Push all successors. LIFO order means the first successor is explored first.
+    const successors: Marking[] = [];
     for (const t of cpn.transitions) {
       const inputArcs  = inputArcsOf.get(t.id)  ?? [];
       const outputArcs = outputArcsOf.get(t.id) ?? [];
@@ -608,21 +634,14 @@ export function checkUnboundednessKM(cpn: ColoredPetriNet): KarpMillerVerdict {
       for (const binding of bindings) {
         const consumed = checkEnabled(t, inputArcs, current, binding);
         if (consumed === null) continue;
-
-        const next = fireTransition(t, inputArcs, outputArcs, current, binding);
-        const result = dfs(next);
-        if (result !== null) {
-          onStack.delete(key);
-          return result;
-        }
+        successors.push(fireTransition(t, inputArcs, outputArcs, current, binding));
       }
     }
-
-    onStack.delete(key);
-    return null; // fully explored this branch, no witness
+    // Push in reverse so the first successor ends up on top of the stack
+    for (let i = successors.length - 1; i >= 0; i--) {
+      workStack.push({ action: 'enter', marking: successors[i] });
+    }
   }
 
-  const initial = computeInitialMarking(cpn);
-  const result = dfs(initial);
-  return result ?? { kind: 'bounded' };
+  return { kind: 'bounded' };
 }
