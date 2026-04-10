@@ -50,7 +50,7 @@
 
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue'
-import type { CPNArcEdgeData } from './CPNArcEdge.vue'
+import type { CPNArcEdgeData } from '@/contracts/models'
 import type { CPNVariable } from '@/contracts/models'
 import { parseInscription } from '@/utils/cpn/tokenEvaluator'
 

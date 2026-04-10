@@ -2,10 +2,10 @@
 // This implements bounded state space exploration using concrete variable valuations
 
 import type {
-  FSMNode,
-  FSMEdge,
+  FSMAnalysisNode,
+  FSMAnalysisEdge,
   ProgressDeadlock,
-} from './types';
+} from '@/contracts/models';
 import type {
   EFSMVariable,
   VariableState,
@@ -59,7 +59,7 @@ const DEFAULT_CONFIG: DeadlockDetectionConfig = {
  * @returns true if transition can fire
  */
 function canTransitionFire(
-  edge: FSMEdge,
+  edge: FSMAnalysisEdge,
   variableState: VariableState,
   variables: EFSMVariable[],
   events: FSMEvent[],
@@ -150,8 +150,8 @@ function serializeConfiguration(stateId: string, variableState: VariableState): 
  * @returns Array of progress deadlocks found
  */
 export function detectDeadlocksConcreteBFS(
-  nodes: FSMNode[],
-  edges: FSMEdge[],
+  nodes: FSMAnalysisNode[],
+  edges: FSMAnalysisEdge[],
   variables: EFSMVariable[],
   events: FSMEvent[] = [],
   config: Partial<DeadlockDetectionConfig> = {}
@@ -192,7 +192,7 @@ export function detectDeadlocksConcreteBFS(
   console.log('📊 Initial variable state:', initialVariableState);
 
   // Build adjacency list for quick edge lookup
-  const outgoingEdges = new Map<string, FSMEdge[]>();
+  const outgoingEdges = new Map<string, FSMAnalysisEdge[]>();
   for (const edge of edges) {
     if (!outgoingEdges.has(edge.source)) {
       outgoingEdges.set(edge.source, []);

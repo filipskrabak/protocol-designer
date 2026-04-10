@@ -70,12 +70,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { getBezierPath, type Position } from '@vue-flow/core'
-
-export interface CPNArcEdgeData {
-  inscription: string
-  arcType?: 'normal' | 'inhibitor'
-  description?: string
-}
+import type { CPNArcEdgeData } from '@/contracts/models'
 
 interface Props {
   id: string

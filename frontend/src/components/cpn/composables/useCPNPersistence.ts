@@ -4,9 +4,7 @@ import type { Node, Edge } from '@vue-flow/core'
 import { MarkerType } from '@vue-flow/core'
 import { useCPNStore } from '@/store/CPNStore'
 import type { CPNPlace, CPNTransition, CPNArc } from '@/contracts/models'
-import type { CPNPlaceNodeData } from '../CPNPlaceNode.vue'
-import type { CPNTransitionNodeData } from '../CPNTransitionNode.vue'
-import type { CPNArcEdgeData } from '../CPNArcEdge.vue'
+import type { CPNPlaceNodeData, CPNTransitionNodeData, CPNArcEdgeData } from '@/contracts/models'
 
 /**
  * Composable for saving/loading a CPN to/from the VueFlow canvas nodes + edges.

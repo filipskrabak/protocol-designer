@@ -1,8 +1,7 @@
 import { useVueFlow } from '@vue-flow/core'
 import { ref, watch } from 'vue'
 import { v4 as uuidv4 } from 'uuid'
-import type { CPNPlaceNodeData } from '../CPNPlaceNode.vue'
-import type { CPNTransitionNodeData } from '../CPNTransitionNode.vue'
+import type { CPNPlaceNodeData, CPNTransitionNodeData } from '@/contracts/models'
 import { useCPNStore } from '@/store/CPNStore'
 
 /**

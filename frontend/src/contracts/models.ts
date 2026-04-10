@@ -335,3 +335,192 @@ export interface TargetMarkingCondition {
   placeId: string;
   minTokens: number; // inclusive lower bound
 }
+
+// CPN Property Verification Results
+
+/** Result of a single CPN property check (reachability, boundedness, etc.). */
+export interface CPNPropertyResult {
+  passed: boolean;
+  message: string;
+  witness?: Record<string, any>;         // marking that satisfies the property
+  counterexample?: Record<string, any>[]; // firing sequence leading to violation
+}
+
+/** Per-place max token count observed across all explored markings. */
+export interface PlaceBounds {
+  placeId: string;
+  placeName: string;
+  maxTokens: number;
+}
+
+/** Full result of the in-browser CPN verification pipeline (BFS + KM). */
+export interface CPNVerificationResults {
+  reachability: CPNPropertyResult;
+  deadlockFreedom: CPNPropertyResult;
+  boundedness: CPNPropertyResult & { bounds: PlaceBounds[] };
+  liveness: Record<string, CPNPropertyResult>;
+  stateCount: number;
+  truncated: boolean;
+  bindingLimitHit: boolean;
+  runAt: string; // ISO timestamp
+}
+
+// CPN VueFlow node/edge data shapes
+
+/** Data payload for a CPN place node in the VueFlow canvas. */
+export interface CPNPlaceNodeData {
+  label: string;
+  colorSetId: string;
+  colorSetName?: string;
+  initialMarking: string;
+  description?: string;
+  /** Node kind - used by isValidConnection to enforce bipartiteness */
+  kind: 'place';
+}
+
+/** Data payload for a CPN transition node in the VueFlow canvas. */
+export interface CPNTransitionNodeData {
+  label: string;
+  guard?: string;
+  description?: string;
+  /** Node kind - used by isValidConnection to enforce bipartiteness */
+  kind: 'transition';
+}
+
+/** Data payload for a CPN arc edge in the VueFlow canvas. */
+export interface CPNArcEdgeData {
+  inscription: string;
+  arcType?: 'normal' | 'inhibitor';
+  description?: string;
+}
+
+// FSM Analysis Types
+//
+// These are the lightweight analysis-internal node/edge shapes used by
+// validation.ts, deadlock.ts, and useFSMAnalysis.ts.  They are DIFFERENT
+// from FSMNode/FSMEdge above (which are the full VueFlow graph model types):
+//
+//  • FSMNode / FSMEdge  — full VueFlow model (isInitial/isFinal, position, …)
+//  • FSMAnalysisNode / FSMAnalysisEdge — stripped projection used by algorithms
+//
+// FSMAnalysis.vue converts FSMNode → FSMAnalysisNode before calling analysis
+// functions so that the algorithms remain independent of VueFlow internals.
+
+export interface FSMAnalysisNode {
+  id: string;
+  type?: string;
+  data?: {
+    label?: string;
+    type?: 'initial' | 'normal' | 'final';
+  };
+}
+
+export interface FSMAnalysisEdge {
+  id: string;
+  source: string;
+  target: string;
+  data?: {
+    event?: string;
+    condition?: any;
+    action?: string;
+  };
+}
+
+export interface FSMMetrics {
+  totalStates: number;
+  totalTransitions: number;
+  initialStates: number;
+  finalStates: number;
+}
+
+export interface DeterminismIssue {
+  state: string;
+  event: string;
+  targets: string[];
+  guard1?: any;  // First conflicting guard
+  guard2?: any;  // Second conflicting guard
+  counterExample?: string;  // Z3 model showing the conflict
+}
+
+export interface CompletenessIssue {
+  state: string;
+  event: string;
+  gapModel?: string;  // Counter-example showing inputs not covered by any guard
+}
+
+export interface DeadState {
+  id: string;
+  label: string;
+}
+
+export interface UnreachableState {
+  id: string;
+  label: string;
+}
+
+export interface ProgressDeadlock {
+  stateId: string;
+  label: string;
+  reason: string;
+}
+
+export interface ConditionalDeadlock {
+  stateId: string;
+  label: string;
+  reason: string;
+  requiredInputs: string[]; // INPUT events needed to progress
+}
+
+export interface CircularWait {
+  states: string[];
+  labels: string[];
+}
+
+export interface EventStarvation {
+  event: string;
+  reachableFrom: number;
+  totalStates: number;
+}
+
+export interface DeadlockAnalysis {
+  progressDeadlocks: ProgressDeadlock[];
+  conditionalDeadlocks?: ConditionalDeadlock[];
+  circularWaits: CircularWait[];
+  eventStarvation: EventStarvation[];
+  terminalNonFinalStates: DeadState[];
+  hasDeadlocks: boolean;
+  hasCycles?: boolean;
+  explorationStats?: {
+    exploredNodes: number;
+    uniqueConfigurations: number;
+    maxDepthReached: number;
+    timeElapsedMs: number;
+  };
+  details?: Map<string, DeadlockDetails>;
+}
+
+export interface FSMProperties {
+  hasInitialState: boolean;
+  hasFinalState: boolean;
+  allStatesReachable: boolean;
+  isDeterministic: boolean;
+  isComplete: boolean;
+  isStronglyConnected: boolean;
+  hasCycles: boolean;
+  hasSelfLoops: boolean;
+  maxDepth: number;
+}
+
+export interface FSMIssues {
+  determinismIssues: DeterminismIssue[];
+  completenessIssues: CompletenessIssue[];
+  deadStates: DeadState[];
+  unreachableStates: UnreachableState[];
+}
+
+export interface FSMAnalysisResult {
+  metrics: FSMMetrics;
+  properties: FSMProperties;
+  issues: FSMIssues;
+  deadlocks: DeadlockAnalysis;
+}

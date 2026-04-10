@@ -1,8 +1,8 @@
 /// <reference lib="webworker" />
 
-import type { ColoredPetriNet, TargetMarkingCondition } from "@/contracts/models";
+import type { ColoredPetriNet, TargetMarkingCondition, CPNVerificationResults } from "@/contracts/models";
 import { exploreStateSpace } from "@/utils/cpn/stateSpace";
-import { checkAllProperties, type CPNVerificationResults } from "@/utils/cpn/properties";
+import { checkAllProperties } from "@/utils/cpn/properties";
 
 export interface WorkerRequest {
   cpn: ColoredPetriNet;

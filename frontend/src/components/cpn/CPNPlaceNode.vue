@@ -27,16 +27,7 @@
 <script setup lang="ts">
 import { Handle, Position } from '@vue-flow/core'
 import type { NodeProps } from '@vue-flow/core'
-
-export interface CPNPlaceNodeData {
-  label: string
-  colorSetId: string
-  colorSetName?: string
-  initialMarking: string
-  description?: string
-  /** Node kind - used by isValidConnection to enforce bipartiteness */
-  kind: 'place'
-}
+import type { CPNPlaceNodeData } from '@/contracts/models'
 
 type CPNPlaceNodeProps = NodeProps<CPNPlaceNodeData>
 

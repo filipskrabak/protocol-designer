@@ -3,9 +3,7 @@ import type { Edge } from '@vue-flow/core'
 import { MarkerType } from '@vue-flow/core'
 import { v4 as uuidv4 } from 'uuid'
 import { useNotificationStore } from '@/store/NotificationStore'
-import type { CPNArcEdgeData } from '../CPNArcEdge.vue'
-import type { CPNPlaceNodeData } from '../CPNPlaceNode.vue'
-import type { CPNTransitionNodeData } from '../CPNTransitionNode.vue'
+import type { CPNArcEdgeData, CPNPlaceNodeData, CPNTransitionNodeData } from '@/contracts/models'
 
 export interface CPNNodeEditState {
   nodeId: string

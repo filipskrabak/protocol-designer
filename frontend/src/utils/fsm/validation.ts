@@ -1,13 +1,13 @@
 // FSM Validation Utilities
 
 import type {
-  FSMNode,
-  FSMEdge,
+  FSMAnalysisNode,
+  FSMAnalysisEdge,
   DeterminismIssue,
   CompletenessIssue,
   DeadState,
   UnreachableState,
-} from './types';
+} from '@/contracts/models';
 import {
   buildAdjacencyList,
   findReachableNodes,
@@ -28,11 +28,11 @@ import {
  * 3. Use Z3 to check if any two guards can be satisfied simultaneously
  * 4. If satisfiable, the FSM is non-deterministic
  */
-export async function checkDeterminism(edges: FSMEdge[]): Promise<DeterminismIssue[]> {
+export async function checkDeterminism(edges: FSMAnalysisEdge[]): Promise<DeterminismIssue[]> {
   const issues: DeterminismIssue[] = [];
 
   // Group transitions by source state and event
-  const transitionsByStateAndEvent = new Map<string, Map<string, FSMEdge[]>>();
+  const transitionsByStateAndEvent = new Map<string, Map<string, FSMAnalysisEdge[]>>();
 
   for (const edge of edges) {
     const event = edge.data?.event || '';
@@ -125,11 +125,11 @@ export async function checkDeterminism(edges: FSMEdge[]): Promise<DeterminismIss
  * 3. Use Z3 to check if NOT(G1 OR G2 OR ... OR Gn) is satisfiable
  * 4. If satisfiable, there's a gap (potential local deadlock)
  */
-export async function checkCompleteness(edges: FSMEdge[], variables?: any[]): Promise<CompletenessIssue[]> {
+export async function checkCompleteness(edges: FSMAnalysisEdge[], variables?: any[]): Promise<CompletenessIssue[]> {
   const issues: CompletenessIssue[] = [];
 
   // Group transitions by source state and event
-  const transitionsByStateAndEvent = new Map<string, Map<string, FSMEdge[]>>();
+  const transitionsByStateAndEvent = new Map<string, Map<string, FSMAnalysisEdge[]>>();
 
   for (const edge of edges) {
     const event = edge.data?.event || '';
@@ -185,7 +185,7 @@ export async function checkCompleteness(edges: FSMEdge[], variables?: any[]): Pr
  * Find dead states (states with no outgoing transitions)
  * Excludes final states as they are expected to have no outgoing transitions
  */
-export function findDeadStates(nodes: FSMNode[], edges: FSMEdge[]): DeadState[] {
+export function findDeadStates(nodes: FSMAnalysisNode[], edges: FSMAnalysisEdge[]): DeadState[] {
   const deadStates: DeadState[] = [];
   const statesWithOutgoing = new Set(edges.map(e => e.source));
 
@@ -205,7 +205,7 @@ export function findDeadStates(nodes: FSMNode[], edges: FSMEdge[]): DeadState[] 
 /**
  * Find unreachable states (states that cannot be reached from initial states)
  */
-export function findUnreachableStates(nodes: FSMNode[], edges: FSMEdge[]): UnreachableState[] {
+export function findUnreachableStates(nodes: FSMAnalysisNode[], edges: FSMAnalysisEdge[]): UnreachableState[] {
   const unreachableStates: UnreachableState[] = [];
 
   // Find initial states
@@ -244,7 +244,7 @@ export function findUnreachableStates(nodes: FSMNode[], edges: FSMEdge[]): Unrea
 /**
  * Validate basic FSM structure
  */
-export function validateStructure(nodes: FSMNode[]): {
+export function validateStructure(nodes: FSMAnalysisNode[]): {
   hasInitialState: boolean;
   hasFinalState: boolean;
   initialStateCount: number;
@@ -264,7 +264,7 @@ export function validateStructure(nodes: FSMNode[]): {
 /**
  * Find all unique events in the FSM
  */
-export function getAllEvents(edges: FSMEdge[]): Set<string> {
+export function getAllEvents(edges: FSMAnalysisEdge[]): Set<string> {
   const events = new Set<string>();
   for (const edge of edges) {
     const event = edge.data?.event;
@@ -278,7 +278,7 @@ export function getAllEvents(edges: FSMEdge[]): Set<string> {
 /**
  * Find which states can trigger a specific event
  */
-export function getStatesWithEvent(edges: FSMEdge[], event: string): Set<string> {
+export function getStatesWithEvent(edges: FSMAnalysisEdge[], event: string): Set<string> {
   const states = new Set<string>();
   for (const edge of edges) {
     if (edge.data?.event === event) {

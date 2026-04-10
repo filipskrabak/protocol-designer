@@ -1,11 +1,11 @@
 // Deadlock Detection Algorithms
 
 import type {
-  FSMNode,
-  FSMEdge,
+  FSMAnalysisNode,
+  FSMAnalysisEdge,
   ProgressDeadlock,
   DeadlockAnalysis,
-} from './types';
+} from '@/contracts/models';
 import {
   detectDeadlocksConcreteBFS,
   areVariablesBounded,
@@ -26,8 +26,8 @@ import {
  * - Symbolic (SMT-based) exploration for larger state spaces
  */
 export async function detectDeadlocks(
-  nodes: FSMNode[],
-  edges: FSMEdge[],
+  nodes: FSMAnalysisNode[],
+  edges: FSMAnalysisEdge[],
   variables?: import('@/contracts/models').EFSMVariable[],
   events?: import('@/contracts/models').FSMEvent[],
   generateDetails: boolean = false

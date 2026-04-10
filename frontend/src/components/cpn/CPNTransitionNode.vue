@@ -21,14 +21,7 @@
 <script setup lang="ts">
 import { Handle, Position } from '@vue-flow/core'
 import type { NodeProps } from '@vue-flow/core'
-
-export interface CPNTransitionNodeData {
-  label: string
-  guard?: string
-  description?: string
-  /** Node kind - used by isValidConnection to enforce bipartiteness */
-  kind: 'transition'
-}
+import type { CPNTransitionNodeData } from '@/contracts/models'
 
 type CPNTransitionNodeProps = NodeProps<CPNTransitionNodeData>
 

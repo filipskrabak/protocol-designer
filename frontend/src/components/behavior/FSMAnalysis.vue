@@ -503,7 +503,7 @@ import { useFSMAnalysis } from '@/composables/useFSMAnalysis'
 import { analyzeEFSM } from '@/utils/efsm/variableAnalysis'
 import { generateDeadlockDetails } from '@/utils/efsm/traceGenerator'
 import { detectDeadlocks } from '@/utils/fsm/deadlock'
-import type { FSMNode, FSMEdge } from '@/utils/fsm/types'
+import type { FSMAnalysisNode, FSMAnalysisEdge } from '@/contracts/models'
 import type { DeadlockDetails, GuardWarning } from '@/contracts/models'
 import DeadlockDetailsModal from './DeadlockDetailsModal.vue'
 
@@ -520,7 +520,7 @@ const showDeadlockModal = ref(false)
 const selectedDeadlockDetails = ref<DeadlockDetails | null>(null)
 
 // Convert FSM data types to analysis types
-const nodes = computed<FSMNode[]>(() => {
+const nodes = computed<FSMAnalysisNode[]>(() => {
   if (!currentFSM.value?.nodes) return []
 
   return currentFSM.value.nodes.map(node => ({
@@ -533,7 +533,7 @@ const nodes = computed<FSMNode[]>(() => {
   }))
 })
 
-const edges = computed<FSMEdge[]>(() => {
+const edges = computed<FSMAnalysisEdge[]>(() => {
   if (!currentFSM.value?.edges) return []
 
   return currentFSM.value.edges.map(edge => ({

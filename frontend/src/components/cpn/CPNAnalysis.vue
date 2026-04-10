@@ -370,13 +370,15 @@
 import { computed, ref, watch } from 'vue'
 import axios from 'axios'
 import { useCPNStore } from '@/store/CPNStore'
-import type { CPNPropertyResult } from '@/store/CPNStore'
 import { useNotificationStore } from '@/store/NotificationStore'
-import type { CPNVerificationResults } from '@/utils/cpn/properties'
 import StateSpaceWorker from '@/workers/stateSpace.worker?worker'
 import CPNpyAnalysisPanel from './CPNpyAnalysisPanel.vue'
-import { TargetMarkingCondition } from '@/contracts/models'
-import type { ColoredPetriNet } from '@/contracts/models'
+import type {
+  TargetMarkingCondition,
+  ColoredPetriNet,
+  CPNPropertyResult,
+  CPNVerificationResults,
+} from '@/contracts/models'
 import type { WorkerRequest, WorkerResponse } from '@/workers/stateSpace.worker'
 
 const cpnStore = useCPNStore()
@@ -482,16 +484,7 @@ async function runAnalysis() {
   try {
     const verification = await runInWorker(cpn, targetConditions.value)
 
-    cpnStore.setAnalysisResults({
-      reachability:    verification.reachability,
-      deadlockFreedom: verification.deadlockFreedom,
-      boundedness:     verification.boundedness,
-      liveness:        verification.liveness,
-      stateCount:      verification.stateCount,
-      truncated:       verification.truncated,
-      bindingLimitHit: verification.bindingLimitHit,
-      runAt:           verification.runAt,
-    })
+    cpnStore.setAnalysisResults(verification)
 
     if (verification.truncated || verification.bindingLimitHit) {
       notificationStore.showNotification({

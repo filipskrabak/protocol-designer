@@ -8,8 +8,13 @@
  *   4. Liveness - for each transition, is it enabled in at least one reachable marking?
  */
 
-import type { ColoredPetriNet, TargetMarkingCondition } from "@/contracts/models";
-import type { CPNPropertyResult } from "@/store/CPNStore";
+import type {
+  ColoredPetriNet,
+  TargetMarkingCondition,
+  CPNPropertyResult,
+  PlaceBounds,
+  CPNVerificationResults,
+} from "@/contracts/models";
 import {
   type StateSpaceResult,
   type Marking,
@@ -119,13 +124,6 @@ export function checkDeadlockFreedom(cpn: ColoredPetriNet, stateSpace: StateSpac
 }
 
 //  3. Boundedness
-
-/** Per-place max token count across all reachable markings. */
-export interface PlaceBounds {
-  placeId: string;
-  placeName: string;
-  maxTokens: number;
-}
 
 /**
  * Compute token bounds for every place.
@@ -268,17 +266,6 @@ export function checkLiveness(
 }
 
 //  Run all properties
-
-export interface CPNVerificationResults {
-  reachability: CPNPropertyResult;
-  deadlockFreedom: CPNPropertyResult;
-  boundedness: CPNPropertyResult & { bounds: PlaceBounds[] };
-  liveness: Record<string, CPNPropertyResult>;
-  stateCount: number;
-  truncated: boolean;
-  bindingLimitHit: boolean;
-  runAt: string;
-}
 
 /**
  * Run all standard CPN verification checks on a fully-explored state space.

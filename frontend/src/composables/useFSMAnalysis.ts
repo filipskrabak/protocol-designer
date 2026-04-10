@@ -2,8 +2,8 @@
 
 import { computed, ref, watch, type ComputedRef, type Ref } from 'vue';
 import type {
-  FSMNode,
-  FSMEdge,
+  FSMAnalysisNode,
+  FSMAnalysisEdge,
   FSMAnalysisResult,
   FSMMetrics,
   FSMProperties,
@@ -11,7 +11,7 @@ import type {
   DeterminismIssue,
   CompletenessIssue,
   DeadlockAnalysis,
-} from '@/utils/fsm/types';
+} from '@/contracts/models';
 import {
   buildAdjacencyList,
   hasCycles, // Fallback for FSMs without variables
@@ -30,8 +30,8 @@ import {
 import { detectDeadlocks } from '@/utils/fsm/deadlock';
 
 export function useFSMAnalysis(
-  nodes: ComputedRef<FSMNode[]>,
-  edges: ComputedRef<FSMEdge[]>,
+  nodes: ComputedRef<FSMAnalysisNode[]>,
+  edges: ComputedRef<FSMAnalysisEdge[]>,
   variables?: ComputedRef<any[]>
 ) {
   // Ref to store determinism issues (async computed)

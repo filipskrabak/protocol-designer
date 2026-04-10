@@ -78,8 +78,7 @@
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue'
 import { useCPNStore } from '@/store/CPNStore'
-import type { CPNPlaceNodeData } from './CPNPlaceNode.vue'
-import type { CPNTransitionNodeData } from './CPNTransitionNode.vue'
+import type { CPNPlaceNodeData, CPNTransitionNodeData } from '@/contracts/models'
 
 type NodeData = CPNPlaceNodeData | CPNTransitionNodeData
 

@@ -1,28 +1,8 @@
 import { defineStore } from "pinia";
 import { v4 as uuidv4 } from "uuid";
-import type { ColoredPetriNet } from "@/contracts/models";
+import type { ColoredPetriNet, CPNVerificationResults } from "@/contracts/models";
 import { useProtocolStore } from "./ProtocolStore";
 import { useProtocolRenderStore } from "./ProtocolRenderStore";
-
-//  Analysis result types
-
-export interface CPNPropertyResult {
-  passed: boolean;
-  message: string;
-  witness?: Record<string, any>;       // marking that satisfies the property
-  counterexample?: Record<string, any>[]; // firing sequence leading to violation
-}
-
-export interface CPNAnalysisResults {
-  reachability?: CPNPropertyResult;
-  deadlockFreedom?: CPNPropertyResult;
-  boundedness?: CPNPropertyResult;
-  liveness?: Record<string, CPNPropertyResult>; // keyed by transition id
-  stateCount: number;
-  truncated: boolean;
-  bindingLimitHit: boolean;
-  runAt: string; // ISO timestamp
-}
 
 export interface CPNInvariant {
   // place_id → coefficient mapping, e.g. { "p1": 2, "p2": 1 } means 2·p1 + 1·p2 = const
@@ -36,7 +16,7 @@ export interface CPNInvariant {
 export const useCPNStore = defineStore("CPNStore", {
   state: () => ({
     currentCPNId: null as string | null,
-    analysisResults: null as CPNAnalysisResults | null,
+    analysisResults: null as CPNVerificationResults | null,
     isAnalysisRunning: false,
     invariants: [] as CPNInvariant[],
     isInvariantsRunning: false,
@@ -146,7 +126,7 @@ export const useCPNStore = defineStore("CPNStore", {
 
     //  Analysis state helpers
 
-    setAnalysisResults(results: CPNAnalysisResults | null) {
+    setAnalysisResults(results: CPNVerificationResults | null) {
       this.analysisResults = results;
     },
 
