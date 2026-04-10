@@ -5,6 +5,16 @@
       <span>Variables</span>
       <v-spacer></v-spacer>
       <v-btn
+        icon="mdi-refresh"
+        size="small"
+        variant="text"
+        :disabled="!currentFSM"
+        @click="regenerateConfirmDialog = true"
+      >
+        <v-icon>mdi-refresh</v-icon>
+        <v-tooltip activator="parent" location="bottom">Regenerate from Protocol</v-tooltip>
+      </v-btn>
+      <v-btn
         icon="mdi-plus"
         size="small"
         variant="text"
@@ -224,6 +234,24 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <!-- Regenerate Confirmation Dialog -->
+    <v-dialog v-model="regenerateConfirmDialog" max-width="440px">
+      <v-card>
+        <v-card-title class="d-flex align-center">
+          <v-icon color="warning" class="me-2">mdi-alert</v-icon>
+          Regenerate Variables?
+        </v-card-title>
+        <v-card-text>
+          This will replace all existing variables with ones generated from the protocol fields. Any custom variables or edits will be lost.
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn variant="text" @click="regenerateConfirmDialog = false">Cancel</v-btn>
+          <v-btn color="warning" variant="flat" @click="regenerateFromProtocol">Regenerate</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-card>
 </template>
 
@@ -232,6 +260,7 @@ import { ref, computed, watch } from 'vue'
 import { useProtocolStore } from '@/store/ProtocolStore'
 import type { EFSMVariable, EFSMVariableType } from '@/contracts/models'
 import { v4 as uuid } from 'uuid'
+import { generateVariablesFromProtocol } from '@/utils/fsm/variableGenerator'
 
 const protocolStore = useProtocolStore()
 
@@ -239,6 +268,7 @@ const currentFSM = computed(() => protocolStore.getCurrentFSM())
 const variables = computed(() => currentFSM.value?.variables || [])
 
 const showDialog = ref(false)
+const regenerateConfirmDialog = ref(false)
 const showDeleteDialog = ref(false)
 const formValid = ref(false)
 const formRef = ref<any>(null)
@@ -356,6 +386,15 @@ function getVariableTypeIcon(type: EFSMVariableType): string {
     case 'enum': return 'mdi-format-list-bulleted'
     default: return 'mdi-variable'
   }
+}
+
+function regenerateFromProtocol() {
+  const fsm = currentFSM.value
+  if (!fsm) return
+  const generated = generateVariablesFromProtocol(protocolStore.protocol)
+  const updatedFSM = { ...fsm, variables: generated }
+  protocolStore.updateFSM(fsm.id, updatedFSM)
+  regenerateConfirmDialog.value = false
 }
 
 // Watch for type changes to clear type-specific fields

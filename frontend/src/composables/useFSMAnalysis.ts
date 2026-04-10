@@ -19,7 +19,7 @@ import {
   longestPath,
   countSelfLoops,
   findReachableNodes,
-} from '@/utils/graph/algorithms';
+} from '@/utils/fsm/algorithms';
 import {
   checkDeterminism,
   checkCompleteness,

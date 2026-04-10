@@ -97,32 +97,17 @@
 
           <v-spacer />
 
-          <!-- Export PNML -->
+          <!-- Export dropdown (PNML / CPN Tools) -->
           <v-col cols="auto">
-            <v-btn
-              @click="downloadPNML"
-              prepend-icon="mdi-download"
+            <ExportDropdownButton
+              label="Export"
+              icon="mdi-download"
               color="teal"
               variant="outlined"
-              class="mb-5"
+              btn-class="mb-5"
               :disabled="!currentCPN"
-            >
-              Export PNML
-            </v-btn>
-          </v-col>
-
-          <!-- Export .cpn (CPN Tools) -->
-          <v-col cols="auto">
-            <v-btn
-              @click="downloadCPNTools"
-              prepend-icon="mdi-download"
-              color="indigo"
-              variant="outlined"
-              class="mb-5"
-              :disabled="!currentCPN"
-            >
-              Export .cpn
-            </v-btn>
+              :items="cpnExportItems"
+            />
           </v-col>
         </v-row>
       </v-card-text>
@@ -269,6 +254,8 @@ import CPNArcEdge from './CPNArcEdge.vue'
 import { initCPNFromProtocol } from '@/utils/cpn/colorSetGenerator'
 import { exportToPNML } from '@/utils/cpn/pnml'
 import { exportToCPNTools } from '@/utils/cpn/cpntools'
+import ExportDropdownButton from '@/components/common/ExportDropdownButton.vue'
+import type { ExportDropdownItem } from '@/contracts'
 
 //  VueFlow setup
 const nodeTypes = {
@@ -378,6 +365,20 @@ function deleteArc(edgeId: string) {
   saveCPNFromCanvas()
   arcEditDialog.value = false
 }
+
+//  Export dropdown items
+const cpnExportItems = computed<ExportDropdownItem[]>(() => [
+  {
+    id: 'pnml',
+    label: 'PNML (.pnml)',
+    onClick: downloadPNML,
+  },
+  {
+    id: 'cpn',
+    label: 'CPN Tools (.cpn)',
+    onClick: downloadCPNTools,
+  },
+])
 
 //  Export helpers
 function downloadFile(content: string, filename: string, mimeType: string) {

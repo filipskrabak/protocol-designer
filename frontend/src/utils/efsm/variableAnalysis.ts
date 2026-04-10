@@ -53,12 +53,3 @@ export function analyzeEFSM(
     },
   };
 }
-
-/**
- * Get all variables referenced in an expression
- * TODO: Implement to extract variable names from expressions
- */
-export function getReferencedVariables(expression: string, variables: EFSMVariable[]): string[] {
-  // TODO: Parse expression and extract variable names
-  return [];
-}

@@ -52,7 +52,7 @@ const state = {
 export default function useFSMDragAndDrop() {
   const { draggedType, isDragOver, isDragging } = state
 
-  const { addNodes, screenToFlowCoordinate, onNodesInitialized, updateNode } = useVueFlow()
+  const { addNodes, nodes, screenToFlowCoordinate, onNodesInitialized, updateNode } = useVueFlow()
 
   watch(isDragging, (dragging) => {
     document.body.style.userSelect = dragging ? 'none' : ''
@@ -131,13 +131,15 @@ export default function useFSMDragAndDrop() {
         }
         break
       case 'state':
-      default:
+      default: {
+        const normalStateCount = nodes.value.filter(n => !n.data?.isInitial && !n.data?.isFinal).length
         nodeData = {
-          label: `S${id}`,
+          label: `S${normalStateCount + 1}`,
           isInitial: false,
           isFinal: false
         }
         break
+      }
     }
 
     const newNode = {

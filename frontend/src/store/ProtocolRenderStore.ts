@@ -1374,26 +1374,8 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
           }
 
           // Handle conditions
-          if (edge.data?.use_protocol_conditions && edge.data?.protocol_conditions) {
-            // Use structured protocol conditions
-            transitionElement.setAttribute("pd:use_protocol_conditions", "true");
-
-            edge.data.protocol_conditions.forEach(pc => {
-              const condElement = document.createElementNS(pdNamespace, "pd:protocol_condition");
-              condElement.setAttribute("field_id", pc.field_id);
-              condElement.setAttribute("operator", pc.operator);
-
-              if (pc.value !== undefined) {
-                condElement.setAttribute("value", String(pc.value));
-              }
-              if (pc.field_option_name) {
-                condElement.setAttribute("field_option_name", pc.field_option_name);
-              }
-
-              transitionElement.appendChild(condElement);
-            });
-          } else if (edge.data?.condition) {
-            // Use manual/freeform condition
+          if (edge.data?.condition) {
+            // Freeform guard expression
             transitionElement.setAttribute("cond", edge.data.condition);
           }
 
@@ -1616,45 +1598,17 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
           const edgeDescription = transEl.getAttribute("pd:description") || undefined;
           const sourceHandle = transEl.getAttribute("pd:source_handle") || undefined;
           const targetHandle = transEl.getAttribute("pd:target_handle") || undefined;
-          const useProtocolConditions = transEl.getAttribute("pd:use_protocol_conditions") === "true";
 
           const edgeData: import("@/contracts/models").FSMEdgeData = {
             event,
             action,
             description: edgeDescription,
-            use_protocol_conditions: useProtocolConditions
           };
 
-          // Parse conditions
-          if (useProtocolConditions) {
-            const protocolConditions: import("@/contracts/models").ProtocolFieldCondition[] = [];
-            const condElements = transEl.querySelectorAll("protocol_condition");
-
-            condElements.forEach(condEl => {
-              const fieldId = condEl.getAttribute("field_id");
-              const operator = condEl.getAttribute("operator") as any;
-              const value = condEl.getAttribute("value");
-              const fieldOptionName = condEl.getAttribute("field_option_name") || undefined;
-
-              if (fieldId && operator) {
-                protocolConditions.push({
-                  field_id: fieldId,
-                  operator,
-                  value: value ? (isNaN(Number(value)) ? value : Number(value)) : undefined,
-                  field_option_name: fieldOptionName
-                });
-              }
-            });
-
-            if (protocolConditions.length > 0) {
-              edgeData.protocol_conditions = protocolConditions;
-            }
-          } else {
-            // Manual condition
-            const cond = transEl.getAttribute("cond");
-            if (cond) {
-              edgeData.condition = cond;
-            }
+          // Parse guard condition
+          const cond = transEl.getAttribute("cond");
+          if (cond) {
+            edgeData.condition = cond;
           }
 
           const edge: import("@/contracts/models").FSMEdge = {

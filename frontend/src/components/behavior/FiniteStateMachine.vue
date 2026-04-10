@@ -81,6 +81,21 @@
               Clear States
             </v-btn>
           </v-col>
+
+          <v-spacer />
+
+          <!-- Export SCXML dropdown -->
+          <v-col cols="auto">
+            <ExportDropdownButton
+              label="Export"
+              icon="mdi-download"
+              color="teal"
+              variant="outlined"
+              btn-class="mb-5"
+              :disabled="!currentFSM"
+              :items="fsmExportItems"
+            />
+          </v-col>
         </v-row>
       </v-card-text>
     </v-card>
@@ -248,6 +263,10 @@ import { useFSMCanvas } from './composables/useFSMCanvas'
 import type { FiniteStateMachine } from '@/contracts/models'
 import { useNotificationStore } from '@/store/NotificationStore'
 import { useProtocolStore } from '@/store/ProtocolStore'
+import { generateVariablesFromProtocol } from '@/utils/fsm/variableGenerator'
+import { exportToSCXML } from '@/utils/fsm/scxml'
+import ExportDropdownButton from '@/components/common/ExportDropdownButton.vue'
+import type { ExportDropdownItem } from '@/contracts'
 
 // Define custom node types
 const nodeTypes = {
@@ -369,6 +388,32 @@ const fsmName = computed({
   }
 })
 
+// Export helpers
+function downloadFile(content: string, filename: string, mimeType: string) {
+  const blob = new Blob([content], { type: mimeType })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
+function downloadFSMSCXML() {
+  const fsm = currentFSM.value
+  if (!fsm) return
+  const safeName = (fsm.name || 'fsm').replace(/[^a-zA-Z0-9_-]/g, '_')
+  downloadFile(exportToSCXML(fsm), `${safeName}.scxml`, 'application/xml')
+}
+
+const fsmExportItems = computed<ExportDropdownItem[]>(() => [
+  {
+    id: 'scxml',
+    label: 'SCXML (.scxml)',
+    onClick: downloadFSMSCXML,
+  },
+])
+
 // Initialize first FSM if none exist
 onMounted(() => {
   if (fsmList.value.length === 0) {
@@ -437,6 +482,7 @@ function createNewFSM() {
     nodes: [],
     edges: [],
     events: [],
+    variables: generateVariablesFromProtocol(protocolStore.protocol),
     metadata: {}
   }
 

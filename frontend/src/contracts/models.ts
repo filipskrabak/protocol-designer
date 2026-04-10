@@ -99,6 +99,14 @@ export interface ExportContext {
   configuration?: Record<string, any>; // For format-specific configuration
 }
 
+export interface ExportDropdownItem {
+  id: string;
+  label: string;
+  icon?: string;
+  disabled?: boolean;
+  onClick: () => void;
+}
+
 // FSM Data Structures
 
 export interface FSMNodeData {
@@ -117,22 +125,9 @@ export interface FSMNode {
   dimensions?: { width: number; height: number };
 }
 
-// Protocol field condition mapping for guards
-export interface ProtocolFieldCondition {
-  field_id: string; // Reference to protocol field
-  operator: 'equals' | 'not_equals' | 'greater_than' | 'less_than' | 'greater_or_equal' | 'less_or_equal';
-  value?: string | number; // Comparison value (can reference field option value)
-  field_option_name?: string; // Optional: reference to specific field option by name
-  //min_value?: number; // For range operators
-  //max_value?: number; // For range operators
-  //bit_position?: number; // For flag operators
-}
-
 export interface FSMEdgeData {
   event?: string; // Event name that triggers this transition
-  condition?: string; // Custom/manual guard condition (freeform text)
-  protocol_conditions?: ProtocolFieldCondition[]; // Structured protocol field conditions
-  use_protocol_conditions?: boolean; // Whether to use protocol_conditions or manual condition
+  condition?: string; // Guard condition expression (may reference EFSM variables)
   action?: string; // Action to execute
   description?: string;
 }

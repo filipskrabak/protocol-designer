@@ -17,14 +17,14 @@ export interface GraphEdge {
  */
 export function buildAdjacencyList(edges: GraphEdge[]): Map<string, string[]> {
   const adjacency = new Map<string, string[]>();
-
+  
   for (const edge of edges) {
     if (!adjacency.has(edge.source)) {
       adjacency.set(edge.source, []);
     }
     adjacency.get(edge.source)!.push(edge.target);
   }
-
+  
   return adjacency;
 }
 
@@ -38,11 +38,11 @@ export function findReachableNodes(
   const reachable = new Set<string>();
   const queue: string[] = [startNode];
   reachable.add(startNode);
-
+  
   while (queue.length > 0) {
     const current = queue.shift()!;
     const neighbors = adjacency.get(current) || [];
-
+    
     for (const neighbor of neighbors) {
       if (!reachable.has(neighbor)) {
         reachable.add(neighbor);
@@ -50,7 +50,7 @@ export function findReachableNodes(
       }
     }
   }
-
+  
   return reachable;
 }
 
@@ -63,15 +63,15 @@ export function hasPath(
   adjacency: Map<string, string[]>
 ): boolean {
   if (source === target) return true;
-
+  
   const visited = new Set<string>();
   const queue: string[] = [source];
   visited.add(source);
-
+  
   while (queue.length > 0) {
     const current = queue.shift()!;
     const neighbors = adjacency.get(current) || [];
-
+    
     for (const neighbor of neighbors) {
       if (neighbor === target) return true;
       if (!visited.has(neighbor)) {
@@ -80,7 +80,7 @@ export function hasPath(
       }
     }
   }
-
+  
   return false;
 }
 
@@ -93,11 +93,11 @@ export function hasCycles(
 ): boolean {
   const visited = new Set<string>();
   const recursionStack = new Set<string>();
-
+  
   function dfs(nodeId: string): boolean {
     visited.add(nodeId);
     recursionStack.add(nodeId);
-
+    
     const neighbors = adjacency.get(nodeId) || [];
     for (const neighbor of neighbors) {
       if (!visited.has(neighbor)) {
@@ -106,17 +106,17 @@ export function hasCycles(
         return true; // Back edge found - cycle detected
       }
     }
-
+    
     recursionStack.delete(nodeId);
     return false;
   }
-
+  
   for (const node of nodes) {
     if (!visited.has(node.id)) {
       if (dfs(node.id)) return true;
     }
   }
-
+  
   return false;
 }
 
@@ -133,14 +133,14 @@ export function findStronglyConnectedComponents(
   const onStack = new Set<string>();
   const stack: string[] = [];
   let index = 0;
-
+  
   function strongConnect(nodeId: string): void {
     indices.set(nodeId, index);
     lowLinks.set(nodeId, index);
     index++;
     stack.push(nodeId);
     onStack.add(nodeId);
-
+    
     const neighbors = adjacency.get(nodeId) || [];
     for (const neighbor of neighbors) {
       if (!indices.has(neighbor)) {
@@ -150,7 +150,7 @@ export function findStronglyConnectedComponents(
         lowLinks.set(nodeId, Math.min(lowLinks.get(nodeId)!, indices.get(neighbor)!));
       }
     }
-
+    
     if (lowLinks.get(nodeId) === indices.get(nodeId)) {
       const scc: string[] = [];
       let w: string;
@@ -162,13 +162,13 @@ export function findStronglyConnectedComponents(
       sccs.push(scc);
     }
   }
-
+  
   for (const node of nodes) {
     if (!indices.has(node.id)) {
       strongConnect(node.id);
     }
   }
-
+  
   return sccs;
 }
 
@@ -180,25 +180,25 @@ export function longestPath(
   adjacency: Map<string, string[]>
 ): number {
   const visited = new Set<string>();
-
+  
   function dfs(nodeId: string, currentDepth: number): number {
     if (visited.has(nodeId)) {
       return currentDepth; // Cycle detected, stop here
     }
-
+    
     visited.add(nodeId);
     let maxDepth = currentDepth;
-
+    
     const neighbors = adjacency.get(nodeId) || [];
     for (const neighbor of neighbors) {
       const depth = dfs(neighbor, currentDepth + 1);
       maxDepth = Math.max(maxDepth, depth);
     }
-
+    
     visited.delete(nodeId);
     return maxDepth;
   }
-
+  
   return dfs(startNode, 0);
 }
 
@@ -210,7 +210,7 @@ export function isStronglyConnected(
   adjacency: Map<string, string[]>
 ): boolean {
   if (nodes.length === 0) return true;
-
+  
   const sccs = findStronglyConnectedComponents(nodes, adjacency);
   return sccs.length === 1 && sccs[0].length === nodes.length;
 }

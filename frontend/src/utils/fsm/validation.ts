@@ -11,7 +11,7 @@ import type {
 import {
   buildAdjacencyList,
   findReachableNodes,
-} from '../graph/algorithms';
+} from './algorithms';
 import {
   areGuardsSatisfiableSimultaneously,
   areGuardsComplete,

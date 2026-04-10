@@ -22,6 +22,7 @@ declare module 'vue' {
     EFSMVariablesPanel: typeof import('./src/components/behavior/EFSMVariablesPanel.vue')['default']
     EncapsulationMultipleSelectModal: typeof import('./src/components/modals/EncapsulationMultipleSelectModal.vue')['default']
     EncapsulationVisualization: typeof import('./src/components/breadcrumbs/EncapsulationVisualization.vue')['default']
+    ExportDropdownButton: typeof import('./src/components/common/ExportDropdownButton.vue')['default']
     ExportModal: typeof import('./src/components/modals/ExportModal.vue')['default']
     FieldDeleteModal: typeof import('./src/components/modals/FieldDeleteModal.vue')['default']
     FieldEditModal: typeof import('./src/components/modals/FieldEditModal.vue')['default']

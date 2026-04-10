@@ -7,7 +7,6 @@ import type {
   EFSMVariable,
   DeadlockDetails,
   DeadlockType,
-  GuardWarning,
 } from '@/contracts/models';
 import {
   getInitialVariableState,
@@ -22,8 +21,7 @@ export function generateDeadlockDetails(
   deadlockType: DeadlockType,
   nodes: FSMNode[],
   edges: FSMEdge[],
-  variables: EFSMVariable[],
-  warnings: GuardWarning[]
+  variables: EFSMVariable[]
 ): DeadlockDetails | null {
   console.log('TODO: Implement deadlock details generation');
 

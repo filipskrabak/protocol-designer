@@ -15,7 +15,7 @@ import {
   evaluateGuard,
   executeAction,
   getInitialVariableState,
-} from '@/utils/efsm/guardEvaluator';
+} from '@/utils/fsm/guardEvaluator';
 
 /**
  * Configuration for node in the BFS exploration
@@ -68,8 +68,7 @@ function canTransitionFire(
   // 1. Check guard condition
   // 2. Check event availability (CONSERVATIVE)
   const guard = edge.data?.condition;
-  const guardStr = typeof guard === 'string' ? guard :
-                   guard?.type === 'manual' ? guard.text : '';
+  const guardStr = typeof guard === 'string' ? guard : '';
 
   const guardResult = evaluateGuard(guardStr, variableState, variables);
   if (guardResult !== true) {
@@ -184,7 +183,15 @@ export function detectDeadlocksConcreteBFS(
   if (initialStates.length === 0) {
     console.warn('⚠️ No initial states found');
     console.groupEnd();
-    return [];
+    return {
+      deadlocks: [],
+      conditionalDeadlocks: [],
+      hasCycles: false,
+      maxDepth: 0,
+      timeElapsedMs: 0,
+      exploredNodes: 0,
+      uniqueConfigurations: 0,
+    };
   }
 
   // Get initial variable state

@@ -405,86 +405,6 @@
           </v-expansion-panel-text>
         </v-expansion-panel>
 
-        <!-- EFSM Warnings (if variables defined) -->
-        <v-expansion-panel v-if="currentFSM?.variables && currentFSM.variables.length > 0">
-          <v-expansion-panel-title>
-            <div class="d-flex align-center">
-              <v-icon
-                :color="efsmWarnings.length === 0 ? 'success' : 'warning'"
-                class="me-2"
-              >
-                {{ efsmWarnings.length === 0 ? 'mdi-check-circle' : 'mdi-alert' }}
-              </v-icon>
-              <span class="font-weight-medium">
-                Variable/Guard Validation
-                <v-chip
-                  v-if="efsmWarnings.length > 0"
-                  size="x-small"
-                  variant="flat"
-                  color="warning"
-                  class="ml-2"
-                >
-                  {{ efsmWarnings.length }}
-                </v-chip>
-              </span>
-            </div>
-          </v-expansion-panel-title>
-          <v-expansion-panel-text>
-            <div v-if="efsmWarnings.length === 0">
-              <v-alert type="success" variant="tonal" density="compact">
-                No warnings found in guards and actions
-              </v-alert>
-            </div>
-            <div v-else>
-              <!-- Warning Summary -->
-              <div v-if="efsmStats" class="mb-3">
-                <v-chip size="small" variant="outlined" class="ma-1">
-                  Errors: {{ efsmWarnings.filter(w => w.severity === 'error').length }}
-                </v-chip>
-                <v-chip size="small" variant="outlined" class="ma-1">
-                  Warnings: {{ efsmWarnings.filter(w => w.severity === 'warning').length }}
-                </v-chip>
-                <v-chip size="small" variant="outlined" class="ma-1">
-                  Info: {{ efsmWarnings.filter(w => w.severity === 'info').length }}
-                </v-chip>
-              </div>
-
-              <!-- Warning List -->
-              <v-list density="compact">
-                <v-list-item
-                  v-for="(warning, index) in efsmWarnings.slice(0, 10)"
-                  :key="index"
-                  class="warning-item"
-                >
-                  <template v-slot:prepend>
-                    <v-icon
-                      :color="getWarningSeverityColor(warning.severity)"
-                      size="small"
-                    >
-                      {{ getWarningSeverityIcon(warning.severity) }}
-                    </v-icon>
-                  </template>
-
-                  <v-list-item-title class="text-wrap text-body-2">
-                    {{ warning.message }}
-                  </v-list-item-title>
-
-                  <v-list-item-subtitle v-if="warning.location.expression" class="text-wrap text-caption">
-                    <code>{{ warning.location.expression }}</code>
-                  </v-list-item-subtitle>
-
-                  <v-list-item-subtitle v-if="warning.suggestion" class="text-wrap text-caption mt-1">
-                    💡 {{ warning.suggestion }}
-                  </v-list-item-subtitle>
-                </v-list-item>
-              </v-list>
-
-              <div v-if="efsmWarnings.length > 10" class="text-caption text-center mt-2 text-medium-emphasis">
-                ... and {{ efsmWarnings.length - 10 }} more warnings
-              </div>
-            </div>
-          </v-expansion-panel-text>
-        </v-expansion-panel>
       </v-expansion-panels>
     </v-card-text>
 
@@ -500,11 +420,10 @@
 import { computed, ref, watch } from 'vue'
 import { useProtocolStore } from '@/store/ProtocolStore'
 import { useFSMAnalysis } from '@/composables/useFSMAnalysis'
-import { analyzeEFSM } from '@/utils/efsm/variableAnalysis'
-import { generateDeadlockDetails } from '@/utils/efsm/traceGenerator'
+import { generateDeadlockDetails } from '@/utils/fsm/traceGenerator'
 import { detectDeadlocks } from '@/utils/fsm/deadlock'
 import type { FSMAnalysisNode, FSMAnalysisEdge } from '@/contracts/models'
-import type { DeadlockDetails, GuardWarning } from '@/contracts/models'
+import type { DeadlockDetails } from '@/contracts/models'
 import DeadlockDetailsModal from './DeadlockDetailsModal.vue'
 
 const protocolStore = useProtocolStore()
@@ -514,8 +433,6 @@ const hasAnalysis = ref(false)
 const hasChanges = ref(false)
 const isAnalyzing = ref(false)
 const lastAnalyzedVersion = ref<string | null>(null)
-const efsmWarnings = ref<GuardWarning[]>([])
-const efsmStats = ref<any>(null)
 const showDeadlockModal = ref(false)
 const selectedDeadlockDetails = ref<DeadlockDetails | null>(null)
 
@@ -542,11 +459,7 @@ const edges = computed<FSMAnalysisEdge[]>(() => {
     target: edge.target,
     data: {
       event: edge.data?.event,
-      condition: edge.data?.use_protocol_conditions
-        ? { type: 'protocol', conditions: edge.data?.protocol_conditions }
-        : edge.data?.condition
-        ? { type: 'manual', text: edge.data?.condition }
-        : undefined,
+      condition: edge.data?.condition || undefined,
       action: edge.data?.action
     }
   }))
@@ -561,27 +474,17 @@ const { metrics, properties, issues, deadlocks, deadlockAnalysis } = useFSMAnaly
 async function runVerification() {
   isAnalyzing.value = true
 
-  // Run EFSM analysis if variables are defined
   const variables = currentFSM.value?.variables || []
   const events = currentFSM.value?.events || []
   if (variables.length > 0) {
-    console.log('🔬 Running EFSM verification with variables:', variables);
-    const analysis = analyzeEFSM(nodes.value, edges.value, variables)
-    efsmWarnings.value = analysis.warnings
-    efsmStats.value = analysis.stats
-
     // Run BFS-based deadlock detection with guard evaluation
     try {
       const result = await detectDeadlocks(nodes.value, edges.value, variables, events, true)
-      console.log('Deadlock analysis results:', result);
-      // Update the composable's deadlock analysis to show results in UI
       deadlockAnalysis.value = result
     } catch (error) {
       console.error('Error during EFSM verification:', error);
     }
   } else {
-    efsmWarnings.value = []
-    efsmStats.value = null
     // Reset deadlock analysis when no variables
     deadlockAnalysis.value = {
       progressDeadlocks: [],
@@ -615,7 +518,6 @@ async function showDeadlockInfo(stateId: string, deadlockType: 'progress' | 'ter
     nodes.value,
     edges.value,
     variables,
-    efsmWarnings.value
   )
 
   if (details) {
@@ -655,11 +557,11 @@ function getStateLabel(stateId: string): string {
 // Helper to format guard object for display
 function formatGuard(guard: any): string {
   if (!guard) return '(none)'
+  if (guard.type === 'manual' && guard.text) {
+    return guard.text
+  }
   if (guard.type === 'manual' && guard.manualExpression) {
     return guard.manualExpression
-  }
-  if (guard.type === 'protocol' && guard.conditions) {
-    return JSON.stringify(guard.conditions)
   }
   if (typeof guard === 'string') {
     return guard
@@ -667,32 +569,6 @@ function formatGuard(guard: any): string {
   return JSON.stringify(guard)
 }
 
-// Helper functions for warning severity
-function getWarningSeverityColor(severity: string): string {
-  switch (severity) {
-    case 'error':
-      return 'error'
-    case 'warning':
-      return 'warning'
-    case 'info':
-      return 'info'
-    default:
-      return 'grey'
-  }
-}
-
-function getWarningSeverityIcon(severity: string): string {
-  switch (severity) {
-    case 'error':
-      return 'mdi-close-circle'
-    case 'warning':
-      return 'mdi-alert'
-    case 'info':
-      return 'mdi-information'
-    default:
-      return 'mdi-help-circle'
-  }
-}
 </script>
 
 <style scoped>

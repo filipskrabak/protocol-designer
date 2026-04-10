@@ -15,7 +15,7 @@ const state = {
 
 export function useCPNDragAndDrop() {
   const { draggedType, isDragOver, isDragging } = state
-  const { addNodes, screenToFlowCoordinate, onNodesInitialized, updateNode } = useVueFlow()
+  const { addNodes, nodes, screenToFlowCoordinate, onNodesInitialized, updateNode } = useVueFlow()
 
   watch(isDragging, (dragging) => {
     document.body.style.userSelect = dragging ? 'none' : ''
@@ -67,7 +67,7 @@ export function useCPNDragAndDrop() {
 
     if (type === 'place') {
       const data: CPNPlaceNodeData = {
-        label: `P${(cpn?.places?.length ?? 0) + 1}`,
+        label: `P${nodes.value.filter(n => n.type === 'cpnPlace').length + 1}`,
         colorSetId: defaultColorSetId,
         colorSetName: cpn?.colorSets?.[0]?.name,
         initialMarking: '',
@@ -76,7 +76,7 @@ export function useCPNDragAndDrop() {
       newNode = { id: nodeId, type: 'cpnPlace', position, data }
     } else {
       const data: CPNTransitionNodeData = {
-        label: `T${(cpn?.transitions?.length ?? 0) + 1}`,
+        label: `T${nodes.value.filter(n => n.type === 'cpnTransition').length + 1}`,
         kind: 'transition',
       }
       newNode = { id: nodeId, type: 'cpnTransition', position, data }

@@ -2,14 +2,12 @@
 // Uses backend API for Z3 SMT solving
 
 import axios from 'axios';
-import type { ProtocolFieldCondition } from '@/contracts/models';
 
 /**
  * Guard representation that can be checked for satisfiability
  */
 export interface Guard {
-  type: 'protocol' | 'manual' | 'always_true';
-  protocolConditions?: ProtocolFieldCondition[];
+  type: 'manual' | 'always_true';
   manualExpression?: string;
 }
 
@@ -77,34 +75,9 @@ export async function areGuardsComplete(
  * Convert FSM edge data to Guard object
  */
 export function edgeDataToGuard(edgeData: any): Guard {
-  // Handle legacy condition structure (object with type property)
   const condition = edgeData?.condition;
 
-  if (condition && typeof condition === 'object') {
-    if (condition.type === 'protocol' && condition.conditions?.length > 0) {
-      return {
-        type: 'protocol',
-        protocolConditions: condition.conditions,
-      };
-    }
-
-    if (condition.type === 'manual' && condition.text?.trim()) {
-      return {
-        type: 'manual',
-        manualExpression: condition.text.trim(),
-      };
-    }
-  }
-
-  // Check if using protocol conditions (new structure)
-  if (edgeData?.use_protocol_conditions && edgeData?.protocol_conditions?.length > 0) {
-    return {
-      type: 'protocol',
-      protocolConditions: edgeData.protocol_conditions,
-    };
-  }
-
-  // Check if condition is a direct string (alternative structure)
+  // Condition is a string expression
   if (typeof condition === 'string' && condition.trim() !== '') {
     return {
       type: 'manual',
