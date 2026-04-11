@@ -56,7 +56,9 @@ function buildSCXMLElement(fsm: FiniteStateMachine): Element {
   scxmlEl.setAttribute("xmlns", SCXML_NS);
   scxmlEl.setAttribute("xmlns:pd", PD_NS);
   scxmlEl.setAttribute("version", "1.0");
-  scxmlEl.setAttribute("name", fsm.name);
+  // xs:NMTOKEN forbids spaces - __ (space placeholder) and any remaining
+  // non-NMTOKEN chars are replaced with '_' for schema compliance.
+  scxmlEl.setAttribute("name", fsm.name.replace(/[^a-zA-Z0-9._\-:]/g, "_"));
 
   // Set initial state
   const initialNode = fsm.nodes.find((n) => n.data.isInitial);

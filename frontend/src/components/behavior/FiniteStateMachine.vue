@@ -51,8 +51,10 @@
               label="FSM Name"
               density="compact"
               variant="outlined"
-              style="min-width: 200px"
+              style="min-width: 220px"
               prepend-icon="mdi-rename-box"
+              :rules="fsmNameRules"
+              persistent-hint
             />
           </v-col>
 
@@ -375,13 +377,28 @@ const currentFSM = computed(() => {
   return protocolStore.getCurrentFSM()
 })
 
-// Computed property for FSM name binding
+
+const SPACE_PLACEHOLDER = '__'
+const fsmNameToDisplay = (stored: string) => stored.replaceAll(SPACE_PLACEHOLDER, ' ')
+const fsmNameToStore  = (display: string) => display.replace(/ /g, SPACE_PLACEHOLDER)
+
+const fsmNameRules = [
+  (v: string) => !!v || 'Name is required',
+  (v: string) => {
+    const encoded = fsmNameToStore(v)
+    const invalid = [...encoded].filter(c => !/[a-zA-Z0-9._\-:]/.test(c))
+    if (invalid.length === 0) return true
+    const unique = [...new Set(invalid)].map(c => `'${c}'`).join(', ')
+    return `Invalid characters: ${unique}. Only letters, digits, . - _ : and spaces are allowed.`
+  }
+]
+
 const fsmName = computed({
-  get: () => currentFSM.value?.name || '',
+  get: () => fsmNameToDisplay(currentFSM.value?.name || ''),
   set: (value: string) => {
     const fsm = currentFSM.value
     if (fsm) {
-      fsm.name = value
+      fsm.name = fsmNameToStore(value)
       fsm.updated_at = new Date().toISOString()
       protocolStore.updateFSM(fsm.id, fsm)
     }

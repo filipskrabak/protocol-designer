@@ -1235,7 +1235,8 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
       // Create root <scxml:scxml> element
       const scxmlElement = document.createElementNS(scxmlNamespace, "scxml:scxml");
       scxmlElement.setAttribute("version", "1.0");
-      scxmlElement.setAttribute("name", fsm.name);
+      // xs:NMTOKEN forbids spaces and special chars, replace any non-NMTOKEN char with '_'
+      scxmlElement.setAttribute("name", fsm.name.replace(/[^a-zA-Z0-9._\-:]/g, "_"));
       scxmlElement.setAttribute("xmlns:pd", pdNamespace);
 
       // Find and set initial state
@@ -1431,7 +1432,8 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
      * @returns FiniteStateMachine object
      */
     parseSCXMLToFSM(scxmlElement: Element): import("@/contracts/models").FiniteStateMachine {
-      const name = scxmlElement.getAttribute("name") || "Unnamed FSM";
+      // Decode __ back to spaces (__ is the NMTOKEN-safe space placeholder used on export)
+      const name = (scxmlElement.getAttribute("name") || "Unnamed FSM").replaceAll("__", " ");
       const initialStateId = scxmlElement.getAttribute("initial");
 
       // Parse datamodel for metadata and EFSM variables
