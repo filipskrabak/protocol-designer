@@ -19,15 +19,6 @@
           :error-messages="inscriptionError ? [inscriptionError] : []"
         />
 
-        <v-select
-          v-model="form.arcType"
-          :items="arcTypeItems"
-          label="Arc Type"
-          variant="outlined"
-          density="compact"
-          class="mb-3"
-        />
-
         <v-textarea
           v-model="form.description"
           label="Description (optional)"
@@ -67,14 +58,10 @@ const emit = defineEmits<{
   delete: [edgeId: string]
 }>()
 
-const arcTypeItems = [
-  { title: 'Normal', value: 'normal' },
-  { title: 'Inhibitor', value: 'inhibitor' },
-]
+
 
 const form = ref<CPNArcEdgeData>({
   inscription: '1`x',
-  arcType: 'normal',
   description: '',
 })
 
@@ -84,7 +71,6 @@ watch(
     if (!data) return
     form.value = {
       inscription: data.inscription ?? '1`x',
-      arcType: data.arcType ?? 'normal',
       description: data.description ?? '',
     }
   },

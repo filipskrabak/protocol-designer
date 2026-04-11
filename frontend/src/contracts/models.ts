@@ -385,7 +385,6 @@ export interface CPNTransitionNodeData {
 /** Data payload for a CPN arc edge in the VueFlow canvas. */
 export interface CPNArcEdgeData {
   inscription: string;
-  arcType?: 'normal' | 'inhibitor';
   description?: string;
 }
 

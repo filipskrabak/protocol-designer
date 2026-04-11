@@ -32,7 +32,7 @@
       fill="none"
       :stroke="selected ? '#7b1fa2' : '#374151'"
       stroke-width="2"
-      :stroke-dasharray="data?.arcType === 'inhibitor' ? '6,3' : undefined"
+
       :marker-end="`url(#cpn-arrow-${id})`"
       class="cpn-arc-path"
       :class="{ 'cpn-selected': selected }"
