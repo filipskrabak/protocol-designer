@@ -2,7 +2,9 @@
   <div class="fsm-state-node" :class="{ 'initial': data.isInitial, 'final': data.isFinal }">
     <!-- Initial state indicator (arrow) -->
     <div v-if="data.isInitial" class="initial-arrow">
-      <v-icon size="16" color="success">mdi-play</v-icon>
+      <svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="2,2 14,8 2,14" fill="#4caf50" />
+      </svg>
     </div>
 
     <!-- Main state circle -->

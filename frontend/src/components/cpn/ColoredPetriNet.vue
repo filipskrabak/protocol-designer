@@ -227,6 +227,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, markRaw, ref, watch } from 'vue'
+import { downloadCanvasPng } from '@/utils/exports/downloadCanvasPng'
 import { VueFlow, useVueFlow, ConnectionMode, ConnectionLineType, MarkerType } from '@vue-flow/core'
 import { Background } from '@vue-flow/background'
 import { Controls } from '@vue-flow/controls'
@@ -269,7 +270,7 @@ const connectionLineOptions = {
   markerEnd: { type: MarkerType.ArrowClosed, width: 18, height: 18, color: '#374151' },
 }
 
-const { addEdges, nodes, edges, setNodes, setEdges } = useVueFlow()
+const { addEdges, nodes, edges, setNodes, setEdges, vueFlowRef } = useVueFlow()
 const { onDragOver, onDrop, onDragLeave } = useCPNDragAndDrop()
 const { saveCPNFromCanvas, loadCPNToCanvas } = useCPNPersistence(nodes, edges, setNodes, setEdges)
 
@@ -378,6 +379,11 @@ const cpnExportItems = computed<ExportDropdownItem[]>(() => [
     label: 'CPN Tools (.cpn)',
     onClick: downloadCPNTools,
   },
+  {
+    id: 'png',
+    label: 'PNG Image (.png)',
+    onClick: downloadCPNPng,
+  },
 ])
 
 //  Export helpers
@@ -389,6 +395,17 @@ function downloadFile(content: string, filename: string, mimeType: string) {
   a.download = filename
   a.click()
   URL.revokeObjectURL(url)
+}
+
+async function downloadCPNPng() {
+  const cpn = currentCPN.value
+  if (!cpn || !vueFlowRef.value) return
+  const safeName = cpn.name.replace(/[^a-zA-Z0-9_-]/g, '_')
+  try {
+    await downloadCanvasPng(vueFlowRef.value, `${safeName}.png`)
+  } catch (e) {
+    console.error('CPN PNG export failed:', e)
+  }
 }
 
 function downloadPNML() {

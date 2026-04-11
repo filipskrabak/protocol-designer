@@ -249,6 +249,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, markRaw, watch } from 'vue'
+import { downloadCanvasPng } from '@/utils/exports/downloadCanvasPng'
 import { VueFlow, useVueFlow, MarkerType, ConnectionMode, ConnectionLineType } from '@vue-flow/core'
 import { Background } from '@vue-flow/background'
 import { Controls } from '@vue-flow/controls'
@@ -289,7 +290,7 @@ const connectionLineOptions = {
   }
 }
 
-const { onConnect, addEdges, nodes, edges, setNodes, setEdges } = useVueFlow()
+const { onConnect, addEdges, nodes, edges, setNodes, setEdges, vueFlowRef } = useVueFlow()
 
 // Drag and drop functionality
 const { onDragOver, onDrop, onDragLeave, isDragOver, updateIdCounter } = useFSMDragAndDrop()
@@ -416,6 +417,17 @@ function downloadFile(content: string, filename: string, mimeType: string) {
   URL.revokeObjectURL(url)
 }
 
+async function downloadFSMPng() {
+  const fsm = currentFSM.value
+  if (!fsm || !vueFlowRef.value) return
+  const safeName = (fsm.name || 'fsm').replace(/[^a-zA-Z0-9_-]/g, '_')
+  try {
+    await downloadCanvasPng(vueFlowRef.value, `${safeName}.png`)
+  } catch (e) {
+    console.error('FSM PNG export failed:', e)
+  }
+}
+
 function downloadFSMSCXML() {
   const fsm = currentFSM.value
   if (!fsm) return
@@ -428,6 +440,11 @@ const fsmExportItems = computed<ExportDropdownItem[]>(() => [
     id: 'scxml',
     label: 'SCXML (.scxml)',
     onClick: downloadFSMSCXML,
+  },
+  {
+    id: 'png',
+    label: 'PNG Image (.png)',
+    onClick: downloadFSMPng,
   },
 ])
 

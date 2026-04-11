@@ -31,7 +31,7 @@ export function exportToPNML(cpn: ColoredPetriNet): string {
     `<pnml xmlns="${PNML_NS}">`,
   );
   lines.push(
-    `  <net id="${esc(cpn.id)}" type="${HLPNG_NS}">`,
+    `  <net id="${xmlId(esc(cpn.id))}" type="${HLPNG_NS}">`,
   );
   lines.push(`    <name><text>${esc(cpn.name)}</text></name>`);
   // Non-standard fields stored in <toolspecific> per ISO 15909-2 §7.3.3
@@ -52,11 +52,9 @@ export function exportToPNML(cpn: ColoredPetriNet): string {
     const cs = cpn.colorSets.find(c => c.id === v.colorSetId);
     if (!cs) continue;
     lines.push(
-      `          <variabledecl id="${esc(v.id)}" name="${esc(v.name)}">`,
+      `          <variabledecl id="${xmlId(esc(v.id))}" name="${esc(v.name)}">`,
     );
-    lines.push(`            <type>`);
-    lines.push(`              <usersort declaration="${esc(cs.name)}"/>`);
-    lines.push(`            </type>`);
+    lines.push(`            <usersort declaration="${esc(cs.name)}"/>`);
     lines.push(`          </variabledecl>`);
   }
 
@@ -192,7 +190,7 @@ export function validatePNML(xml: string): string[] {
 
 function serializeColorSet(cs: ColorSet): string[] {
   const lines: string[] = [];
-  lines.push(`          <namedsort id="${esc(cs.id)}" name="${esc(cs.name)}">`);
+    lines.push(`          <namedsort id="${xmlId(esc(cs.id))}" name="${esc(cs.name)}">`,);
 
   switch (cs.type) {
     case "bool":
@@ -202,17 +200,14 @@ function serializeColorSet(cs: ColorSet): string[] {
     case "int": {
       const min = cs.intMin ?? 0;
       const max = cs.intMax ?? 255;
-      lines.push(`            <intrange>`);
-      lines.push(`              <start><value><numberconstant value="${min}"><positive/></numberconstant></value></start>`);
-      lines.push(`              <end><value><numberconstant value="${max}"><positive/></numberconstant></value></end>`);
-      lines.push(`            </intrange>`);
+      lines.push(`            <finiteintrange start="${min}" end="${max}"/>`);
       break;
     }
 
     case "enum": {
       lines.push(`            <finiteenumeration>`);
       for (const v of cs.enumValues ?? []) {
-        lines.push(`              <feconstant id="${esc(cs.id + "_" + v)}" name="${esc(v)}"/>`);
+        lines.push(`              <feconstant id="${xmlId(esc(cs.id + "_" + v))}" name="${esc(v)}"/>`);
       }
       lines.push(`            </finiteenumeration>`);
       break;
@@ -222,7 +217,7 @@ function serializeColorSet(cs: ColorSet): string[] {
     default:
       // Represent 'unit' as a single-element finiteenumeration named "unit"
       lines.push(`            <finiteenumeration>`);
-      lines.push(`              <feconstant id="${esc(cs.id + "_unit")}" name="unit"/>`);
+      lines.push(`              <feconstant id="${xmlId(esc(cs.id + "_unit"))}" name="unit"/>`);
       lines.push(`            </finiteenumeration>`);
       break;
   }
@@ -237,7 +232,7 @@ function serializePlace(place: CPNPlace, cpn: ColoredPetriNet): string[] {
   const x = Math.round(place.position.x);
   const y = Math.round(place.position.y);
 
-  lines.push(`      <place id="${esc(place.id)}">`);
+  lines.push(`      <place id="${xmlId(esc(place.id))}">`,);
   lines.push(`        <name><text>${esc(place.name)}</text></name>`);
   lines.push(`        <graphics><position x="${x}" y="${y}"/></graphics>`);
 
@@ -250,11 +245,9 @@ function serializePlace(place: CPNPlace, cpn: ColoredPetriNet): string[] {
   }
 
   if (place.initialMarking && place.initialMarking !== "0" && place.initialMarking !== "") {
-    lines.push(`        <initialMarking>`);
-    lines.push(`          <structure>`);
-    lines.push(`            <useroperator declaration="${esc(place.initialMarking)}"/>`);
-    lines.push(`          </structure>`);
-    lines.push(`        </initialMarking>`);
+    lines.push(`        <hlinitialMarking>`);
+    lines.push(`          <text>${esc(place.initialMarking)}</text>`);
+    lines.push(`        </hlinitialMarking>`);
   }
 
   if (place.description) {
@@ -272,15 +265,13 @@ function serializeTransition(tr: CPNTransition): string[] {
   const x = Math.round(tr.position.x);
   const y = Math.round(tr.position.y);
 
-  lines.push(`      <transition id="${esc(tr.id)}">`);
+  lines.push(`      <transition id="${xmlId(esc(tr.id))}">`,);
   lines.push(`        <name><text>${esc(tr.name)}</text></name>`);
   lines.push(`        <graphics><position x="${x}" y="${y}"/></graphics>`);
 
   if (tr.guard) {
     lines.push(`        <condition>`);
-    lines.push(`          <structure>`);
-    lines.push(`            <useroperator declaration="${esc(tr.guard)}"/>`);
-    lines.push(`          </structure>`);
+    lines.push(`          <text>${esc(tr.guard)}</text>`);
     lines.push(`        </condition>`);
   }
 
@@ -300,12 +291,10 @@ function serializeArc(arc: CPNArc): string[] {
   // same VueFlow edge direction. arcType is stored in <toolspecific> so
   // parseArc does not have to infer it from node types (which breaks when
   // source/target were previously swapped).
-  lines.push(`      <arc id="${esc(arc.id)}" source="${esc(arc.sourceId)}" target="${esc(arc.targetId)}">`);
-  lines.push(`        <inscription>`);
-  lines.push(`          <structure>`);
-  lines.push(`            <useroperator declaration="${esc(arc.inscription)}"/>`);
-  lines.push(`          </structure>`);
-  lines.push(`        </inscription>`);
+  lines.push(`      <arc id="${xmlId(esc(arc.id))}" source="${xmlId(esc(arc.sourceId))}" target="${xmlId(esc(arc.targetId))}">`,);
+  lines.push(`        <hlinscription>`);
+  lines.push(`          <text>${esc(arc.inscription)}</text>`);
+  lines.push(`        </hlinscription>`);
 
   // Always write toolspecific so arcType is preserved exactly on round-trip
   lines.push(`        <toolspecific tool="protocol-designer" version="1.0">`);
@@ -334,6 +323,20 @@ function parseNamedSort(el: Element, warnings: string[]): ColorSet | null {
   if (intrangeEl) {
     const startVal = intrangeEl.querySelector("start numberconstant")?.getAttribute("value");
     const endVal = intrangeEl.querySelector("end numberconstant")?.getAttribute("value");
+    return {
+      id,
+      name,
+      type: "int",
+      intMin: startVal != null ? parseInt(startVal, 10) : 0,
+      intMax: endVal != null ? parseInt(endVal, 10) : 255,
+    };
+  }
+
+  // Standard PNML finiteintrange (ISO 15909-2)
+  const finiteIntrangeEl = el.querySelector("finiteintrange");
+  if (finiteIntrangeEl) {
+    const startVal = finiteIntrangeEl.getAttribute("start");
+    const endVal = finiteIntrangeEl.getAttribute("end");
     return {
       id,
       name,
@@ -391,8 +394,15 @@ function parsePlace(
     warnings.push(`Place "${name}": unknown type "${sortRef}" — using first color set or empty`);
   }
 
-  const initialMarking =
-    el.querySelector("initialMarking structure useroperator")?.getAttribute("declaration") ?? "";
+  const initialMarking = (
+    // new format: <hlinitialMarking><text>EXPR</text></hlinitialMarking>
+    el.querySelector("hlinitialMarking > text")?.textContent?.trim() ??
+    // legacy format: <hlinitialMarking><structure><useroperator declaration="EXPR"/></structure></hlinitialMarking>
+    el.querySelector("hlinitialMarking structure useroperator")?.getAttribute("declaration") ??
+    // pre-fix legacy: <initialMarking><structure><useroperator .../></structure></initialMarking>
+    el.querySelector("initialMarking structure useroperator")?.getAttribute("declaration") ??
+    ""
+  );
 
   const pos = parsePosition(el);
 
@@ -415,8 +425,13 @@ function parseTransition(el: Element, warnings: string[]): CPNTransition | null 
     return null;
   }
   const name = textContent(el, "name > text") ?? id;
-  const guard =
-    el.querySelector("condition structure useroperator")?.getAttribute("declaration") ?? undefined;
+  const guard = (
+    // new format: <condition><text>EXPR</text></condition>
+    el.querySelector("condition > text")?.textContent?.trim() ??
+    // legacy: <condition><structure><useroperator declaration="EXPR"/></structure></condition>
+    el.querySelector("condition structure useroperator")?.getAttribute("declaration") ??
+    undefined
+  ) || undefined;
   const position = parsePosition(el);
   const description = findDirectChildToolspecific(el)?.querySelector("description")?.textContent ?? undefined;
   return { id, name, guard, position, description: description || undefined };
@@ -435,8 +450,15 @@ function parseArc(
     warnings.push(`Arc "${id}" missing source/target — skipped`);
     return null;
   }
-  const inscription =
-    el.querySelector("inscription structure useroperator")?.getAttribute("declaration") ?? "1`x";
+  const inscription = (
+    // new format: <hlinscription><text>EXPR</text></hlinscription>
+    el.querySelector("hlinscription > text")?.textContent?.trim() ??
+    // legacy: <hlinscription><structure><useroperator declaration="EXPR"/></structure></hlinscription>
+    el.querySelector("hlinscription structure useroperator")?.getAttribute("declaration") ??
+    // pre-fix legacy: <inscription><structure><useroperator .../></structure></inscription>
+    el.querySelector("inscription structure useroperator")?.getAttribute("declaration") ??
+    "1`x"
+  );
 
   const ts = findDirectChildToolspecific(el);
   const storedArcType = ts?.querySelector("arcType")?.textContent as "place-to-transition" | "transition-to-place" | null | undefined;
@@ -502,6 +524,15 @@ function findDirectChildToolspecific(el: Element): Element | null {
 
 function textContent(el: Element, selector: string): string | null {
   return el.querySelector(selector)?.textContent ?? null;
+}
+
+/**
+ * Returns a valid xsd:NCName for use as an XML id/idref attribute.
+ * xsd:NCName must start with a letter or underscore — UUIDs starting with a
+ * hex digit (0-9) are therefore invalid. We prefix those with "id_".
+ */
+function xmlId(id: string): string {
+  return /^\d/.test(id) ? `id_${id}` : id
 }
 
 /**
