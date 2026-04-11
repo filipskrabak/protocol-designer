@@ -59,49 +59,6 @@
             hint="Additional notes about this state"
           ></v-textarea>
 
-          <!-- Metadata -->
-          <v-expansion-panels variant="accordion" class="mb-3">
-            <v-expansion-panel>
-              <v-expansion-panel-title>
-                <v-icon class="me-2">mdi-cog</v-icon>
-                Advanced Properties
-              </v-expansion-panel-title>
-              <v-expansion-panel-text>
-                <v-text-field
-                  v-model="localData.metadata!.timeout"
-                  label="Timeout (ms)"
-                  type="number"
-                  placeholder="e.g., 5000"
-                  prepend-icon="mdi-timer"
-                  density="comfortable"
-                  variant="outlined"
-                  class="mb-3"
-                  hint="Optional timeout for this state"
-                ></v-text-field>
-
-                <v-text-field
-                  v-model="localData.metadata!.entryAction"
-                  label="Entry Action"
-                  placeholder="e.g., startTimer(), showLoader()"
-                  prepend-icon="mdi-login"
-                  density="comfortable"
-                  variant="outlined"
-                  class="mb-3"
-                  hint="Action to execute when entering this state"
-                ></v-text-field>
-
-                <v-text-field
-                  v-model="localData.metadata!.exitAction"
-                  label="Exit Action"
-                  placeholder="e.g., stopTimer(), hideLoader()"
-                  prepend-icon="mdi-logout"
-                  density="comfortable"
-                  variant="outlined"
-                  hint="Action to execute when leaving this state"
-                ></v-text-field>
-              </v-expansion-panel-text>
-            </v-expansion-panel>
-          </v-expansion-panels>
         </v-form>
       </v-card-text>
 
@@ -168,7 +125,6 @@ const localData = reactive<FSMNodeData>({
   isInitial: false,
   isFinal: false,
   description: '',
-  metadata: {} as Record<string, any>
 })
 
 // State type for easy switching
@@ -205,7 +161,6 @@ watch(
         isInitial: newData.isInitial || false,
         isFinal: newData.isFinal || false,
         description: newData.description || '',
-        metadata: newData.metadata ? { ...newData.metadata } : {}
       })
     } else {
       // Reset to default values
@@ -214,7 +169,6 @@ watch(
         isInitial: false,
         isFinal: false,
         description: '',
-        metadata: {}
       })
     }
   },
@@ -239,27 +193,11 @@ function closeDialog() {
 
 function saveState() {
   if (props.nodeId && localData.label?.trim()) {
-    // Clean up empty metadata values
-    const cleanMetadata: Record<string, any> = {}
-
-    if (localData.metadata?.timeout) {
-      cleanMetadata.timeout = parseInt(localData.metadata.timeout)
-    }
-
-    if (localData.metadata?.entryAction?.trim()) {
-      cleanMetadata.entryAction = localData.metadata.entryAction.trim()
-    }
-
-    if (localData.metadata?.exitAction?.trim()) {
-      cleanMetadata.exitAction = localData.metadata.exitAction.trim()
-    }
-
     const cleanData: FSMNodeData = {
       label: localData.label.trim(),
       isInitial: localData.isInitial,
       isFinal: localData.isFinal,
       description: localData.description?.trim() || undefined,
-      metadata: Object.keys(cleanMetadata).length > 0 ? cleanMetadata : undefined
     }
 
     emit('save', props.nodeId, cleanData)

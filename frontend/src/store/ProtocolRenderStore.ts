@@ -1339,11 +1339,6 @@ export const useProtocolRenderStore = defineStore("ProtocolRenderStore", {
         stateElement.setAttribute("pd:position_x", String(node.position.x));
         stateElement.setAttribute("pd:position_y", String(node.position.y));
 
-        // Store state metadata if present
-        if (node.data.metadata) {
-          stateElement.setAttribute("pd:metadata", JSON.stringify(node.data.metadata));
-        }
-
         // Find and add transitions from this state
         const outgoingEdges = fsm.edges.filter(e => e.source === node.id);
         outgoingEdges.forEach(edge => {

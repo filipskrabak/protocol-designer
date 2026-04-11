@@ -150,14 +150,6 @@ function buildSCXMLElement(fsm: FiniteStateMachine): Element {
     stateEl.setAttributeNS(PD_NS, "pd:label", node.data.label);
     stateEl.setAttributeNS(PD_NS, "pd:position_x", String(node.position.x));
     stateEl.setAttributeNS(PD_NS, "pd:position_y", String(node.position.y));
-    if (node.data.metadata) {
-      stateEl.setAttributeNS(
-        PD_NS,
-        "pd:metadata",
-        JSON.stringify(node.data.metadata)
-      );
-    }
-
     // Outgoing transitions (not placed inside <final> — SCXML <final> nodes
     // have no outgoing transitions by definition, so we only add them to
     // <state> nodes)

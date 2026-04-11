@@ -114,7 +114,6 @@ export interface FSMNodeData {
   isInitial: boolean;
   isFinal: boolean;
   description?: string;
-  metadata?: Record<string, any>; // For additional state properties
 }
 
 export interface FSMNode {
