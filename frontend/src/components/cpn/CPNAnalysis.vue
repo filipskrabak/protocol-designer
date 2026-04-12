@@ -65,6 +65,17 @@
       Exploration stopped at {{ results!.stateCount }} markings due to exploration limit.
     </v-alert>
 
+    <!-- Integer range cap warning -->
+    <v-alert
+      v-if="results?.intRangeCapped"
+      type="warning"
+      variant="tonal"
+      density="compact"
+      class="ma-4"
+    >
+      One or more integer color sets exceeded the enumeration limit (256 values) and were silently truncated. Reachability results may be incomplete.
+    </v-alert>
+
     <v-divider />
 
     <!-- No CPN selected -->
@@ -489,6 +500,15 @@ async function runAnalysis() {
     if (verification.truncated || verification.bindingLimitHit) {
       notificationStore.showNotification({
         message: `Exploration stopped at ${verification.stateCount} markings. Results may be incomplete.`,
+        timeout: 6000,
+        color: 'warning',
+        icon: 'mdi-alert',
+      })
+    }
+
+    if (verification.intRangeCapped) {
+      notificationStore.showNotification({
+        message: 'Integer color set(s) were truncated during enumeration. Results may be incomplete.',
         timeout: 6000,
         color: 'warning',
         icon: 'mdi-alert',

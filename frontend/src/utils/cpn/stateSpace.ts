@@ -78,6 +78,8 @@ export interface StateSpaceResult {
   truncated: boolean;
   /** Whether all possible bindings could not be enumerated (hit MAX_BINDINGS). */
   bindingLimitHit: boolean;
+  /** Whether any integer color set was silently capped to MAX_INT_RANGE values during enumeration. */
+  intRangeCapped: boolean;
   /** Total number of markings explored. */
   stateCount: number;
 }
@@ -381,6 +383,19 @@ export function exploreStateSpace(
   let bindingLimitHit = false;
   let totalBindingsFired = 0;
 
+  // Detect if any int color set used in this net exceeds MAX_INT_RANGE
+  let intRangeCapped = false;
+  for (const cs of colorSetsById.values()) {
+    if (cs.type === "int") {
+      const lo = cs.intMin ?? 0;
+      const hi = cs.intMax ?? 255;
+      if (hi - lo + 1 > MAX_INT_RANGE) {
+        intRangeCapped = true;
+        break;
+      }
+    }
+  }
+
   // Bootstrap initial marking
   const initialMarking = computeInitialMarking(cpn);
   const initialKey = markingToKey(initialMarking);
@@ -463,6 +478,7 @@ export function exploreStateSpace(
     enabledTransitions,
     truncated,
     bindingLimitHit,
+    intRangeCapped,
     stateCount: allMarkings.size,
   };
 }

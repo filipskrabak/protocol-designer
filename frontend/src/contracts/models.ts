@@ -356,6 +356,8 @@ export interface CPNVerificationResults {
   stateCount: number;
   truncated: boolean;
   bindingLimitHit: boolean;
+  /** Whether any integer color set was silently capped during enumeration. */
+  intRangeCapped: boolean;
   runAt: string; // ISO timestamp
 }
 

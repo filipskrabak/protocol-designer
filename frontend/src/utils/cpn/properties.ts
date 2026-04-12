@@ -303,6 +303,7 @@ export function checkAllProperties(
     stateCount: stateSpace.stateCount,
     truncated: stateSpace.truncated,
     bindingLimitHit: stateSpace.bindingLimitHit,
+    intRangeCapped: stateSpace.intRangeCapped,
     runAt: new Date().toISOString(),
   };
 }
