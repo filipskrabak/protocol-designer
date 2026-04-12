@@ -69,24 +69,6 @@
               prepend-icon="mdi-code-tags"
               persistent-hint
             ></v-text-field>
-
-            <!-- Quick insert: protocol field snippets -->
-            <div v-if="hasProtocolFields" class="mt-2">
-              <div class="text-caption text-medium-emphasis mb-1">Structure fields:</div>
-              <div class="d-flex flex-wrap ga-1">
-                <v-chip
-                  v-for="field in protocolFieldItems"
-                  :key="field.name"
-                  size="small"
-                  variant="outlined"
-                  clickable
-                  @click="insertFieldSnippet(field.name)"
-                  prepend-icon="mdi-code-tags"
-                >
-                  {{ field.display_name }}
-                </v-chip>
-              </div>
-            </div>
           </div>
 
           <!-- Action field -->
@@ -208,31 +190,6 @@ function getEventColor(type: EventType): string {
     case 'timeout': return 'orange'
     default: return 'grey'
   }
-}
-
-// Computed: Check if protocol has fields
-const hasProtocolFields = computed(() => {
-  return protocolStore.protocol.fields && protocolStore.protocol.fields.length > 0
-})
-
-// Computed: Protocol field variable names for quick-insert snippet
-const protocolFieldItems = computed(() => {
-  const fsm = protocolStore.getCurrentFSM()
-  const variables = fsm?.variables || []
-  return (protocolStore.protocol.fields || []).map(field => {
-    const variable = variables.find(v => v.description === field.description)
-    return {
-      id: field.id,
-      display_name: field.display_name,
-      name: variable?.name || field.display_name
-    }
-  })
-})
-
-// Append a field variable snippet to the condition expression
-function insertFieldSnippet(varName: string) {
-  const existing = localData.condition?.trim() || ''
-  localData.condition = existing ? `${existing} && ${varName} == ` : `${varName} == `
 }
 
 // Watch for prop changes to update local data
