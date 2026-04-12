@@ -73,7 +73,7 @@
       density="compact"
       class="ma-4"
     >
-      One or more integer color sets exceeded the enumeration limit (256 values) and were silently truncated. Reachability results may be incomplete.
+      One or more integer color sets exceeded the limit (256 values) and were silently truncated. Reachability results may be incomplete.
     </v-alert>
 
     <v-divider />
