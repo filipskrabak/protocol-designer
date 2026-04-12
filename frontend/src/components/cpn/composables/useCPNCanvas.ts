@@ -80,7 +80,7 @@ export function useCPNCanvas(
     }
 
     const edgeId = `cpn_arc_${uuidv4()}`
-    const arcData: CPNArcEdgeData = { inscription: '1`x', arcType: 'normal' }
+    const arcData: CPNArcEdgeData = { inscription: '1`x' }
 
     const newEdge = {
       id: edgeId,
