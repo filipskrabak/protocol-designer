@@ -301,30 +301,6 @@ export interface VariableState {
   [variableName: string]: number | boolean | string;
 }
 
-export interface GuardEvaluationTrace {
-  stateId: string;
-  stateLabel: string;
-  transition?: {
-    id: string;
-    event?: string;
-    guard?: string;
-    action?: string;
-  };
-  variableValues: VariableState;
-  guardResult?: boolean | 'unknown';
-  guardExpression?: string;
-}
-
-export type DeadlockType = 'progress' | 'circular' | 'starvation' | 'terminal';
-
-export interface DeadlockDetails {
-  type: DeadlockType;
-  shortestTrace: GuardEvaluationTrace[];
-  affectedStates: string[];
-  warnings: GuardWarning[];
-  description: string;
-}
-
 export interface TargetMarkingCondition {
   placeId: string;
   minTokens: number; // inclusive lower bound
@@ -491,7 +467,6 @@ export interface DeadlockAnalysis {
     maxDepthReached: number;
     timeElapsedMs: number;
   };
-  details?: Map<string, DeadlockDetails>;
 }
 
 export interface FSMProperties {

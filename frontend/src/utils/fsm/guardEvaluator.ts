@@ -6,6 +6,22 @@ import type { EFSMVariable, VariableState, GuardWarning } from '@/contracts/mode
 const { Parser } = ExprEval;
 
 /**
+ * fix conflicts with parser built in functions
+ */
+function createParser(variables: EFSMVariable[]): InstanceType<typeof Parser> {
+  const parser = new Parser();
+  for (const variable of variables) {
+    if ((parser as any).functions[variable.name] !== undefined) {
+      delete (parser as any).functions[variable.name];
+    }
+    if ((parser as any).unaryOps[variable.name] !== undefined) {
+      delete (parser as any).unaryOps[variable.name];
+    }
+  }
+  return parser;
+}
+
+/**
  * Parse and validate a guard expression
  */
 export function parseGuardExpression(expression: string, variables: EFSMVariable[]): {
@@ -23,7 +39,7 @@ export function parseGuardExpression(expression: string, variables: EFSMVariable
   }
 
   try {
-    const parser = new Parser();
+    const parser = createParser(variables);
     const parsedExpression = parser.parse(expression);
 
     // Get all variables used in the expression
@@ -90,7 +106,7 @@ export function evaluateGuard(
   }
 
   try {
-    const parser = new Parser();
+    const parser = createParser(variables);
     const parsedExpression = parser.parse(exprStr);
 
     // Validate all variables are defined
@@ -227,7 +243,7 @@ export function executeAction(
     return newState;
   }
 
-  const parser = new Parser();
+  const parser = createParser(variables);
   const variableMap = new Map(variables.map(v => [v.name, v]));
 
   for (const { variable, expression } of parseResult.assignments) {

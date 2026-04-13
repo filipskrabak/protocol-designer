@@ -360,18 +360,7 @@
               >
                 <div class="text-body-2">
                   <strong>State:</strong> {{ d.label }}
-                  <v-btn
-                    v-if="currentFSM?.variables && currentFSM.variables.length > 0"
-                    icon
-                    size="x-small"
-                    variant="text"
-                    color="primary"
-                    @click="showDeadlockInfo(d.stateId, 'progress')"
-                    class="ml-1"
-                  >
-                    <v-icon size="small">mdi-information</v-icon>
-                    <v-tooltip activator="parent">Show detailed trace</v-tooltip>
-                  </v-btn>
+
                 </div>
                 <div class="text-caption mt-1">
                   <strong>Reason:</strong> {{ d.reason }}
@@ -408,11 +397,6 @@
       </v-expansion-panels>
     </v-card-text>
 
-    <!-- Deadlock Details Modal -->
-    <DeadlockDetailsModal
-      v-model="showDeadlockModal"
-      :deadlock-details="selectedDeadlockDetails"
-    />
   </v-card>
 </template>
 
@@ -420,11 +404,8 @@
 import { computed, ref, watch } from 'vue'
 import { useProtocolStore } from '@/store/ProtocolStore'
 import { useFSMAnalysis } from '@/composables/useFSMAnalysis'
-import { generateDeadlockDetails } from '@/utils/fsm/traceGenerator'
 import { detectDeadlocks } from '@/utils/fsm/deadlock'
 import type { FSMAnalysisNode, FSMAnalysisEdge } from '@/contracts/models'
-import type { DeadlockDetails } from '@/contracts/models'
-import DeadlockDetailsModal from './DeadlockDetailsModal.vue'
 
 const protocolStore = useProtocolStore()
 
@@ -433,9 +414,6 @@ const hasAnalysis = ref(false)
 const hasChanges = ref(false)
 const isAnalyzing = ref(false)
 const lastAnalyzedVersion = ref<string | null>(null)
-const showDeadlockModal = ref(false)
-const selectedDeadlockDetails = ref<DeadlockDetails | null>(null)
-
 // Convert FSM data types to analysis types
 const nodes = computed<FSMAnalysisNode[]>(() => {
   if (!currentFSM.value?.nodes) return []
@@ -502,28 +480,6 @@ async function runVerification() {
     lastAnalyzedVersion.value = JSON.stringify({ nodes: nodes.value, edges: edges.value, variables })
     isAnalyzing.value = false
   }, 100)
-}
-
-// Show deadlock details
-async function showDeadlockInfo(stateId: string, deadlockType: 'progress' | 'terminal') {
-  const variables = currentFSM.value?.variables || []
-  if (variables.length === 0) {
-    // No variables, can't generate detailed trace
-    return
-  }
-
-  const details = generateDeadlockDetails(
-    stateId,
-    deadlockType,
-    nodes.value,
-    edges.value,
-    variables,
-  )
-
-  if (details) {
-    selectedDeadlockDetails.value = details
-    showDeadlockModal.value = true
-  }
 }
 
 // Watch for changes to FSM structure
