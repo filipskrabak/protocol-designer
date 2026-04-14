@@ -110,7 +110,10 @@
               v-for="stat in stats"
               :key="stat.label"
             >
-              <div class="stat-number">{{ stat.value }}</div>
+              <div
+                class="stat-number"
+                :class="{ 'stat-loading': stat.value === '\u2014' }"
+              >{{ stat.value }}</div>
               <div class="stat-label text-medium-emphasis">{{ stat.label }}</div>
             </v-col>
           </v-row>
@@ -149,8 +152,6 @@
                 rounded="xl"
                 elevation="0"
                 v-intersect="{ handler: onIntersect, options: { threshold: 0.2 } }"
-                :data-index="i"
-                :ref="(el) => { if (el) featureRefs[i] = el as any }"
               >
                 <v-card-text class="pa-6">
                   <div class="feature-icon-wrap mb-4">
@@ -330,13 +331,17 @@
 
 <script lang="ts" setup>
 import { ref, onMounted, onBeforeUnmount } from "vue";
+import axios from "axios";
 
 // -- Navbar scroll effect -----------------------------------------------------
 const scrolled = ref(false);
 function onScroll() {
   scrolled.value = window.scrollY > 60;
 }
-onMounted(() => window.addEventListener("scroll", onScroll));
+onMounted(() => {
+  window.addEventListener("scroll", onScroll);
+  fetchStats();
+});
 onBeforeUnmount(() => window.removeEventListener("scroll", onScroll));
 
 function scrollToFeatures() {
@@ -376,13 +381,40 @@ const packetFields = fieldNames.map((name) => {
   };
 });
 
-// -- Stats ---------------------------------------------------------------------
-const stats = [
+// -- Stats -------------------------------------------------------------------
+interface Stat { value: string; label: string }
+
+const stats = ref<Stat[]>([
   { value: "5+", label: "Export Formats" },
-  { value: "∞", label: "Protocols" },
-  { value: "3", label: "Analysis Engines" },
+  { value: "—", label: "Protocols Designed" },
+  { value: "—", label: "GitHub Stars" },
   { value: "100%", label: "Browser-based" },
-];
+]);
+
+async function fetchStats() {
+  const [protocolsRes, starsRes] = await Promise.allSettled([
+    axios.get("/stats"),
+    // GitHub API requires no credentials (their CORS uses wildcard origin)
+    fetch("https://api.github.com/repos/filipskrabak/protocol-designer").then((r) => r.json()),
+  ]);
+
+  stats.value = [
+    { value: "5+", label: "Export Formats" },
+    {
+      value: protocolsRes.status === "fulfilled"
+        ? String(protocolsRes.value.data.protocol_count)
+        : "—",
+      label: "Protocols Designed",
+    },
+    {
+      value: starsRes.status === "fulfilled"
+        ? String((starsRes.value as any).stargazers_count)
+        : "—",
+      label: "GitHub Stars",
+    },
+    { value: "100%", label: "Browser-based" },
+  ];
+}
 
 // -- Features -----------------------------------------------------------------
 const features = [
@@ -431,7 +463,7 @@ const features = [
 ];
 
 // -- Feature card intersection observer ---------------------------------------
-const featureRefs = ref<any[]>([]);
+
 function onIntersect(isIntersecting: boolean, entries: IntersectionObserverEntry[]) {
   if (isIntersecting) {
     const entry = entries[0];
@@ -470,21 +502,6 @@ const steps = [
     title: "Verify & Export",
     description: "Run formal analysis to catch bugs, then export your protocol in the format you need.",
   },
-];
-
-// -- Protocol preview bit-field diagram ---------------------------------------
-const protocolPreview = [
-  { name: "Version", bits: 4, color: "#4FC3F7" },
-  { name: "IHL", bits: 4, color: "#4FC3F7" },
-  { name: "DSCP", bits: 6, color: "#7C4DFF" },
-  { name: "ECN", bits: 2, color: "#7C4DFF" },
-  { name: "Total Length", bits: 16, color: "#26C6DA" },
-  { name: "Identification", bits: 16, color: "#4FC3F7" },
-  { name: "Flags", bits: 3, color: "#7C4DFF" },
-  { name: "Fragment Offset", bits: 13, color: "#26C6DA" },
-  { name: "TTL", bits: 8, color: "#4FC3F7" },
-  { name: "Protocol", bits: 8, color: "#7C4DFF" },
-  { name: "Header Checksum", bits: 16, color: "#26C6DA" },
 ];
 </script>
 
@@ -632,6 +649,11 @@ const protocolPreview = [
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  transition: opacity 0.3s ease;
+}
+
+.stat-number.stat-loading {
+  opacity: 0.35;
 }
 
 .stat-label {
