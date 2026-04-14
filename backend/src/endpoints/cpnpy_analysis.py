@@ -120,10 +120,51 @@ def _sml_guard_to_python(raw: str) -> str:
 
 
 def _sml_arc_to_python(expr: str) -> str:
+    """
+    Convert a CPN Tools SML arc inscription to a valid Python expression
+    that cpnpy's EvaluationContext.evaluate_arc() can eval().
+
+    Handles:
+      - Simple variable:          b         → b
+      - Simple literal:           b_in      → b_in
+      - Single-count multiset:    1`0       → [0]*(1)
+      - Variable-count multiset:  b`0       → [0]*(b)
+      - Compound multiset (++):   b`0 ++ (1-b)`1  → [0]*(b) + [1]*((1-b))
+    """
     expr = expr.strip()
-    m = re.match(r"^\d+`(.+)$", expr, re.DOTALL)
-    if m:
-        expr = m.group(1).strip()
+
+    # If the expression contains backtick notation, convert to Python list expr
+    if "`" in expr:
+        python_parts: List[str] = []
+        for part in expr.split("++"):
+            part = part.strip()
+            if not part or part in ("0", "empty"):
+                continue
+            # Strip @time suffix before processing
+            time_val = ""
+            at_match = re.search(r"@\+?([\d.]+)$", part)
+            if at_match:
+                time_val = at_match.group(0)
+                part = part[: at_match.start()].strip()
+            bt = part.find("`")
+            if bt == -1:
+                # No backtick in this sub-term — plain value
+                token = re.sub(r"\btrue\b", "True", part)
+                token = re.sub(r"\bfalse\b", "False", token)
+                python_parts.append(f"[{token}]")
+            else:
+                count_str = part[:bt].strip() or "1"
+                color_str = part[bt + 1:].strip()
+                count_str = re.sub(r"\btrue\b", "True", count_str)
+                count_str = re.sub(r"\bfalse\b", "False", count_str)
+                color_str = re.sub(r"\btrue\b", "True", color_str)
+                color_str = re.sub(r"\bfalse\b", "False", color_str)
+                python_parts.append(f"[{color_str}]*({count_str})")
+        if not python_parts:
+            return "[]"
+        return " + ".join(python_parts)
+
+    # No backtick — simple expression (variable name or literal)
     expr = re.sub(r"\btrue\b",  "True",  expr)
     expr = re.sub(r"\bfalse\b", "False", expr)
     return expr
