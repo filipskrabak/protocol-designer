@@ -213,10 +213,10 @@ Create five places:
 
 | Name | Color set | Initial marking |
 |---|---|---|
-| `Sender_Ready` | `Bit` | ``1\`0`` |
+| `Sender_Ready` | `Bit` | ``1`0`` |
 | `Sender_Waiting` | `Bit` | *(empty)* |
 | `Channel` | `Bit` | *(empty)* |
-| `Receiver_Expects` | `Bit` | ``1\`0`` |
+| `Receiver_Expects` | `Bit` | ``1`0`` |
 | `Ack_Channel` | `Bit` | *(empty)* |
 
 `Sender_Ready` and `Receiver_Expects` each start with one token of value `0` — both sides begin with bit 0.
@@ -249,7 +249,7 @@ The guard on `Receive_Packet` ensures it only fires when the received bit matche
 |---|---|---|
 | Place → Transition | `Channel` | `b_in` |
 | Place → Transition | `Receiver_Expects` | `b_exp` |
-| Transition → Place | `Receiver_Expects` | ``b_exp\`0 ++ (1-b_exp)\`1`` |
+| Transition → Place | `Receiver_Expects` | ``b_exp`0 ++ (1-b_exp)`1`` |
 | Transition → Place | `Ack_Channel` | `b_in` |
 
 The output arc back to `Receiver_Expects` uses the bit-flip pattern. When `b_exp = 0`: produces one token of value `1` (receiver now expects bit 1). When `b_exp = 1`: produces one token of value `0`.
@@ -260,7 +260,7 @@ The output arc back to `Receiver_Expects` uses the bit-flip pattern. When `b_exp
 |---|---|---|
 | Place → Transition | `Sender_Waiting` | `b` |
 | Place → Transition | `Ack_Channel` | `b` |
-| Transition → Place | `Sender_Ready` | ``b\`0 ++ (1-b)\`1`` |
+| Transition → Place | `Sender_Ready` | ``b`0 ++ (1-b)`1`` |
 
 Both input arcs use the same variable `b`, so `Process_Ack` only fires when the ACK value matches the in-flight bit. The output flips the bit — the sender advances to the next sequence number.
 
