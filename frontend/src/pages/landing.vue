@@ -14,6 +14,9 @@
         />
       </v-toolbar-title>
       <v-spacer />
+      <v-btn variant="text" class="text-white me-2" href="/docs">
+        Docs
+      </v-btn>
       <v-btn variant="text" class="text-white me-2" :to="{ path: '/login' }">
         Log In
       </v-btn>
@@ -292,6 +295,14 @@
           </v-col>
           <v-col class="text-center" cols="12">
             <v-btn
+              variant="text"
+              class="mx-2 text-white"
+              href="/docs"
+              prepend-icon="mdi-book-open-outline"
+            >
+              Docs
+            </v-btn>
+            <v-btn
               icon="mdi-github"
               variant="text"
               class="mx-2 text-white"
@@ -320,7 +331,7 @@
 <script lang="ts" setup>
 import { ref, onMounted, onBeforeUnmount } from "vue";
 
-// ── Navbar scroll effect ─────────────────────────────────────────────────────
+// -- Navbar scroll effect -----------------------------------------------------
 const scrolled = ref(false);
 function onScroll() {
   scrolled.value = window.scrollY > 60;
@@ -332,7 +343,7 @@ function scrollToFeatures() {
   document.getElementById("features")?.scrollIntoView({ behavior: "smooth" });
 }
 
-// ── Animated background packet fields ────────────────────────────────────────
+// -- Animated background packet fields ----------------------------------------
 const fieldNames = [
   "Version", "IHL", "DSCP", "ECN", "Total Length",
   "Identification", "Flags", "Fragment Offset",
@@ -365,7 +376,7 @@ const packetFields = fieldNames.map((name) => {
   };
 });
 
-// ── Stats ─────────────────────────────────────────────────────────────────────
+// -- Stats ---------------------------------------------------------------------
 const stats = [
   { value: "5+", label: "Export Formats" },
   { value: "∞", label: "Protocols" },
@@ -373,14 +384,14 @@ const stats = [
   { value: "100%", label: "Browser-based" },
 ];
 
-// ── Features ─────────────────────────────────────────────────────────────────
+// -- Features -----------------------------------------------------------------
 const features = [
   {
     icon: "mdi-view-grid-outline",
     color: "cyan-lighten-1",
     title: "Visual Header Designer",
     description:
-      "Drag-and-drop bit-field editor for crafting protocol headers. See your packet structure in real time, exactly as it appears in RFCs.",
+      "What you see is what you get (WYSIWYG) bit-field editor for crafting protocol headers. See your packet structure in real time, similarly to how it appears in RFCs.",
   },
   {
     icon: "mdi-state-machine",
@@ -394,14 +405,14 @@ const features = [
     color: "teal-lighten-2",
     title: "Colored Petri Nets",
     description:
-      "Model concurrent protocol behavior using Colored Petri Nets. Run reachability tree analysis directly in the browser.",
+      "Model concurrent protocol behavior using Colored Petri Nets (CPN). CPNs are a powerful formalism for capturing complex protocol workflows.",
   },
   {
     icon: "mdi-layers-outline",
     color: "amber-lighten-2",
     title: "Protocol Encapsulation",
     description:
-      "Define parent/child protocol relationships. Model TCP/IP stack layers or custom tunneling with field-level encapsulation mapping.",
+      "Define parent/child protocol relationships. Model TCP/IP stack layers or your custom protocol stack with field-level encapsulation mapping.",
   },
   {
     icon: "mdi-shield-check-outline",
@@ -415,11 +426,11 @@ const features = [
     color: "orange-lighten-2",
     title: "Multi-Format Export",
     description:
-      "Export to SVG, P4 (programmable data planes), PNML, CPN Tools XML, and more. Integrate directly into your engineering workflow.",
+      "Export to SVG, P4 (programmable data planes), PNML, CPN Tools XML, SCXML and more. Integrate directly into your engineering workflow.",
   },
 ];
 
-// ── Feature card intersection observer ───────────────────────────────────────
+// -- Feature card intersection observer ---------------------------------------
 const featureRefs = ref<any[]>([]);
 function onIntersect(isIntersecting: boolean, entries: IntersectionObserverEntry[]) {
   if (isIntersecting) {
@@ -429,7 +440,7 @@ function onIntersect(isIntersecting: boolean, entries: IntersectionObserverEntry
   }
 }
 
-// ── How it works steps ────────────────────────────────────────────────────────
+// -- How it works steps --------------------------------------------------------
 const steps = [
   {
     number: "01",
@@ -450,7 +461,7 @@ const steps = [
     icon: "mdi-state-machine",
     color: "teal-lighten-2",
     title: "Model Behavior",
-    description: "Build FSMs or Colored Petri Nets that capture your protocol's dynamic behavior.",
+    description: "Build EFSMs or Colored Petri Nets that capture your protocol's dynamic behavior.",
   },
   {
     number: "04",
@@ -461,7 +472,7 @@ const steps = [
   },
 ];
 
-// ── Protocol preview bit-field diagram ───────────────────────────────────────
+// -- Protocol preview bit-field diagram ---------------------------------------
 const protocolPreview = [
   { name: "Version", bits: 4, color: "#4FC3F7" },
   { name: "IHL", bits: 4, color: "#4FC3F7" },
@@ -478,7 +489,7 @@ const protocolPreview = [
 </script>
 
 <style scoped>
-/* ── Global / variables ──────────────────────────────────────────────────── */
+/* -- Global / variables ---------------------------------------------------- */
 :root {
   --bg-deep: #0d1117;
   --bg-surface: #161b22;
@@ -487,14 +498,14 @@ const protocolPreview = [
   --text-muted: #8b949e;
 }
 
-/* ── Root wrapper: must fill the full flex-row v-layout width ───────────── */
+/* -- Root wrapper: must fill the full flex-row v-layout width ------------- */
 .landing-page {
   width: 100%;
   min-height: 100vh;
   overflow-x: hidden;
 }
 
-/* ── Navbar ──────────────────────────────────────────────────────────────── */
+/* -- Navbar ---------------------------------------------------------------- */
 .navbar {
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
@@ -505,19 +516,19 @@ const protocolPreview = [
   background-color: #0d1117 !important;
 }
 
-/* ── Logo on dark bg ─────────────────────────────────────────────────────── */
+/* -- Logo on dark bg ------------------------------------------------------- */
 .logo-invert {
   filter: invert(1);
 }
 
-/* ── Landing main ────────────────────────────────────────────────────────── */
+/* -- Landing main ---------------------------------------------------------- */
 .landing-main {
   background-color: #0d1117;
   color: #e8eaf6;
   padding-top: 0 !important;
 }
 
-/* ── Hero ────────────────────────────────────────────────────────────────── */
+/* -- Hero ------------------------------------------------------------------ */
 .hero-section {
   position: relative;
   min-height: 100vh;
@@ -570,7 +581,7 @@ const protocolPreview = [
   z-index: 1;
 }
 
-/* ── Packet field animations ─────────────────────────────────────────────── */
+/* -- Packet field animations ----------------------------------------------- */
 .packet-bg {
   position: absolute;
   inset: 0;
@@ -606,7 +617,7 @@ const protocolPreview = [
   to   { transform: translateX(calc(100vw + 240px)); }
 }
 
-/* ── Stats strip ─────────────────────────────────────────────────────────── */
+/* -- Stats strip ----------------------------------------------------------- */
 .stats-strip {
   background: #161b22;
   padding: 40px 0;
@@ -628,7 +639,7 @@ const protocolPreview = [
   margin-top: 4px;
 }
 
-/* ── Features ────────────────────────────────────────────────────────────── */
+/* -- Features -------------------------------------------------------------- */
 .features-section {
   padding: 100px 0;
   background: #0d1117;
@@ -684,7 +695,7 @@ const protocolPreview = [
   color: #e8eaf6;
 }
 
-/* ── How it works — custom step cards ─────────────────────────────────────── */
+/* -- How it works — custom step cards --------------------------------------- */
 .howto-section {
   padding: 80px 0 100px;
   background: #0a0e14;
@@ -749,7 +760,7 @@ const protocolPreview = [
   padding-right: 4px;
 }
 
-/* ── Protocol preview ────────────────────────────────────────────────────── */
+/* -- Protocol preview ------------------------------------------------------ */
 .preview-section {
   padding: 80px 0 100px;
   background: #0d1117;
@@ -780,7 +791,7 @@ const protocolPreview = [
   border-radius: 4px;
 }
 
-/* ── CTA Band ────────────────────────────────────────────────────────────── */
+/* -- CTA Band -------------------------------------------------------------- */
 .cta-section {
   padding: 80px 0 100px;
   background: #0a0e14;
@@ -805,7 +816,7 @@ const protocolPreview = [
   line-height: 1.7;
 }
 
-/* ── Footer ──────────────────────────────────────────────────────────────── */
+/* -- Footer ---------------------------------------------------------------- */
 .footer-dark {
   background-color: #0a0e14 !important;
   border-top: 1px solid rgba(255,255,255,0.06);

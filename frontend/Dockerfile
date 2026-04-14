@@ -1,3 +1,16 @@
+FROM node:22.2 as docs-builder
+
+WORKDIR /docs-site
+
+COPY docs-site/package.json .
+
+RUN npm install
+
+COPY docs-site/ .
+
+RUN npm run docs:build
+
+
 FROM node:22.2 as builder
 
 WORKDIR /home/frontend
@@ -27,6 +40,7 @@ COPY docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh
 
 COPY --from=build /home/frontend/dist /usr/share/nginx/html
+COPY --from=docs-builder /docs-site/.vitepress/dist /usr/share/nginx/html/docs
 
 EXPOSE 80 443
 

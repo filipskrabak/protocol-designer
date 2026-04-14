@@ -6,7 +6,9 @@
     "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint . --fix --ignore-path .gitignore",
-    "test": "vitest run"
+    "test": "vitest run",
+    "docs:dev": "cd docs-site && npm run docs:dev",
+    "docs:build": "cd docs-site && npm run docs:build"
   },
   "dependencies": {
     "@mdi/font": "7.4.47",

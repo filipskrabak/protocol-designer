@@ -92,6 +92,7 @@ import ProtocolEncapsulation from "@/components/ProtocolEncapsulation.vue";
 import FSMEditor from "@/components/behavior/FiniteStateMachine.vue";
 import CPNEditor from "@/components/cpn/ColoredPetriNet.vue";
 import { useSidebar } from "@/composables/useSidebar";
+import { useHelpUrl } from "@/composables/useHelpUrl";
 
 import { ref } from "vue";
 import { useProtocolRenderStore } from "@/store/ProtocolRenderStore";
@@ -101,12 +102,12 @@ import { useDisplay } from "vuetify";
 const protocolRenderStore = useProtocolRenderStore();
 const { mobile } = useDisplay();
 const { drawer, rail } = useSidebar();
+const { currentTab: tab, setCurrentTab } = useHelpUrl();
 
-const tab = ref<number>(1);
 const selectedNavItem = ref<string[]>(['header']);
 
 async function selectTab(tabNumber: number) {
-  tab.value = tabNumber;
+  setCurrentTab(tabNumber);
 
   // Update selected nav item
   switch (tabNumber) {
