@@ -14,7 +14,7 @@ Current list of features:
 - [x] Setting possible values to a field (field options)
 - [x] Protocol properties (author, description, etc)
 - [x] Uploading a protocol SVG (with protocol definition)
-- [x] Exports
+- [x] Structure Exports
     - [x] Export to SVG
     - [x] Export to P4
     - [x] Export to Wireshark Lua dissector and colorfilters
@@ -29,6 +29,12 @@ Current list of features:
     - [x] Truncate variable length fields
 - [x] User login
 - [x] Protocol library
+- [x] Extended Finite State Machine (EFSM) editor
+    - [x] EFSM verification (deadlock detection, reachability analysis)
+    - [X] Export to SCXML
+- [x] Colored Petri Nets (CPN) editor
+    - [x] CPN verification (boundedness, reachability, liveness, dead marking detection)
+    - [x] Export to PNML and CPN Tools format (.cpn)
 
 
 ## Getting Started
@@ -100,7 +106,16 @@ https://github.com/filipskrabak/protocol-designer/assets/51746069/a3278d74-a9fa-
 
 ## Documentation
 
-Documentation is available in [the wiki of this repository](https://github.com/filipskrabak/protocol-designer/wiki/Technical-Documentation)
+User documentation with step-by-step guides is available in the [Docs](https://protocol-designer.app/docs). It covers all features including:
+
+- [Upload / New Protocol](https://protocol-designer.app/docs/guide/upload.md) - Start from scratch or import an existing protocol
+- [Protocol Header](https://protocol-designer.app/docs/guide/protocol-header.md) - Define fields, sizes, endianness, and named values
+- [Properties](https://protocol-designer.app/docs/guide/properties.md) - Set protocol metadata and save to library
+- [Encapsulation](https://protocol-designer.app/docs/guide/encapsulation.md) - Link protocols and model protocol stacks
+- [Extended FSM (EFSM)](https://protocol-designer.app/docs/guide/efsm.md) - Model state machines with guarded transitions
+- [Colored Petri Nets (CPN)](https://protocol-designer.app/docs/guide/cpn.md) - Model concurrent behavior with typed tokens
+
+Technical documentation is also available in [the wiki of this repository](https://github.com/filipskrabak/protocol-designer/wiki/Technical-Documentation)
 
 ## Acknowledgment
 
