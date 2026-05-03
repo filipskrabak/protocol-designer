@@ -184,7 +184,7 @@
             <v-list-item>
               <template v-slot:prepend><v-icon size="small" color="grey">mdi-timer</v-icon></template>
               <v-list-item-title class="text-caption">Computation time</v-list-item-title>
-              <v-list-item-subtitle class="text-caption">{{ cpnpyResult.computationTimeMs }} ms</v-list-item-subtitle>
+              <v-list-item-subtitle class="text-caption">{{ cpnpyResult.computationTimeMs }} s</v-list-item-subtitle>
             </v-list-item>
           </v-list>
         </div>
