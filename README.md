@@ -51,7 +51,7 @@ This project is using Docker. To be able to run it, you need to have it installe
 
 2. Setup `.env` file according to `.env.example`
 
-3. Rename `apache.conf.example` inside the `frontend` folder to `apache.conf`
+3. Rename `nginx.conf.example` inside the `frontend` folder to `nginx.conf`
 
 4. Ensure that Docker is running
 
