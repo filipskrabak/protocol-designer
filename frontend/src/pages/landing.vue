@@ -231,18 +231,14 @@
               </div>
             </v-col>
             <v-col cols="12" md="7">
-              <v-card class="preview-card" rounded="xl" elevation="0">
-                <v-card-text class="pa-2 pa-md-4">
-                  <!-- Screenshot placeholder — replace src with your image -->
-                  <div class="preview-placeholder">
-                    <v-icon icon="mdi-image-area" size="64" color="rgba(76,195,247,0.3)" class="mb-4" />
-                    <p class="text-medium-emphasis text-body-2 mb-1">App screenshot placeholder</p>
-                    <p class="text-caption" style="color: rgba(76,195,247,0.5)">
-                      Replace this block with<br /><code>&lt;img src="your-screenshot.png" /&gt;</code>
-                    </p>
-                  </div>
-                </v-card-text>
-              </v-card>
+              <div class="preview-diagram-wrapper">
+                <div class="preview-diagram-titlebar">
+                  <span /><span /><span />
+                </div>
+                <div class="preview-diagram-body">
+                  <img src="/images/UDP.png" alt="UDP protocol diagram" class="preview-diagram" />
+                </div>
+              </div>
             </v-col>
           </v-row>
         </v-container>
@@ -788,29 +784,43 @@ const steps = [
   background: #0d1117;
 }
 
-.preview-card {
-  background: #161b22 !important;
-  border: 1px solid rgba(255, 255, 255, 0.07);
+.preview-diagram-wrapper {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(76, 195, 247, 0.15);
+  box-shadow:
+    0 8px 40px rgba(0, 0, 0, 0.6),
+    0 0 60px rgba(76, 195, 247, 0.06);
 }
 
-.preview-placeholder {
+.preview-diagram-wrapper .preview-diagram-titlebar {
+  background: #1c2128;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 10px 16px;
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.preview-diagram-wrapper .preview-diagram-titlebar span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  display: inline-block;
+}
+
+.preview-diagram-wrapper .preview-diagram-body {
+  background: #f8f9fa;
+  padding: 32px 24px;
+  display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 220px;
-  border: 2px dashed rgba(76, 195, 247, 0.2);
-  border-radius: 10px;
-  padding: 40px 24px;
-  text-align: center;
 }
 
-.preview-placeholder code {
-  font-size: 0.78rem;
-  color: rgba(76, 195, 247, 0.7);
-  background: rgba(76, 195, 247, 0.08);
-  padding: 2px 6px;
-  border-radius: 4px;
+.preview-diagram {
+  max-width: 100%;
+  display: block;
 }
 
 /* -- CTA Band -------------------------------------------------------------- */
