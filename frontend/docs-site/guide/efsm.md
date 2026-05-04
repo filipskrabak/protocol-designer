@@ -2,7 +2,7 @@
 
 The **EFSM** tab lets you model your protocol's behaviour as a graph of states and transitions. Each state represents a phase of the protocol lifecycle (e.g. `CLOSED`, `ESTABLISHED`). Each transition is an arrow from one state to another, optionally guarded by a condition and accompanied by variable updates.
 
-![Screenshot: EFSM editor with a simple state machine on the canvas](./img/efsm/overview.png)
+<!-- ![Screenshot: EFSM editor with a simple state machine on the canvas](./img/efsm/overview.png) -->
 
 ## Prerequisites
 
@@ -42,7 +42,7 @@ States are created by dragging elements from the right sidebar onto the canvas.
 4. Drag a **Final State** tile if the protocol has a defined endpoint.
 5. Double-click any state to edit its name and type, or to add a description.
 
-![Video: dragging state tiles from the sidebar onto the canvas](./img/efsm/add-states.gif)
+<!-- ![Video: dragging state tiles from the sidebar onto the canvas](./img/efsm/add-states.gif) -->
 
 ### Step 3 — Add transitions
 
@@ -215,7 +215,7 @@ Click **Analyze**. You should see:
 - No determinism violations ✓ (each state has distinct events or exclusive guards)
 - No unexpected deadlocks in non-final states ✓
 
-![Screenshot: FSM analysis panel showing all checks green](./img/efsm/analysis-results.png)
+<!-- ![Screenshot: FSM analysis panel showing all checks green](./img/efsm/analysis-results.png) -->
 
 ---
 

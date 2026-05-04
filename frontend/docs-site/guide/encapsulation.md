@@ -49,7 +49,7 @@ Each child protocol card shows one or more **field chips** — these represent t
 
 The chip tooltip shows the currently selected values. A red chip reading **No fields have been added yet!** means the mapping is incomplete.
 
-![Screenshot: Encapsulation tab with one child protocol card and a field chip](./img/encapsulation/child-protocol-card.png)
+<!-- ![Screenshot: Encapsulation tab with one child protocol card and a field chip](./img/encapsulation/child-protocol-card.png) -->
 
 ---
 

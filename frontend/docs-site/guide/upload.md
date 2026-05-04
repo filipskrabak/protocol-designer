@@ -2,7 +2,7 @@
 
 The Upload page is your starting point. From here you either begin a brand-new protocol design or load one you worked on before.
 
-![Screenshot: Upload page with two action cards](./img/upload/upload-page-overview.png)
+<!-- ![Screenshot: Upload page with two action cards](./img/upload/upload-page-overview.png) -->
 
 ## Step-by-step: start a new protocol
 

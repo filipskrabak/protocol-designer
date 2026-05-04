@@ -2,7 +2,7 @@
 
 The **CPN** tab lets you model your protocol's concurrent behaviour as a Colored Petri Net. Where the EFSM captures the sequential lifecycle of a single participant, a CPN can express multiple concurrent components — sender, channel, receiver — and then exhaustively verify properties like deadlock-freedom and boundedness.
 
-![Screenshot: CPN editor with a small net on the canvas](./img/cpn/overview.png)
+<!-- ![Screenshot: CPN editor with a small net on the canvas](./img/cpn/overview.png) -->
 
 ## Prerequisites
 
@@ -274,7 +274,7 @@ Click **Analyze**. You should see:
 
 CPNpy should confirm these results as well.
 
-![Screenshot: CPN analysis panel showing 6 markings, 0 dead markings, all transitions live](./img/cpn/abp-analysis-results.png)
+<!-- ![Screenshot: CPN analysis panel showing 6 markings, 0 dead markings, all transitions live](./img/cpn/abp-analysis-results.png) -->
 ---
 
 ## Exporting

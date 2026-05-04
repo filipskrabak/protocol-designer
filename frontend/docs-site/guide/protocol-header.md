@@ -2,7 +2,7 @@
 
 The Protocol Header tab is where you define the binary structure of your protocol — its fields, their sizes, byte order, and named values. The diagram updates in real time as you build.
 
-![Screenshot: Protocol Header tab with field list and rendered diagram](./img/protocol-header/overview.png)
+<!-- ![Screenshot: Protocol Header tab with field list and rendered diagram](./img/protocol-header/overview.png) -->
 
 ## Prerequisites
 
@@ -54,7 +54,7 @@ The order of fields in the list matches the order in the rendered diagram (left 
 2. Drag the row up or down to the desired position.
 3. The diagram updates immediately.
 
-![Video: dragging a field to reorder it](./img/protocol-header/reorder-drag.gif)
+<!-- ![Video: dragging a field to reorder it](./img/protocol-header/reorder-drag.gif) -->
 
 ---
 
