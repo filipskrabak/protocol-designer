@@ -1,0 +1,4088 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:pd="http://www.protocoldescription.com" xmlns:scxml="http://www.w3.org/2005/07/scxml" height="121" width="1025" xmlns:cpn="http://www.protocoldescription.com/cpn">
+    <!-- Protocol Description -->
+    <metadata><pd:info><pd:id>4987bf72-fc68-42df-bebd-6e0c9e46e31d</pd:id><pd:name>MQTT-SN</pd:name><pd:author>Filip Škrabák</pd:author><pd:description/><pd:version>1.0</pd:version><pd:updated_at>10. 4. 2026</pd:updated_at><pd:created_at>27. 1. 2026</pd:created_at></pd:info><pd:field pd:display_name="Length" pd:id="length" pd:length="1" pd:length_unit="bytes" pd:length_max="3" pd:endian="big" pd:group_id="header" pd:group_color="#2196F3"/><pd:field pd:display_name="MsgType" pd:id="msg_type" pd:length="1" pd:length_unit="bytes" pd:endian="big" pd:group_id="header" pd:group_color="#2196F3"/><pd:field pd:display_name="variable part" pd:id="var" pd:length="0" pd:length_unit="bits" pd:length_max="0" pd:endian="big"/><pnml xmlns="http://www.pnml.org/version-2009/grammar/pnml">
+  <net id="id_5598dcd0-65cf-4ee7-9a25-f3638572d94d" type="http://www.pnml.org/version-2009/grammar/highlevelnet">
+    <name><text>CONNSETUP 6.2</text></name>
+    <toolspecific tool="protocol-designer" version="1.0">
+      <description>Auto-generated CPN for protocol MQTT-SN</description>
+    </toolspecific>
+    <declaration>
+      <structure>
+        <declarations>
+          <namedsort id="id_38e18a5e-bb85-48b7-8078-e7b4a34e1444" name="unit">
+            <finiteenumeration>
+              <feconstant id="id_38e18a5e-bb85-48b7-8078-e7b4a34e1444_unit" name="unit"/>
+            </finiteenumeration>
+          </namedsort>
+          <namedsort id="id_1f20d20c-73a5-44fa-8da0-3b2d01ceb18e" name="bool">
+            <bool/>
+          </namedsort>
+          <variabledecl id="id_0cb707ef-e67c-44a9-a268-2e23b1b990ed" name="x">
+            <usersort declaration="unit"/>
+          </variabledecl>
+          <variabledecl id="id_8c18d8f9-edd6-4be3-b4e7-26755fe6bc0a" name="will">
+            <usersort declaration="bool"/>
+          </variabledecl>
+        </declarations>
+      </structure>
+    </declaration>
+    <page id="page0">
+      <name><text>Page</text></name>
+      <place id="id_5cf655d4-d022-482f-9233-18893a1ea859">
+        <name><text>Idle</text></name>
+        <graphics><position x="142" y="67"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="unit"/>
+          </structure>
+        </type>
+        <hlinitialMarking>
+          <text>1`0</text>
+        </hlinitialMarking>
+      </place>
+      <place id="a343e837-b619-466a-9846-27a5cc4bda8b">
+        <name><text>Connecting</text></name>
+        <graphics><position x="604" y="-62"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="unit"/>
+          </structure>
+        </type>
+      </place>
+      <place id="e7af5a27-a91f-4247-998b-840d9b973ff9">
+        <name><text>Connected</text></name>
+        <graphics><position x="1039" y="-6"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="unit"/>
+          </structure>
+        </type>
+      </place>
+      <place id="id_082a2f8b-db22-455a-bcac-78fe1660a712">
+        <name><text>CONNECT_Chan</text></name>
+        <graphics><position x="434" y="179"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="bool"/>
+          </structure>
+        </type>
+      </place>
+      <place id="a6763489-3d38-4345-a68a-c1ba5b79f380">
+        <name><text>CONNACK_Accept_Chan</text></name>
+        <graphics><position x="1056" y="225"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="unit"/>
+          </structure>
+        </type>
+      </place>
+      <place id="id_71560257-6e88-44de-b46b-d9bb94734993">
+        <name><text>CONNACK_Reject_Chan</text></name>
+        <graphics><position x="606" y="308"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="unit"/>
+          </structure>
+        </type>
+      </place>
+      <place id="id_90b32723-6bb5-4ad5-9ebb-d0b22ae600a7">
+        <name><text>Rejected</text></name>
+        <graphics><position x="893" y="300"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="unit"/>
+          </structure>
+        </type>
+      </place>
+      <place id="id_048db187-3dcc-4370-bd09-d6af5c7216fd">
+        <name><text>WILLTOPICREQ_Chan</text></name>
+        <graphics><position x="87" y="244"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="unit"/>
+          </structure>
+        </type>
+      </place>
+      <place id="id_4fb8f5f2-5678-4c14-839a-87a80deb86cb">
+        <name><text>WILLTOPIC_Chan</text></name>
+        <graphics><position x="-64" y="452"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="unit"/>
+          </structure>
+        </type>
+      </place>
+      <place id="id_6ef177d0-1f5f-4266-a480-22b3aadff8dd">
+        <name><text>WILLMSGREQ_Chan</text></name>
+        <graphics><position x="250" y="539"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="unit"/>
+          </structure>
+        </type>
+      </place>
+      <place id="id_7aebbb0c-060c-4649-9fdf-19308408bd29">
+        <name><text>WILLMSG_Chan</text></name>
+        <graphics><position x="511" y="558"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="unit"/>
+          </structure>
+        </type>
+      </place>
+      <place id="eb0c607a-d092-440b-9d77-e7ec9d8c9285">
+        <name><text>Will_Flag</text></name>
+        <graphics><position x="145" y="-78"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="bool"/>
+          </structure>
+        </type>
+        <hlinitialMarking>
+          <text>1`true ++ 1`false</text>
+        </hlinitialMarking>
+      </place>
+      <transition id="id_362f310a-7181-4fbb-869c-d4c977e70f2d">
+        <name><text>Send_Connect</text></name>
+        <graphics><position x="387" y="-35"/></graphics>
+      </transition>
+      <transition id="id_790ce9c9-9bec-484d-bed3-5e8d54ab321c">
+        <name><text>GW_Accept</text></name>
+        <graphics><position x="852" y="171"/></graphics>
+        <condition>
+          <text>will == false</text>
+        </condition>
+      </transition>
+      <transition id="a1025b6a-ed15-479a-8818-454c6cdc96f8">
+        <name><text>GW_Reject</text></name>
+        <graphics><position x="371" y="303"/></graphics>
+      </transition>
+      <transition id="id_1d7e4f8d-f562-48ae-9fe1-a4bbd83a82eb">
+        <name><text>Recv_Accept</text></name>
+        <graphics><position x="795" y="-53"/></graphics>
+      </transition>
+      <transition id="id_10322723-88a9-4120-bf5a-e5be5bd2155a">
+        <name><text>Recv_Reject</text></name>
+        <graphics><position x="758" y="255"/></graphics>
+      </transition>
+      <transition id="c198fc60-ede0-469e-9017-3d50aff31948">
+        <name><text>GW_WillTopicReq</text></name>
+        <graphics><position x="256" y="195"/></graphics>
+        <condition>
+          <text>will == true</text>
+        </condition>
+      </transition>
+      <transition id="id_4946d1e6-a77a-4e65-bc79-5312643a95e7">
+        <name><text>Send_WillTopic</text></name>
+        <graphics><position x="-37" y="262"/></graphics>
+      </transition>
+      <transition id="id_41032ac2-124c-42c7-b26f-baca3b71039d">
+        <name><text>GW_WillMsgReq</text></name>
+        <graphics><position x="98" y="519"/></graphics>
+      </transition>
+      <transition id="id_06c6214a-bdac-47c9-a2d3-237c91d7d861">
+        <name><text>Send_WillMsg</text></name>
+        <graphics><position x="366" y="553"/></graphics>
+      </transition>
+      <transition id="id_37461cf3-8681-427b-829f-f4c609e72266">
+        <name><text>GW_AcceptAfterWill</text></name>
+        <graphics><position x="804" y="527"/></graphics>
+      </transition>
+      <transition id="c167ea90-d960-4910-a7e1-27a1ad8a8cf8">
+        <name><text>GW_RejectAfterWillTopic</text></name>
+        <graphics><position x="262" y="389"/></graphics>
+      </transition>
+      <transition id="id_613094b8-5b0a-43a7-bdee-ae7b3905b22c">
+        <name><text>GW_RejectAfterWillMsg</text></name>
+        <graphics><position x="551" y="422"/></graphics>
+      </transition>
+      <arc id="cpn_arc_00bcc90e-c6dc-4e43-8c08-d501303fcbfb" source="id_5cf655d4-d022-482f-9233-18893a1ea859" target="id_362f310a-7181-4fbb-869c-d4c977e70f2d">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_58eb93c5-58ce-4299-b10c-9d635ff20f7f" source="id_362f310a-7181-4fbb-869c-d4c977e70f2d" target="a343e837-b619-466a-9846-27a5cc4bda8b">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_34dfe2e8-c2aa-4a27-a6e7-63ce7d28c3ae" source="id_362f310a-7181-4fbb-869c-d4c977e70f2d" target="id_082a2f8b-db22-455a-bcac-78fe1660a712">
+        <hlinscription>
+          <text>1`will</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>bottom</sourceHandle>
+          <targetHandle>top</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_f72a8b57-c52a-459c-a636-4379167d1239" source="id_082a2f8b-db22-455a-bcac-78fe1660a712" target="a1025b6a-ed15-479a-8818-454c6cdc96f8">
+        <hlinscription>
+          <text>1`will</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>bottom</sourceHandle>
+          <targetHandle>top</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_5fc938f4-e95f-43af-9c99-cd5ef15871f8" source="a1025b6a-ed15-479a-8818-454c6cdc96f8" target="id_71560257-6e88-44de-b46b-d9bb94734993">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_d9473bb7-b50a-4098-96b3-f8e7ea97a03c" source="a343e837-b619-466a-9846-27a5cc4bda8b" target="id_1d7e4f8d-f562-48ae-9fe1-a4bbd83a82eb">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_38e389bd-bebb-48b9-bcad-54c968435d6f" source="id_082a2f8b-db22-455a-bcac-78fe1660a712" target="id_790ce9c9-9bec-484d-bed3-5e8d54ab321c">
+        <hlinscription>
+          <text>1`will</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_af4f13a1-abdb-40e7-b64f-17bd86f74ed3" source="id_790ce9c9-9bec-484d-bed3-5e8d54ab321c" target="a6763489-3d38-4345-a68a-c1ba5b79f380">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_1401e2fd-5ebe-400e-a858-fb87a9c4f58b" source="a6763489-3d38-4345-a68a-c1ba5b79f380" target="id_1d7e4f8d-f562-48ae-9fe1-a4bbd83a82eb">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>top</sourceHandle>
+          <targetHandle>bottom</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_3e2bbf07-908c-4fdd-8875-d755a4ed649c" source="id_1d7e4f8d-f562-48ae-9fe1-a4bbd83a82eb" target="e7af5a27-a91f-4247-998b-840d9b973ff9">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_648c28b6-90b5-490b-9d4b-5474292c3e4a" source="a343e837-b619-466a-9846-27a5cc4bda8b" target="id_10322723-88a9-4120-bf5a-e5be5bd2155a">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>bottom</sourceHandle>
+          <targetHandle>top</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_02701817-ba3e-4f18-8444-4a8cede8f035" source="id_10322723-88a9-4120-bf5a-e5be5bd2155a" target="id_90b32723-6bb5-4ad5-9ebb-d0b22ae600a7">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_317e3263-db4f-46cd-b2b6-6e33812a8c44" source="id_082a2f8b-db22-455a-bcac-78fe1660a712" target="c198fc60-ede0-469e-9017-3d50aff31948">
+        <hlinscription>
+          <text>1`will</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>left</sourceHandle>
+          <targetHandle>right</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_0c1fd90f-fb08-4159-92b9-c7123ef7bc6b" source="c198fc60-ede0-469e-9017-3d50aff31948" target="id_048db187-3dcc-4370-bd09-d6af5c7216fd">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>left</sourceHandle>
+          <targetHandle>right</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_4fb2e51c-501e-4064-8bfa-3204a6810c08" source="id_048db187-3dcc-4370-bd09-d6af5c7216fd" target="id_4946d1e6-a77a-4e65-bc79-5312643a95e7">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>left</sourceHandle>
+          <targetHandle>right</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_4579aa6d-ea72-49e0-ad8f-24965eb5fe62" source="id_4946d1e6-a77a-4e65-bc79-5312643a95e7" target="id_4fb8f5f2-5678-4c14-839a-87a80deb86cb">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>bottom</sourceHandle>
+          <targetHandle>top</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_7887d1c3-da26-4bdc-ad23-11c91352949d" source="id_4fb8f5f2-5678-4c14-839a-87a80deb86cb" target="id_41032ac2-124c-42c7-b26f-baca3b71039d">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_30df5d42-bf74-4163-9db3-ea210c97af80" source="id_41032ac2-124c-42c7-b26f-baca3b71039d" target="id_6ef177d0-1f5f-4266-a480-22b3aadff8dd">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_5f0dfbf1-a4f1-425a-9412-928a46e78d7f" source="id_6ef177d0-1f5f-4266-a480-22b3aadff8dd" target="id_06c6214a-bdac-47c9-a2d3-237c91d7d861">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_39071c60-333f-4d8c-8ada-0ec069b4a1b4" source="id_06c6214a-bdac-47c9-a2d3-237c91d7d861" target="id_7aebbb0c-060c-4649-9fdf-19308408bd29">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_0f1f650d-67bd-4f4b-ab1f-bec5819d82b9" source="id_7aebbb0c-060c-4649-9fdf-19308408bd29" target="id_37461cf3-8681-427b-829f-f4c609e72266">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_5e0931d7-6907-4ff2-8768-bd50a25822ba" source="id_37461cf3-8681-427b-829f-f4c609e72266" target="a6763489-3d38-4345-a68a-c1ba5b79f380">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>bottom</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_2ef28b65-24bd-46ef-aa7f-453f4b976e7e" source="id_4fb8f5f2-5678-4c14-839a-87a80deb86cb" target="c167ea90-d960-4910-a7e1-27a1ad8a8cf8">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_eb71c66a-2160-4f70-931c-be1de964eb4f" source="c167ea90-d960-4910-a7e1-27a1ad8a8cf8" target="id_71560257-6e88-44de-b46b-d9bb94734993">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_14767c14-b3a5-4152-ba76-7fa290c04aeb" source="id_7aebbb0c-060c-4649-9fdf-19308408bd29" target="id_613094b8-5b0a-43a7-bdee-ae7b3905b22c">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>bottom</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_33d23431-3964-46ec-9b38-c152f7d1d64a" source="id_613094b8-5b0a-43a7-bdee-ae7b3905b22c" target="id_71560257-6e88-44de-b46b-d9bb94734993">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>top</sourceHandle>
+          <targetHandle>bottom</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_03056879-8535-4328-95c3-a428e8d6e538" source="id_71560257-6e88-44de-b46b-d9bb94734993" target="id_10322723-88a9-4120-bf5a-e5be5bd2155a">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_a0951274-7278-45de-8dd5-29d1bee2e354" source="eb0c607a-d092-440b-9d77-e7ec9d8c9285" target="id_362f310a-7181-4fbb-869c-d4c977e70f2d">
+        <hlinscription>
+          <text>1`will</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+    </page>
+  </net>
+</pnml><pnml xmlns="http://www.pnml.org/version-2009/grammar/pnml">
+  <net id="id_15040e7c-5a9a-43ec-a779-eeb337278770" type="http://www.pnml.org/version-2009/grammar/highlevelnet">
+    <name><text>CLIENTDISC 6.12</text></name>
+    <toolspecific tool="protocol-designer" version="1.0">
+      <description>Auto-generated CPN for protocol MQTT-SN</description>
+    </toolspecific>
+    <declaration>
+      <structure>
+        <declarations>
+          <namedsort id="id_0b890def-cc3f-486d-b8ce-d506b92d171f" name="unit">
+            <finiteenumeration>
+              <feconstant id="id_0b890def-cc3f-486d-b8ce-d506b92d171f_unit" name="unit"/>
+            </finiteenumeration>
+          </namedsort>
+          <variabledecl id="f69da6a6-33a4-4923-a2c2-f51adaebff0d" name="x">
+            <usersort declaration="unit"/>
+          </variabledecl>
+        </declarations>
+      </structure>
+    </declaration>
+    <page id="page0">
+      <name><text>Page</text></name>
+      <place id="id_55b49388-7f64-4d6c-a3d7-5ec7a80934b8">
+        <name><text>Disconnecting</text></name>
+        <graphics><position x="236" y="185"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="unit"/>
+          </structure>
+        </type>
+      </place>
+      <place id="id_4baa51cd-b0a2-4611-8da2-8cf1e6ff5476">
+        <name><text>DISCONNECT_Chan</text></name>
+        <graphics><position x="57" y="357"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="unit"/>
+          </structure>
+        </type>
+      </place>
+      <place id="id_755e3890-54f6-4978-b38d-796e649b357a">
+        <name><text>DISCONNACK_Chan</text></name>
+        <graphics><position x="440" y="305"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="unit"/>
+          </structure>
+        </type>
+      </place>
+      <place id="id_51fe365c-c687-4263-978b-53a360a40ba6">
+        <name><text>GW_DISCONNECT_Chan</text></name>
+        <graphics><position x="282" y="542"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="unit"/>
+          </structure>
+        </type>
+      </place>
+      <place id="eda65215-72b2-419b-a22a-843f1de9f1f0">
+        <name><text>Connected</text></name>
+        <graphics><position x="-374" y="203"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="unit"/>
+          </structure>
+        </type>
+        <hlinitialMarking>
+          <text>1`0</text>
+        </hlinitialMarking>
+      </place>
+      <place id="id_63fb8b07-3222-41b3-891d-c321f0d95b87">
+        <name><text>Idle</text></name>
+        <graphics><position x="852" y="132"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="unit"/>
+          </structure>
+        </type>
+      </place>
+      <transition id="id_35f863a5-c0d1-4492-bf2c-7a8a3b4fe2e7">
+        <name><text>Send_DISCONNECT</text></name>
+        <graphics><position x="-111" y="223"/></graphics>
+      </transition>
+      <transition id="id_2bb6b186-f055-44e5-98cb-b4218c870a8b">
+        <name><text>GW_Recv_DISCONNECT</text></name>
+        <graphics><position x="285" y="362"/></graphics>
+      </transition>
+      <transition id="id_3ddea7ff-e12a-4331-b9da-bc56e04e2d7f">
+        <name><text>Recv_DISCONNACK</text></name>
+        <graphics><position x="601" y="162"/></graphics>
+      </transition>
+      <transition id="id_07fc8214-4f73-40ec-a805-c280a7a672c7">
+        <name><text>GW_Unsolicited_DC</text></name>
+        <graphics><position x="38" y="519"/></graphics>
+      </transition>
+      <transition id="a6a784e1-64f6-410c-822d-d05417f7693b">
+        <name><text>Client_Recv_Unsolicited</text></name>
+        <graphics><position x="487" y="450"/></graphics>
+      </transition>
+      <arc id="cpn_arc_f1e5c19c-bec3-4eb3-8f80-14cb9f57681b" source="eda65215-72b2-419b-a22a-843f1de9f1f0" target="id_35f863a5-c0d1-4492-bf2c-7a8a3b4fe2e7">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_d4a3ac70-1c3d-44f5-a06c-2fc8f2af0ae0" source="id_35f863a5-c0d1-4492-bf2c-7a8a3b4fe2e7" target="id_55b49388-7f64-4d6c-a3d7-5ec7a80934b8">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_c5fdc0f5-7bfd-4152-a51d-47d51fe419c7" source="id_35f863a5-c0d1-4492-bf2c-7a8a3b4fe2e7" target="id_4baa51cd-b0a2-4611-8da2-8cf1e6ff5476">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_481d401d-e1f3-4775-b49e-4a0cb31b0a58" source="id_4baa51cd-b0a2-4611-8da2-8cf1e6ff5476" target="id_2bb6b186-f055-44e5-98cb-b4218c870a8b">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_e9f15421-ece3-4a74-80dd-f9eaedbcf7d2" source="id_2bb6b186-f055-44e5-98cb-b4218c870a8b" target="id_755e3890-54f6-4978-b38d-796e649b357a">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_f7a30aa1-8afd-4413-8056-7b3be5c2b98e" source="id_55b49388-7f64-4d6c-a3d7-5ec7a80934b8" target="id_3ddea7ff-e12a-4331-b9da-bc56e04e2d7f">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_4743b39d-6a94-4cb6-8e31-137c8c6bc1a8" source="id_755e3890-54f6-4978-b38d-796e649b357a" target="id_3ddea7ff-e12a-4331-b9da-bc56e04e2d7f">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_505c9d7e-905e-4150-94ec-b6c0f78dc79f" source="id_3ddea7ff-e12a-4331-b9da-bc56e04e2d7f" target="id_63fb8b07-3222-41b3-891d-c321f0d95b87">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_645d4442-b532-43d9-ae52-f6e396eaedba" source="eda65215-72b2-419b-a22a-843f1de9f1f0" target="id_07fc8214-4f73-40ec-a805-c280a7a672c7">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_c79f6c20-359b-44d0-a414-bb4ea9c921e9" source="id_07fc8214-4f73-40ec-a805-c280a7a672c7" target="id_51fe365c-c687-4263-978b-53a360a40ba6">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_cb6f9361-2e8b-4973-b643-c9ee25bdcb15" source="id_51fe365c-c687-4263-978b-53a360a40ba6" target="a6a784e1-64f6-410c-822d-d05417f7693b">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_5762f430-c565-49a6-8ad1-6855a45ee0ad" source="a6a784e1-64f6-410c-822d-d05417f7693b" target="id_63fb8b07-3222-41b3-891d-c321f0d95b87">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+    </page>
+  </net>
+</pnml><pnml xmlns="http://www.pnml.org/version-2009/grammar/pnml">
+  <net id="id_6300c963-5b3e-4217-80f8-3e457b5bbd7a" type="http://www.pnml.org/version-2009/grammar/highlevelnet">
+    <name><text>REGISTER 6.5</text></name>
+    <toolspecific tool="protocol-designer" version="1.0">
+      <description>Auto-generated CPN for protocol MQTT-SN</description>
+    </toolspecific>
+    <declaration>
+      <structure>
+        <declarations>
+          <namedsort id="id_89782716-8b15-4991-8d54-d13340e89a90" name="UNIT">
+            <finiteenumeration>
+              <feconstant id="id_89782716-8b15-4991-8d54-d13340e89a90_unit" name="unit"/>
+            </finiteenumeration>
+          </namedsort>
+        </declarations>
+      </structure>
+    </declaration>
+    <page id="page0">
+      <name><text>Page</text></name>
+      <place id="id_79ba9d0f-0b40-40f9-905d-597b3a36c4d4">
+        <name><text>Registered</text></name>
+        <graphics><position x="836" y="17"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <place id="a15f428f-239d-4dae-920f-1b1f77028ae9">
+        <name><text>Connected</text></name>
+        <graphics><position x="-61" y="29"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+        <hlinitialMarking>
+          <text>1`0</text>
+        </hlinitialMarking>
+      </place>
+      <place id="id_5ccabed9-0d59-427e-a2c5-2355f5b61cf7">
+        <name><text>REGISTER_Chan</text></name>
+        <graphics><position x="210" y="137"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <place id="id_592bac20-9b67-41c4-baee-d18385f35151">
+        <name><text>REGACK_Accept_Chan</text></name>
+        <graphics><position x="572" y="-21"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <place id="id_89e89fdb-3213-4388-9621-a994c8644848">
+        <name><text>REGACK_Reject_Chan</text></name>
+        <graphics><position x="619" y="222"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <place id="cfcfc5a0-810e-41bf-a33d-de6932998e10">
+        <name><text>Waiting</text></name>
+        <graphics><position x="632" y="337"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <place id="id_3e488606-395a-4102-a7b7-bacf493d5688">
+        <name><text>Registering</text></name>
+        <graphics><position x="500" y="86"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <transition id="id_6d69ecf3-c1b6-411b-8a77-7bb942095929">
+        <name><text>Send_REGISTER</text></name>
+        <graphics><position x="81" y="21"/></graphics>
+      </transition>
+      <transition id="id_4e812f0b-4612-4331-aec4-095870012bf2">
+        <name><text>GW_Accept_REGISTER</text></name>
+        <graphics><position x="429" y="-37"/></graphics>
+      </transition>
+      <transition id="id_3b7dd783-592d-4a4d-8200-eaba7efabd9d">
+        <name><text>Recv_REGACK_Accept</text></name>
+        <graphics><position x="721" y="5"/></graphics>
+      </transition>
+      <transition id="id_255fc82d-9902-4285-824d-b14f9e58310c">
+        <name><text>GW_Reject_REGISTER</text></name>
+        <graphics><position x="478" y="194"/></graphics>
+      </transition>
+      <transition id="id_8d969c48-905f-4010-a16e-23568334b0cc">
+        <name><text>Recv_REGACK_Reject</text></name>
+        <graphics><position x="806" y="205"/></graphics>
+      </transition>
+      <transition id="id_0ba41f99-c865-4f5f-ab5a-ee6558bf27bd">
+        <name><text>Retry_REGISTER</text></name>
+        <graphics><position x="425" y="321"/></graphics>
+      </transition>
+      <arc id="cpn_arc_0cc4a4ed-14b0-4679-93b1-a34bef65cfc1" source="id_5ccabed9-0d59-427e-a2c5-2355f5b61cf7" target="id_4e812f0b-4612-4331-aec4-095870012bf2">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_450da330-b510-4884-9632-0cd274d1f0e9" source="id_4e812f0b-4612-4331-aec4-095870012bf2" target="id_592bac20-9b67-41c4-baee-d18385f35151">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_511f02e7-78f5-4fd7-8ca5-5254dbaeb944" source="id_592bac20-9b67-41c4-baee-d18385f35151" target="id_3b7dd783-592d-4a4d-8200-eaba7efabd9d">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_28ae2c50-fb31-45f6-9482-fb029404fd3c" source="id_3b7dd783-592d-4a4d-8200-eaba7efabd9d" target="id_79ba9d0f-0b40-40f9-905d-597b3a36c4d4">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_079ce55c-829f-4d15-bd10-b0239b233eff" source="id_5ccabed9-0d59-427e-a2c5-2355f5b61cf7" target="id_255fc82d-9902-4285-824d-b14f9e58310c">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_bb02fb9a-b02d-4ad7-8d8b-cc1046650891" source="id_255fc82d-9902-4285-824d-b14f9e58310c" target="id_89e89fdb-3213-4388-9621-a994c8644848">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_50389552-a90d-4082-b5c0-027500ac647b" source="id_89e89fdb-3213-4388-9621-a994c8644848" target="id_8d969c48-905f-4010-a16e-23568334b0cc">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_5bc15260-5922-4b3a-9527-e11176a3c632" source="id_8d969c48-905f-4010-a16e-23568334b0cc" target="cfcfc5a0-810e-41bf-a33d-de6932998e10">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>bottom</sourceHandle>
+          <targetHandle>right</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_c38380fc-a7a8-4053-9656-0a9fa6b649f6" source="cfcfc5a0-810e-41bf-a33d-de6932998e10" target="id_0ba41f99-c865-4f5f-ab5a-ee6558bf27bd">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>left</sourceHandle>
+          <targetHandle>right</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_e4c2df49-977d-4093-96c7-6338764a3cf4" source="id_0ba41f99-c865-4f5f-ab5a-ee6558bf27bd" target="id_5ccabed9-0d59-427e-a2c5-2355f5b61cf7">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>left</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_eedc8c42-1c89-4d2a-86fb-6c2bfd3f41c3" source="id_6d69ecf3-c1b6-411b-8a77-7bb942095929" target="id_5ccabed9-0d59-427e-a2c5-2355f5b61cf7">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_b7d2d1ff-b660-436b-b8e3-bc549bceba84" source="id_6d69ecf3-c1b6-411b-8a77-7bb942095929" target="id_3e488606-395a-4102-a7b7-bacf493d5688">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_e3a9fa04-6133-4018-8d5d-53d425c2d48f" source="id_3e488606-395a-4102-a7b7-bacf493d5688" target="id_3b7dd783-592d-4a4d-8200-eaba7efabd9d">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_2efaa681-3c99-47e9-9b0d-08357570e1a1" source="id_3e488606-395a-4102-a7b7-bacf493d5688" target="id_8d969c48-905f-4010-a16e-23568334b0cc">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_5e263d05-f059-438f-9bef-948da4fce084" source="id_0ba41f99-c865-4f5f-ab5a-ee6558bf27bd" target="id_3e488606-395a-4102-a7b7-bacf493d5688">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>left</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_8c5533f1-8f4f-4b79-a5db-3dfe5b66063b" source="a15f428f-239d-4dae-920f-1b1f77028ae9" target="id_6d69ecf3-c1b6-411b-8a77-7bb942095929">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+    </page>
+  </net>
+</pnml><pnml xmlns="http://www.pnml.org/version-2009/grammar/pnml">
+  <net id="id_83136ca3-3b30-4779-9d13-48f996289519" type="http://www.pnml.org/version-2009/grammar/highlevelnet">
+    <name><text>PUBLISH 6.6 QOS0</text></name>
+    <toolspecific tool="protocol-designer" version="1.0">
+      <description>Auto-generated CPN for protocol MQTT-SN</description>
+    </toolspecific>
+    <declaration>
+      <structure>
+        <declarations>
+          <namedsort id="id_4bad2efb-4175-4e3a-8983-9c06f3683725" name="UNIT">
+            <finiteenumeration>
+              <feconstant id="id_4bad2efb-4175-4e3a-8983-9c06f3683725_unit" name="unit"/>
+            </finiteenumeration>
+          </namedsort>
+        </declarations>
+      </structure>
+    </declaration>
+    <page id="page0">
+      <name><text>Page</text></name>
+      <place id="id_0276be66-4603-4c8d-9928-0f16102b1e17">
+        <name><text>Registered</text></name>
+        <graphics><position x="424" y="17"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+        <hlinitialMarking>
+          <text>1`0</text>
+        </hlinitialMarking>
+      </place>
+      <place id="fec06fd0-4d63-4260-b730-f415c1526869">
+        <name><text>PUBLISH_Chan</text></name>
+        <graphics><position x="668" y="111"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <place id="id_4d7e2ace-e216-412b-ac8c-77d6120701bd">
+        <name><text>Published</text></name>
+        <graphics><position x="1028" y="199"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <place id="id_720c0e89-a6b1-4823-8e36-8a177a48bf15">
+        <name><text>PUBACK_Error_Chan</text></name>
+        <graphics><position x="1040" y="71"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <place id="bf26b5e2-0c00-427b-a76f-a90a06188e3d">
+        <name><text>Waiting_Congestion</text></name>
+        <graphics><position x="1209" y="-142"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <place id="a14a64e9-f220-4233-b94b-fa9df6584fed">
+        <name><text>Unregistered</text></name>
+        <graphics><position x="1203" y="-27"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <place id="aff54bc1-586e-46ed-94b2-b04da4a5fc25">
+        <name><text>Publishing</text></name>
+        <graphics><position x="656" y="-68"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <transition id="id_954de60d-2772-4979-ba41-279918623f95">
+        <name><text>Send_PUBLISH</text></name>
+        <graphics><position x="556" y="8"/></graphics>
+      </transition>
+      <transition id="cbbb2990-4df2-4763-a066-30610e8e3101">
+        <name><text>GW_Recv_PUBLISH</text></name>
+        <graphics><position x="823" y="228"/></graphics>
+      </transition>
+      <transition id="id_2751bba4-e023-4e92-99b4-a9eb55566f7d">
+        <name><text>GW_Reject_InvalidTopic</text></name>
+        <graphics><position x="889" y="-8"/></graphics>
+      </transition>
+      <transition id="id_97485007-3635-4770-82f6-fe7e61218b10">
+        <name><text>Recv_PUBACK_InvalidTopic</text></name>
+        <graphics><position x="1100" y="-93"/></graphics>
+      </transition>
+      <transition id="dec8ac9b-c4ba-49be-8ee8-45c1e90d5acb">
+        <name><text>Recv_PUBACK_Congestion</text></name>
+        <graphics><position x="955" y="-185"/></graphics>
+      </transition>
+      <transition id="id_542e95a9-ebc0-43e3-b45f-cb56c39e77cd">
+        <name><text>Retry_After_Congestion</text></name>
+        <graphics><position x="899" y="-261"/></graphics>
+      </transition>
+      <transition id="cbe20251-d4d6-4a67-8beb-5563bdb15790">
+        <name><text>GW_Reject_Congestion</text></name>
+        <graphics><position x="895" y="127"/></graphics>
+      </transition>
+      <arc id="cpn_arc_3e578917-0e65-4637-b8df-6a11ab2ae1c8" source="id_0276be66-4603-4c8d-9928-0f16102b1e17" target="id_954de60d-2772-4979-ba41-279918623f95">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_3a163e74-e42b-468d-a762-0c185f492051" source="id_954de60d-2772-4979-ba41-279918623f95" target="fec06fd0-4d63-4260-b730-f415c1526869">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_7d24ae1a-78b9-4e01-8ace-b4f628aa828e" source="fec06fd0-4d63-4260-b730-f415c1526869" target="cbbb2990-4df2-4763-a066-30610e8e3101">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_066c0299-b0d2-4481-98b9-1a802878c0fb" source="cbbb2990-4df2-4763-a066-30610e8e3101" target="id_4d7e2ace-e216-412b-ac8c-77d6120701bd">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_a4c31b9a-2ffc-40c5-aa7c-57a96b491990" source="fec06fd0-4d63-4260-b730-f415c1526869" target="id_2751bba4-e023-4e92-99b4-a9eb55566f7d">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_5badf334-9fd4-472b-b98f-77b9dc3681bf" source="id_2751bba4-e023-4e92-99b4-a9eb55566f7d" target="id_720c0e89-a6b1-4823-8e36-8a177a48bf15">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_07b41d61-e084-4fd9-a3e8-39934de3bd2a" source="id_720c0e89-a6b1-4823-8e36-8a177a48bf15" target="id_97485007-3635-4770-82f6-fe7e61218b10">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>top</sourceHandle>
+          <targetHandle>bottom</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_60df52d9-5b49-404a-a352-2fcd4896d980" source="id_97485007-3635-4770-82f6-fe7e61218b10" target="a14a64e9-f220-4233-b94b-fa9df6584fed">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_91959aa8-1ced-4b46-8760-9cc989af6772" source="id_720c0e89-a6b1-4823-8e36-8a177a48bf15" target="dec8ac9b-c4ba-49be-8ee8-45c1e90d5acb">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>top</sourceHandle>
+          <targetHandle>bottom</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_067359d2-14eb-4bf6-a1ac-56d231d0d11e" source="dec8ac9b-c4ba-49be-8ee8-45c1e90d5acb" target="bf26b5e2-0c00-427b-a76f-a90a06188e3d">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_ef308a8a-23cb-460b-a305-fc54d41c2a2b" source="bf26b5e2-0c00-427b-a76f-a90a06188e3d" target="id_542e95a9-ebc0-43e3-b45f-cb56c39e77cd">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>right</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_5032480b-393f-495b-b7c3-e038f46d1044" source="fec06fd0-4d63-4260-b730-f415c1526869" target="cbe20251-d4d6-4a67-8beb-5563bdb15790">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_3ed56481-f1d4-4690-b022-65504a10fb64" source="cbe20251-d4d6-4a67-8beb-5563bdb15790" target="id_720c0e89-a6b1-4823-8e36-8a177a48bf15">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_d5ac84d9-b9cb-4fa4-b87a-4dab8ec05fff" source="id_954de60d-2772-4979-ba41-279918623f95" target="aff54bc1-586e-46ed-94b2-b04da4a5fc25">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_3ac89c53-f070-4bb3-808c-72faa04ce65c" source="aff54bc1-586e-46ed-94b2-b04da4a5fc25" target="cbbb2990-4df2-4763-a066-30610e8e3101">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_1e3f1071-9db5-4834-b162-5f88269cbdd8" source="aff54bc1-586e-46ed-94b2-b04da4a5fc25" target="id_97485007-3635-4770-82f6-fe7e61218b10">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_81808d38-b275-43ca-a8a5-ffdee5bbf470" source="aff54bc1-586e-46ed-94b2-b04da4a5fc25" target="dec8ac9b-c4ba-49be-8ee8-45c1e90d5acb">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_9f909228-3664-49c7-b581-b141b418e23a" source="id_542e95a9-ebc0-43e3-b45f-cb56c39e77cd" target="id_0276be66-4603-4c8d-9928-0f16102b1e17">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>left</sourceHandle>
+          <targetHandle>top</targetHandle>
+        </toolspecific>
+      </arc>
+    </page>
+  </net>
+</pnml><pnml xmlns="http://www.pnml.org/version-2009/grammar/pnml">
+  <net id="id_08644989-0076-4162-8297-447a69bb7e34" type="http://www.pnml.org/version-2009/grammar/highlevelnet">
+    <name><text>PUBLISH 6.6 QOS1</text></name>
+    <toolspecific tool="protocol-designer" version="1.0">
+      <description>Auto-generated CPN for protocol MQTT-SN</description>
+    </toolspecific>
+    <declaration>
+      <structure>
+        <declarations>
+          <namedsort id="id_4bad2efb-4175-4e3a-8983-9c06f3683725" name="UNIT">
+            <finiteenumeration>
+              <feconstant id="id_4bad2efb-4175-4e3a-8983-9c06f3683725_unit" name="unit"/>
+            </finiteenumeration>
+          </namedsort>
+        </declarations>
+      </structure>
+    </declaration>
+    <page id="page0">
+      <name><text>Page</text></name>
+      <place id="id_85add0d4-5cbf-48ef-8fde-9ca8a7402f93">
+        <name><text>Registered</text></name>
+        <graphics><position x="424" y="17"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+        <hlinitialMarking>
+          <text>1`0</text>
+        </hlinitialMarking>
+      </place>
+      <place id="id_8b39f9c7-c25f-4e8d-8712-85e73c833f4a">
+        <name><text>PUBLISH_Chan</text></name>
+        <graphics><position x="569" y="154"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <place id="id_9fb45f29-2c95-4c19-8a46-ebb7f54c6724">
+        <name><text>Published</text></name>
+        <graphics><position x="1314" y="214"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <place id="id_3980565d-584f-4784-8715-8caee66d065f">
+        <name><text>PUBACK_Error_Chan</text></name>
+        <graphics><position x="1040" y="71"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <place id="aa4257a4-b895-48fd-87ba-ab6ab5100dd0">
+        <name><text>Waiting_Congestion</text></name>
+        <graphics><position x="1209" y="-142"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <place id="b33bfd7c-4e7a-4ad2-b7ea-e209bdbc7b11">
+        <name><text>Unregistered</text></name>
+        <graphics><position x="1237" y="-30"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <place id="d5802386-b7e8-47d7-bda7-8d3c94dedd3a">
+        <name><text>Publishing</text></name>
+        <graphics><position x="656" y="-68"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <place id="id_1edb52c6-8d32-40f8-b297-9a1697a4b8cd">
+        <name><text>PUBACK_Chan</text></name>
+        <graphics><position x="877" y="311"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <transition id="id_2de2ea51-3881-4cf2-92b6-a405de4afb1f">
+        <name><text>Send_PUBLISH</text></name>
+        <graphics><position x="563" y="19"/></graphics>
+      </transition>
+      <transition id="b7df821e-584f-43de-9e7b-9eec89e45339">
+        <name><text>GW_Recv_PUBLISH</text></name>
+        <graphics><position x="779" y="299"/></graphics>
+      </transition>
+      <transition id="id_299527db-9b1f-4276-8900-fbc7c13ca5ce">
+        <name><text>GW_Reject_InvalidTopic</text></name>
+        <graphics><position x="889" y="-8"/></graphics>
+      </transition>
+      <transition id="fd64e526-2578-4d4f-9d9d-addbdd1b1a96">
+        <name><text>Recv_PUBACK_InvalidTopic</text></name>
+        <graphics><position x="1100" y="-93"/></graphics>
+      </transition>
+      <transition id="bb66fa55-f457-4a70-9a17-6dd1f014d196">
+        <name><text>Recv_PUBACK_Congestion</text></name>
+        <graphics><position x="955" y="-185"/></graphics>
+      </transition>
+      <transition id="id_9597a036-542a-41fc-8079-3a70ac06c62e">
+        <name><text>Retry_After_Congestion</text></name>
+        <graphics><position x="899" y="-261"/></graphics>
+      </transition>
+      <transition id="id_8079ff19-004f-429a-a06a-9d2300cf0c77">
+        <name><text>GW_Reject_Congestion</text></name>
+        <graphics><position x="895" y="127"/></graphics>
+      </transition>
+      <transition id="id_73bdecd2-e1d9-406e-9b68-d9d470f57691">
+        <name><text>Recv_PUBACK_Accept</text></name>
+        <graphics><position x="1056" y="262"/></graphics>
+      </transition>
+      <arc id="id_547c6c2d-239d-4233-b0c1-cc591d194cee" source="id_85add0d4-5cbf-48ef-8fde-9ca8a7402f93" target="id_2de2ea51-3881-4cf2-92b6-a405de4afb1f">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="d31bc433-0f06-446b-a5ca-c338d242271d" source="id_2de2ea51-3881-4cf2-92b6-a405de4afb1f" target="id_8b39f9c7-c25f-4e8d-8712-85e73c833f4a">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="a61d2db2-469f-46c6-ad7f-18cfced6e77f" source="id_8b39f9c7-c25f-4e8d-8712-85e73c833f4a" target="id_299527db-9b1f-4276-8900-fbc7c13ca5ce">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="id_6eb1c586-fa3d-454e-9028-d706fa2cfd76" source="id_299527db-9b1f-4276-8900-fbc7c13ca5ce" target="id_3980565d-584f-4784-8715-8caee66d065f">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="a36fc4fc-ca0a-4a91-96d0-364926b887b7" source="id_3980565d-584f-4784-8715-8caee66d065f" target="fd64e526-2578-4d4f-9d9d-addbdd1b1a96">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>top</sourceHandle>
+          <targetHandle>bottom</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="c22e5d4c-f968-459d-8d7c-051f7cf054d8" source="fd64e526-2578-4d4f-9d9d-addbdd1b1a96" target="b33bfd7c-4e7a-4ad2-b7ea-e209bdbc7b11">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="id_4352c5d6-de33-48ad-a576-648320aa522a" source="id_3980565d-584f-4784-8715-8caee66d065f" target="bb66fa55-f457-4a70-9a17-6dd1f014d196">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>top</sourceHandle>
+          <targetHandle>bottom</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="id_113fa2b2-6cef-439f-aec0-2003c765b3fc" source="bb66fa55-f457-4a70-9a17-6dd1f014d196" target="aa4257a4-b895-48fd-87ba-ab6ab5100dd0">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="a2f73ea0-a634-4535-a7be-8695bb11f6c7" source="aa4257a4-b895-48fd-87ba-ab6ab5100dd0" target="id_9597a036-542a-41fc-8079-3a70ac06c62e">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>right</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="id_5f7907d3-78ae-41ee-b6a5-14ae03b16421" source="id_8b39f9c7-c25f-4e8d-8712-85e73c833f4a" target="id_8079ff19-004f-429a-a06a-9d2300cf0c77">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="b2a67585-cb6e-4bc2-a943-184aa395371b" source="id_8079ff19-004f-429a-a06a-9d2300cf0c77" target="id_3980565d-584f-4784-8715-8caee66d065f">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="ae4e021d-51af-4338-9e13-e1993c8715cf" source="id_2de2ea51-3881-4cf2-92b6-a405de4afb1f" target="d5802386-b7e8-47d7-bda7-8d3c94dedd3a">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="id_8482f3ae-54aa-40ad-b165-a9584b27c9a4" source="d5802386-b7e8-47d7-bda7-8d3c94dedd3a" target="fd64e526-2578-4d4f-9d9d-addbdd1b1a96">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="a66aa04e-bd1c-4a9e-9200-041f9a1906f9" source="d5802386-b7e8-47d7-bda7-8d3c94dedd3a" target="bb66fa55-f457-4a70-9a17-6dd1f014d196">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="id_8dbde5c5-5ae2-4faa-831a-00968b008141" source="id_9597a036-542a-41fc-8079-3a70ac06c62e" target="id_85add0d4-5cbf-48ef-8fde-9ca8a7402f93">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>left</sourceHandle>
+          <targetHandle>top</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_ee30b58d-513e-4617-ae13-08c641616642" source="id_8b39f9c7-c25f-4e8d-8712-85e73c833f4a" target="b7df821e-584f-43de-9e7b-9eec89e45339">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_21885823-d0d4-4e0c-bdc8-125e8181bffb" source="d5802386-b7e8-47d7-bda7-8d3c94dedd3a" target="id_73bdecd2-e1d9-406e-9b68-d9d470f57691">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_d04c0be8-9a10-4cfb-ac70-ea6ec1953758" source="id_73bdecd2-e1d9-406e-9b68-d9d470f57691" target="id_9fb45f29-2c95-4c19-8a46-ebb7f54c6724">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_b43dbabe-157b-49c1-93c0-b7074c26bd9d" source="b7df821e-584f-43de-9e7b-9eec89e45339" target="id_1edb52c6-8d32-40f8-b297-9a1697a4b8cd">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_19367ed4-3528-417d-b4d9-9e4ad9f495c4" source="id_1edb52c6-8d32-40f8-b297-9a1697a4b8cd" target="id_73bdecd2-e1d9-406e-9b68-d9d470f57691">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+    </page>
+  </net>
+</pnml><pnml xmlns="http://www.pnml.org/version-2009/grammar/pnml">
+  <net id="id_17648746-ffae-42be-9eed-5a7c9e4e17e8" type="http://www.pnml.org/version-2009/grammar/highlevelnet">
+    <name><text>PUBLISH 6.6 QOS2</text></name>
+    <toolspecific tool="protocol-designer" version="1.0">
+      <description>Auto-generated CPN for protocol MQTT-SN</description>
+    </toolspecific>
+    <declaration>
+      <structure>
+        <declarations>
+          <namedsort id="id_4bad2efb-4175-4e3a-8983-9c06f3683725" name="UNIT">
+            <finiteenumeration>
+              <feconstant id="id_4bad2efb-4175-4e3a-8983-9c06f3683725_unit" name="unit"/>
+            </finiteenumeration>
+          </namedsort>
+        </declarations>
+      </structure>
+    </declaration>
+    <page id="page0">
+      <name><text>Page</text></name>
+      <place id="bcdd7ea3-d9df-4f3c-a336-f35cfa058903">
+        <name><text>Registered</text></name>
+        <graphics><position x="424" y="17"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+        <hlinitialMarking>
+          <text>1`0</text>
+        </hlinitialMarking>
+      </place>
+      <place id="ee851fae-1b58-417a-bc0b-ecba00218648">
+        <name><text>PUBLISH_Chan</text></name>
+        <graphics><position x="661" y="108"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <place id="id_86c95d84-85cf-4a6b-abc8-5c5a9a7086b9">
+        <name><text>Published</text></name>
+        <graphics><position x="1733" y="58"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <place id="id_3a229754-94f5-4e99-9c29-f3e44cf3a3c8">
+        <name><text>PUBACK_Error_Chan</text></name>
+        <graphics><position x="1040" y="71"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <place id="f2416a06-4d97-4b47-91bc-8efb04fc0089">
+        <name><text>Waiting_Congestion</text></name>
+        <graphics><position x="1209" y="-142"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <place id="id_672a3e5a-7523-484a-8232-668e3322d634">
+        <name><text>Unregistered</text></name>
+        <graphics><position x="1237" y="-30"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <place id="b97ca345-e5a3-42b5-8490-6d61b633e4a0">
+        <name><text>Publishing</text></name>
+        <graphics><position x="656" y="-68"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <place id="id_029ef656-f4c8-4c40-ae85-1751fe11a694">
+        <name><text>Releasing</text></name>
+        <graphics><position x="1180" y="270"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <place id="id_6f7aa941-65d4-4ace-b6a3-38c200feeffc">
+        <name><text>PUBREC_Chan</text></name>
+        <graphics><position x="939" y="334"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <place id="d441f070-bce9-4bd6-a25d-a0a052c0fc33">
+        <name><text>PUBREL_Chan</text></name>
+        <graphics><position x="1183" y="133"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <place id="id_1c9f4ca3-6803-44de-86ab-247ba4afb2ad">
+        <name><text>PUBCOMP_Chan</text></name>
+        <graphics><position x="1452" y="68"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <transition id="id_1dee4962-1afc-42b0-a419-5e8b5bab2a5b">
+        <name><text>Send_PUBLISH</text></name>
+        <graphics><position x="543" y="14"/></graphics>
+      </transition>
+      <transition id="c8cc7588-808d-4eb8-bc5f-a4de78a48293">
+        <name><text>GW_Recv_PUBLISH</text></name>
+        <graphics><position x="805" y="277"/></graphics>
+      </transition>
+      <transition id="id_363c9a0e-59a7-4eae-b91a-bb969b5ca106">
+        <name><text>GW_Reject_InvalidTopic</text></name>
+        <graphics><position x="889" y="-8"/></graphics>
+      </transition>
+      <transition id="id_61c303cc-2483-4750-97c3-b860f85ae25e">
+        <name><text>Recv_PUBACK_InvalidTopic</text></name>
+        <graphics><position x="1100" y="-93"/></graphics>
+      </transition>
+      <transition id="id_8a160d2d-09f0-4a8c-9ef7-640ab537a7e5">
+        <name><text>Recv_PUBACK_Congestion</text></name>
+        <graphics><position x="955" y="-185"/></graphics>
+      </transition>
+      <transition id="e6a23afe-139d-4603-8e44-f139d1886c3c">
+        <name><text>Retry_After_Congestion</text></name>
+        <graphics><position x="899" y="-261"/></graphics>
+      </transition>
+      <transition id="a7f9ee73-a544-49fb-9d88-e3fe255b6111">
+        <name><text>GW_Reject_Congestion</text></name>
+        <graphics><position x="839" y="137"/></graphics>
+      </transition>
+      <transition id="dac2a24f-03b4-474b-b214-e93b2c460bf0">
+        <name><text>Recv_PUBREC</text></name>
+        <graphics><position x="1054" y="213"/></graphics>
+      </transition>
+      <transition id="id_14ede473-7907-484c-b6be-4bcc540e426e">
+        <name><text>GW_Recv_PUBREL</text></name>
+        <graphics><position x="1328" y="96"/></graphics>
+      </transition>
+      <transition id="db430cda-3216-44dc-bb1c-b340c5b40822">
+        <name><text>Recv_PUBCOMP</text></name>
+        <graphics><position x="1613" y="97"/></graphics>
+      </transition>
+      <arc id="id_40128592-fdce-4a78-be56-3af6c25a0b07" source="bcdd7ea3-d9df-4f3c-a336-f35cfa058903" target="id_1dee4962-1afc-42b0-a419-5e8b5bab2a5b">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="id_75f4532d-6447-4a3e-beeb-4ecf6962811b" source="id_1dee4962-1afc-42b0-a419-5e8b5bab2a5b" target="ee851fae-1b58-417a-bc0b-ecba00218648">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="id_6dc1cd87-19c3-4693-abd6-ec96dac47d1f" source="ee851fae-1b58-417a-bc0b-ecba00218648" target="id_363c9a0e-59a7-4eae-b91a-bb969b5ca106">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="id_5adefa6b-2547-4af9-aaa1-a64f41061a99" source="id_363c9a0e-59a7-4eae-b91a-bb969b5ca106" target="id_3a229754-94f5-4e99-9c29-f3e44cf3a3c8">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="ed6501d8-99b6-41bc-a506-bb2b8731f83b" source="id_3a229754-94f5-4e99-9c29-f3e44cf3a3c8" target="id_61c303cc-2483-4750-97c3-b860f85ae25e">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>top</sourceHandle>
+          <targetHandle>bottom</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="ed34f29c-d172-4911-8b79-8feb016d2fd2" source="id_61c303cc-2483-4750-97c3-b860f85ae25e" target="id_672a3e5a-7523-484a-8232-668e3322d634">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="id_43c2a81d-d325-4c9a-9dda-d9053996a3ec" source="id_3a229754-94f5-4e99-9c29-f3e44cf3a3c8" target="id_8a160d2d-09f0-4a8c-9ef7-640ab537a7e5">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>top</sourceHandle>
+          <targetHandle>bottom</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="f555706c-dad5-4bfa-a76d-50a00c63760c" source="id_8a160d2d-09f0-4a8c-9ef7-640ab537a7e5" target="f2416a06-4d97-4b47-91bc-8efb04fc0089">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="id_1bd2d49e-f634-40c0-9748-dd413d0ddd7c" source="f2416a06-4d97-4b47-91bc-8efb04fc0089" target="e6a23afe-139d-4603-8e44-f139d1886c3c">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>right</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="id_09818817-ef47-4a8b-8353-f6912a28c00b" source="ee851fae-1b58-417a-bc0b-ecba00218648" target="a7f9ee73-a544-49fb-9d88-e3fe255b6111">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="id_0509761e-24da-495c-81f5-5566d7f5516c" source="a7f9ee73-a544-49fb-9d88-e3fe255b6111" target="id_3a229754-94f5-4e99-9c29-f3e44cf3a3c8">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cee44a87-fd29-4aa4-81f7-990b89dc3ca9" source="id_1dee4962-1afc-42b0-a419-5e8b5bab2a5b" target="b97ca345-e5a3-42b5-8490-6d61b633e4a0">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="d18a482e-4dec-4464-b898-5d4a36e7f23d" source="b97ca345-e5a3-42b5-8490-6d61b633e4a0" target="id_61c303cc-2483-4750-97c3-b860f85ae25e">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="id_0ca574d9-b345-4875-a66e-e7ed38a94cb3" source="b97ca345-e5a3-42b5-8490-6d61b633e4a0" target="id_8a160d2d-09f0-4a8c-9ef7-640ab537a7e5">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="ac8d1397-5bbd-4010-9757-dd2048cb18a7" source="e6a23afe-139d-4603-8e44-f139d1886c3c" target="bcdd7ea3-d9df-4f3c-a336-f35cfa058903">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>left</sourceHandle>
+          <targetHandle>top</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="id_862c22cb-197b-4ba6-b350-f2bdc4f4719f" source="ee851fae-1b58-417a-bc0b-ecba00218648" target="c8cc7588-808d-4eb8-bc5f-a4de78a48293">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_f2e07d57-14da-45de-ba74-eecd700234f3" source="c8cc7588-808d-4eb8-bc5f-a4de78a48293" target="id_6f7aa941-65d4-4ace-b6a3-38c200feeffc">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_7c9b9b0d-424e-4f00-8928-5cdde4a22f26" source="id_6f7aa941-65d4-4ace-b6a3-38c200feeffc" target="dac2a24f-03b4-474b-b214-e93b2c460bf0">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_7a034bb4-9fe6-44c2-9b20-56b026fd6fd0" source="b97ca345-e5a3-42b5-8490-6d61b633e4a0" target="dac2a24f-03b4-474b-b214-e93b2c460bf0">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_853693de-ce22-4565-950e-a30ac6b6fb71" source="dac2a24f-03b4-474b-b214-e93b2c460bf0" target="d441f070-bce9-4bd6-a25d-a0a052c0fc33">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_378eedf2-1ee7-45ca-9b67-f88f9c28e401" source="dac2a24f-03b4-474b-b214-e93b2c460bf0" target="id_029ef656-f4c8-4c40-ae85-1751fe11a694">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_85e7b1aa-edad-4e18-b80b-7641a5762503" source="d441f070-bce9-4bd6-a25d-a0a052c0fc33" target="id_14ede473-7907-484c-b6be-4bcc540e426e">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_8b3f3778-b06b-4a54-b06b-737bc4492e96" source="id_14ede473-7907-484c-b6be-4bcc540e426e" target="id_1c9f4ca3-6803-44de-86ab-247ba4afb2ad">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_6f562c4b-1c4d-45c4-b246-37bc74f19a45" source="id_029ef656-f4c8-4c40-ae85-1751fe11a694" target="db430cda-3216-44dc-bb1c-b340c5b40822">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_df83176b-62da-467c-8d27-9d577b704e5a" source="id_1c9f4ca3-6803-44de-86ab-247ba4afb2ad" target="db430cda-3216-44dc-bb1c-b340c5b40822">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_2671aa11-c336-4da6-b43d-c708a2d7408a" source="db430cda-3216-44dc-bb1c-b340c5b40822" target="id_86c95d84-85cf-4a6b-abc8-5c5a9a7086b9">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+    </page>
+  </net>
+</pnml><pnml xmlns="http://www.pnml.org/version-2009/grammar/pnml">
+  <net id="id_8c8772be-7d1d-4830-bacb-5923a0875404" type="http://www.pnml.org/version-2009/grammar/highlevelnet">
+    <name><text>SUBSCRIBE 6.9</text></name>
+    <toolspecific tool="protocol-designer" version="1.0">
+      <description>Auto-generated CPN for protocol MQTT-SN</description>
+    </toolspecific>
+    <declaration>
+      <structure>
+        <declarations>
+          <namedsort id="a26c2dbd-4cbf-4587-b571-ca7ebec54b7d" name="UNIT">
+            <finiteenumeration>
+              <feconstant id="a26c2dbd-4cbf-4587-b571-ca7ebec54b7d_unit" name="unit"/>
+            </finiteenumeration>
+          </namedsort>
+        </declarations>
+      </structure>
+    </declaration>
+    <page id="page0">
+      <name><text>Page</text></name>
+      <place id="id_3f6fa39c-3533-4b06-a0b2-bf523e9b5267">
+        <name><text>Connected</text></name>
+        <graphics><position x="211" y="-136"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+        <hlinitialMarking>
+          <text>1`0</text>
+        </hlinitialMarking>
+      </place>
+      <place id="id_619a20d7-f5dd-4563-86c7-b4fd85fccffe">
+        <name><text>Subscribing</text></name>
+        <graphics><position x="716" y="-308"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <place id="af16d79a-bc2b-4af1-bb53-7a685022de3a">
+        <name><text>SUBSCRIBE_Chan</text></name>
+        <graphics><position x="552" y="-165"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <place id="id_3b538030-7f34-4519-b8cf-5ef913689827">
+        <name><text>SUBACK_Chan</text></name>
+        <graphics><position x="1017" y="-248"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <place id="id_252f1b63-f2da-4e87-b9b4-96bc133ec46c">
+        <name><text>SUBACK_Error_Chan</text></name>
+        <graphics><position x="998" y="-71"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <place id="dfbaa61c-f7a7-4bb0-bb79-41db3b3479fb">
+        <name><text>Subscribed</text></name>
+        <graphics><position x="1394" y="-332"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <place id="id_4a97adbe-c39d-48d4-ba55-cfd01292aa2d">
+        <name><text>Waiting_Congestion</text></name>
+        <graphics><position x="1262" y="-75"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <transition id="aea5210a-5f35-42a6-9d77-977cc7c8ee46">
+        <name><text>Send_SUBSCRIBE</text></name>
+        <graphics><position x="385" y="-202"/></graphics>
+      </transition>
+      <transition id="id_1b72825a-e322-4abf-af9f-77306fac5f63">
+        <name><text>GW_Accept</text></name>
+        <graphics><position x="771" y="-197"/></graphics>
+      </transition>
+      <transition id="id_1cb8b2c7-34fa-4a67-8e39-6d4334bad3e2">
+        <name><text>Recv_SUBACK_Accept</text></name>
+        <graphics><position x="1239" y="-326"/></graphics>
+      </transition>
+      <transition id="d5db562a-80e4-4eb4-8bb5-8b2fef857f4a">
+        <name><text>GW_Reject_Congestion</text></name>
+        <graphics><position x="861" y="-63"/></graphics>
+      </transition>
+      <transition id="id_7d188713-5fc6-48cb-b378-7a4d5bb83968">
+        <name><text>Recv_SUBACK_Congestion</text></name>
+        <graphics><position x="1148" y="-135"/></graphics>
+      </transition>
+      <transition id="fb4484b4-7344-4999-a017-c39dba681877">
+        <name><text>Retry_After_Congestion</text></name>
+        <graphics><position x="1417" y="-33"/></graphics>
+      </transition>
+      <arc id="cpn_arc_70c18550-dda3-4e03-87d2-38e0725da933" source="id_3f6fa39c-3533-4b06-a0b2-bf523e9b5267" target="aea5210a-5f35-42a6-9d77-977cc7c8ee46">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_998f8e22-e9fd-489b-9b79-848124f669e7" source="aea5210a-5f35-42a6-9d77-977cc7c8ee46" target="af16d79a-bc2b-4af1-bb53-7a685022de3a">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_ed9876d9-7ab2-4990-af5a-68c68bf49291" source="aea5210a-5f35-42a6-9d77-977cc7c8ee46" target="id_619a20d7-f5dd-4563-86c7-b4fd85fccffe">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_27d6bc7f-c0bb-4f38-b3a3-1e25c520765a" source="af16d79a-bc2b-4af1-bb53-7a685022de3a" target="id_1b72825a-e322-4abf-af9f-77306fac5f63">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_532f091b-b7cd-4fee-bcc6-9326a05a66ad" source="id_1b72825a-e322-4abf-af9f-77306fac5f63" target="id_3b538030-7f34-4519-b8cf-5ef913689827">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_a1c51a60-168f-4227-8626-043307e9c200" source="id_3b538030-7f34-4519-b8cf-5ef913689827" target="id_1cb8b2c7-34fa-4a67-8e39-6d4334bad3e2">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_4cea88d2-9b73-4dbf-9cf0-d05a849b8352" source="id_619a20d7-f5dd-4563-86c7-b4fd85fccffe" target="id_1cb8b2c7-34fa-4a67-8e39-6d4334bad3e2">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_a0140261-de24-4688-a1e0-8bb4e323242f" source="af16d79a-bc2b-4af1-bb53-7a685022de3a" target="d5db562a-80e4-4eb4-8bb5-8b2fef857f4a">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_53b2b94f-e929-47a7-ad7a-e9bf27b1a1be" source="d5db562a-80e4-4eb4-8bb5-8b2fef857f4a" target="id_252f1b63-f2da-4e87-b9b4-96bc133ec46c">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_8bffd2be-d47b-4360-ab86-f07135f04350" source="id_252f1b63-f2da-4e87-b9b4-96bc133ec46c" target="id_7d188713-5fc6-48cb-b378-7a4d5bb83968">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_fdff1fec-cded-4a01-8b2d-39cd3cc3506a" source="id_619a20d7-f5dd-4563-86c7-b4fd85fccffe" target="id_7d188713-5fc6-48cb-b378-7a4d5bb83968">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_d94eed00-0155-4c63-b576-e4a985ad36d2" source="id_7d188713-5fc6-48cb-b378-7a4d5bb83968" target="id_4a97adbe-c39d-48d4-ba55-cfd01292aa2d">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_84dc3a7c-bdbe-4ac5-b178-4c617cc30b95" source="id_1cb8b2c7-34fa-4a67-8e39-6d4334bad3e2" target="dfbaa61c-f7a7-4bb0-bb79-41db3b3479fb">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_963dba96-55b4-4afa-9473-4d513e09e451" source="id_4a97adbe-c39d-48d4-ba55-cfd01292aa2d" target="fb4484b4-7344-4999-a017-c39dba681877">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_5974d489-159e-489d-a4ff-1f7a74d58f56" source="fb4484b4-7344-4999-a017-c39dba681877" target="id_3f6fa39c-3533-4b06-a0b2-bf523e9b5267">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>bottom</sourceHandle>
+          <targetHandle>bottom</targetHandle>
+        </toolspecific>
+      </arc>
+    </page>
+  </net>
+</pnml><pnml xmlns="http://www.pnml.org/version-2009/grammar/pnml">
+  <net id="id_85130a03-ec07-4e0d-9be5-95e51ebae064" type="http://www.pnml.org/version-2009/grammar/highlevelnet">
+    <name><text>UNSUBSCRIBE 6.9</text></name>
+    <toolspecific tool="protocol-designer" version="1.0">
+      <description>Auto-generated CPN for protocol MQTT-SN</description>
+    </toolspecific>
+    <declaration>
+      <structure>
+        <declarations>
+          <namedsort id="id_7520ba5b-f757-49c3-9e69-4caf209d3c01" name="UNIT">
+            <finiteenumeration>
+              <feconstant id="id_7520ba5b-f757-49c3-9e69-4caf209d3c01_unit" name="unit"/>
+            </finiteenumeration>
+          </namedsort>
+        </declarations>
+      </structure>
+    </declaration>
+    <page id="page0">
+      <name><text>Page</text></name>
+      <place id="id_29a4669e-970c-409f-8cb8-3241ccd255af">
+        <name><text>Subscribed</text></name>
+        <graphics><position x="50" y="122"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+        <hlinitialMarking>
+          <text>1`0</text>
+        </hlinitialMarking>
+      </place>
+      <place id="id_1769ca47-7ef7-48fe-beda-c71d61ae239d">
+        <name><text>Unsubscribing</text></name>
+        <graphics><position x="442" y="25"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <place id="id_66549901-1ad3-44de-8e01-80459435475a">
+        <name><text>UNSUBSCRIBE_Chan</text></name>
+        <graphics><position x="419" y="146"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <place id="b0d2d92f-c10a-42dd-a2c3-83fa46e266ef">
+        <name><text>UNSUBACK_Chan</text></name>
+        <graphics><position x="731" y="146"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <place id="id_06d67bb9-5bd7-4500-904f-9c419a717d42">
+        <name><text>Unsubscribed</text></name>
+        <graphics><position x="1029" y="61"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <transition id="f63359d0-de2e-4a44-9692-3856f31a572b">
+        <name><text>Send_UNSUBSRIBE</text></name>
+        <graphics><position x="268" y="91"/></graphics>
+      </transition>
+      <transition id="id_9c230a0a-7ffa-4ce3-a155-66c442325644">
+        <name><text>GW_Recv_UNSUBSCRIBE</text></name>
+        <graphics><position x="583" y="140"/></graphics>
+      </transition>
+      <transition id="id_73619191-fc40-48ca-bd7f-c81437a066fd">
+        <name><text>Recv_UNSUBACK</text></name>
+        <graphics><position x="893" y="57"/></graphics>
+      </transition>
+      <arc id="cpn_arc_8c3317fb-988c-4259-a180-0aa175408d9a" source="id_29a4669e-970c-409f-8cb8-3241ccd255af" target="f63359d0-de2e-4a44-9692-3856f31a572b">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_62321a6e-604b-4821-9f81-421e2009aa15" source="f63359d0-de2e-4a44-9692-3856f31a572b" target="id_66549901-1ad3-44de-8e01-80459435475a">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_1218099e-7608-4100-aaf4-60c4318c2da6" source="f63359d0-de2e-4a44-9692-3856f31a572b" target="id_1769ca47-7ef7-48fe-beda-c71d61ae239d">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_449b096b-d8ec-476c-83c8-07c1ed6e0bd6" source="id_66549901-1ad3-44de-8e01-80459435475a" target="id_9c230a0a-7ffa-4ce3-a155-66c442325644">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_a81d9cac-0c11-4f77-b550-a9fffca0c18c" source="id_9c230a0a-7ffa-4ce3-a155-66c442325644" target="b0d2d92f-c10a-42dd-a2c3-83fa46e266ef">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_7ec4ede6-a5c9-41cc-9a95-e99cbb73ef71" source="id_1769ca47-7ef7-48fe-beda-c71d61ae239d" target="id_73619191-fc40-48ca-bd7f-c81437a066fd">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_8beb3f3a-2c99-491a-b151-11f71bc6c1b6" source="b0d2d92f-c10a-42dd-a2c3-83fa46e266ef" target="id_73619191-fc40-48ca-bd7f-c81437a066fd">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_84dcfd3d-6632-4405-a59a-dba835cb7a2a" source="id_73619191-fc40-48ca-bd7f-c81437a066fd" target="id_06d67bb9-5bd7-4500-904f-9c419a717d42">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+    </page>
+  </net>
+</pnml><pnml xmlns="http://www.pnml.org/version-2009/grammar/pnml">
+  <net id="id_4186f946-78d0-443d-b9b9-179b2e9e250c" type="http://www.pnml.org/version-2009/grammar/highlevelnet">
+    <name><text>PINGREQ/RESP 6.11</text></name>
+    <toolspecific tool="protocol-designer" version="1.0">
+      <description>Auto-generated CPN for protocol MQTT-SN</description>
+    </toolspecific>
+    <declaration>
+      <structure>
+        <declarations>
+          <namedsort id="aa779cf4-cd64-40a7-b45e-8a27d584a156" name="UNIT">
+            <finiteenumeration>
+              <feconstant id="aa779cf4-cd64-40a7-b45e-8a27d584a156_unit" name="unit"/>
+            </finiteenumeration>
+          </namedsort>
+        </declarations>
+      </structure>
+    </declaration>
+    <page id="page0">
+      <name><text>Page</text></name>
+      <place id="id_2d179827-fee2-49a7-846f-f9ad70892a58">
+        <name><text>Connected</text></name>
+        <graphics><position x="187" y="201"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+        <hlinitialMarking>
+          <text>1`0</text>
+        </hlinitialMarking>
+      </place>
+      <place id="ff273a73-e715-4738-b2f2-f2fa5dbc1570">
+        <name><text>Pinging</text></name>
+        <graphics><position x="548" y="79"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <place id="c361d797-6b28-4458-b368-63656e0f9efa">
+        <name><text>PINGREQ_Chan</text></name>
+        <graphics><position x="576" y="207"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <place id="id_9a28c39a-650e-46c1-8851-c6896690bb42">
+        <name><text>PINGRESP_Chan</text></name>
+        <graphics><position x="852" y="210"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <place id="id_7886d82a-142f-4dbc-9704-b1d589b0d850">
+        <name><text>Alive</text></name>
+        <graphics><position x="1177" y="100"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <transition id="c24f55f7-0108-429b-aa8a-ef3b4b80e89d">
+        <name><text>Send_PINGREQ</text></name>
+        <graphics><position x="371" y="185"/></graphics>
+      </transition>
+      <transition id="id_6829e05a-981f-4039-b9a0-28a405a7af40">
+        <name><text>GW_Recv_PINGREQ</text></name>
+        <graphics><position x="732" y="209"/></graphics>
+      </transition>
+      <transition id="id_32042e06-1b45-4f0a-8a77-678dd9a7e94c">
+        <name><text>Recv_PINGRESP</text></name>
+        <graphics><position x="1032" y="102"/></graphics>
+      </transition>
+      <arc id="cpn_arc_ef964199-f46a-4854-b150-38191c68a68c" source="id_2d179827-fee2-49a7-846f-f9ad70892a58" target="c24f55f7-0108-429b-aa8a-ef3b4b80e89d">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_9894aa7f-36cf-4750-bd07-b5d0b472c130" source="c24f55f7-0108-429b-aa8a-ef3b4b80e89d" target="ff273a73-e715-4738-b2f2-f2fa5dbc1570">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_23cf6e84-edeb-4060-a3d3-d81542240324" source="c24f55f7-0108-429b-aa8a-ef3b4b80e89d" target="c361d797-6b28-4458-b368-63656e0f9efa">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_6185c1d9-7172-4064-a56f-465ffb910e23" source="c361d797-6b28-4458-b368-63656e0f9efa" target="id_6829e05a-981f-4039-b9a0-28a405a7af40">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_b4ddb11c-5528-4cf8-b9ad-fff59ffce910" source="id_6829e05a-981f-4039-b9a0-28a405a7af40" target="id_9a28c39a-650e-46c1-8851-c6896690bb42">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_45a3aabd-ca92-49ff-a30b-d94d0f4458f8" source="id_9a28c39a-650e-46c1-8851-c6896690bb42" target="id_32042e06-1b45-4f0a-8a77-678dd9a7e94c">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_515a5b38-7173-44cb-b06f-8c88cdb72455" source="ff273a73-e715-4738-b2f2-f2fa5dbc1570" target="id_32042e06-1b45-4f0a-8a77-678dd9a7e94c">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_04f6b9d4-db9b-4442-a5da-e68ec8b2072f" source="id_32042e06-1b45-4f0a-8a77-678dd9a7e94c" target="id_7886d82a-142f-4dbc-9704-b1d589b0d850">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+    </page>
+  </net>
+</pnml><pnml xmlns="http://www.pnml.org/version-2009/grammar/pnml">
+  <net id="id_87acc703-3793-4bbd-84ba-3cfcb5d9c51f" type="http://www.pnml.org/version-2009/grammar/highlevelnet">
+    <name><text>SLEEP 6.14</text></name>
+    <toolspecific tool="protocol-designer" version="1.0">
+      <description>Auto-generated CPN for protocol MQTT-SN</description>
+    </toolspecific>
+    <declaration>
+      <structure>
+        <declarations>
+          <namedsort id="id_2239f900-6159-48bd-bd4a-64fd30ae4ad0" name="UNIT">
+            <finiteenumeration>
+              <feconstant id="id_2239f900-6159-48bd-bd4a-64fd30ae4ad0_unit" name="unit"/>
+            </finiteenumeration>
+          </namedsort>
+        </declarations>
+      </structure>
+    </declaration>
+    <page id="page0">
+      <name><text>Page</text></name>
+      <place id="id_006b0f13-a56a-44a1-b09a-e190500d35af">
+        <name><text>Active</text></name>
+        <graphics><position x="-332" y="21"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+        <hlinitialMarking>
+          <text>1`0</text>
+        </hlinitialMarking>
+      </place>
+      <place id="dd927f64-a9ed-4234-878b-a0621cd5c8e7">
+        <name><text>SLEEP_DISC_Chan</text></name>
+        <graphics><position x="40" y="-37"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <place id="id_165ccf24-8c2f-43f5-9926-c7209824bbc4">
+        <name><text>SLEEP_ACK_Chan</text></name>
+        <graphics><position x="347" y="-55"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <place id="b5cfa0cb-3a96-4648-88e9-04c1a45e82e0">
+        <name><text>Asleep</text></name>
+        <graphics><position x="609" y="-77"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <place id="id_2973cae8-ad83-41df-9422-47406acdd948">
+        <name><text>PINGREQ_Sleep_Chan	</text></name>
+        <graphics><position x="930" y="-118"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <place id="id_13d20298-c47d-4a4d-83c8-89a811835ce4">
+        <name><text>Awake</text></name>
+        <graphics><position x="940" y="6"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <place id="cfdb5c1a-c24c-48d9-9ea8-2848a1f752d2">
+        <name><text>PINGRESP_Sleep_Chan</text></name>
+        <graphics><position x="1268" y="-129"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <place id="id_7045199f-8a3d-4516-bf7f-844d01bf634b">
+        <name><text>Disconnected</text></name>
+        <graphics><position x="908" y="-310"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <place id="e1dd8ed5-63aa-4f77-9e24-2fed351c909e">
+        <name><text>Lost</text></name>
+        <graphics><position x="11" y="-202"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <transition id="id_0199fa0a-8a4b-4d49-a56f-d04f024abe3c">
+        <name><text>Send_Sleep_DISCONNECT</text></name>
+        <graphics><position x="-155" y="-5"/></graphics>
+      </transition>
+      <transition id="fa41d34c-04ee-4852-a8b7-3d2cc240ff43">
+        <name><text>GW_Ack_Sleep</text></name>
+        <graphics><position x="196" y="-60"/></graphics>
+      </transition>
+      <transition id="ea5baf6f-5d8c-4634-830b-4b0ae998154b">
+        <name><text>Recv_Sleep_ACK</text></name>
+        <graphics><position x="481" y="-75"/></graphics>
+      </transition>
+      <transition id="id_2e594966-2a91-48b9-b834-3c6f5ea30f92">
+        <name><text>Send_PINGREQ_Wake</text></name>
+        <graphics><position x="765" y="-65"/></graphics>
+      </transition>
+      <transition id="id_15108ac7-343d-4277-8da0-b517557b4a9c">
+        <name><text>GW_Send_PINGRESP</text></name>
+        <graphics><position x="1129" y="-139"/></graphics>
+      </transition>
+      <transition id="id_6ffec6ba-c247-4407-8c82-8b871cf96652">
+        <name><text>Recv_PINGRESP_Return_Sleep</text></name>
+        <graphics><position x="1278" y="22"/></graphics>
+      </transition>
+      <transition id="fb35827f-6ae6-4a1f-91fd-f0ce5680076c">
+        <name><text>Reconnect_From_Sleep</text></name>
+        <graphics><position x="123" y="57"/></graphics>
+      </transition>
+      <transition id="id_3ed93d7a-53fc-45fa-a35a-85fd761f77c9">
+        <name><text>Disconnect_From_Sleep</text></name>
+        <graphics><position x="737" y="-208"/></graphics>
+      </transition>
+      <transition id="id_93aadbbb-87d7-4ded-b0f0-743306f47280">
+        <name><text>Reconnect_From_Awake</text></name>
+        <graphics><position x="1122" y="68"/></graphics>
+      </transition>
+      <transition id="id_199e512b-effb-49b9-93b6-250e124f594c">
+        <name><text>Disconnect_From_Awake</text></name>
+        <graphics><position x="1047" y="-295"/></graphics>
+      </transition>
+      <transition id="a6b82e25-b159-4776-84cd-9986589eb0a0">
+        <name><text>Send_Sleep_Update</text></name>
+        <graphics><position x="194" y="-173"/></graphics>
+      </transition>
+      <transition id="d053c3df-47b8-42d6-a7b9-2769a6d90e6e">
+        <name><text>Active_Timeout</text></name>
+        <graphics><position x="-115" y="-140"/></graphics>
+      </transition>
+      <transition id="id_798e8c55-7428-48cc-8028-a73da9748261">
+        <name><text>Asleep_Timeout</text></name>
+        <graphics><position x="195" y="-290"/></graphics>
+      </transition>
+      <transition id="id_94b15a58-d7e9-4e20-ac91-6ae84f3e0453">
+        <name><text>Lost_Reconnect</text></name>
+        <graphics><position x="-259" y="-193"/></graphics>
+      </transition>
+      <arc id="cpn_arc_86dbf289-1d96-4ff3-b154-5b53d6ecb8bc" source="id_006b0f13-a56a-44a1-b09a-e190500d35af" target="id_0199fa0a-8a4b-4d49-a56f-d04f024abe3c">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_96ada9d5-e993-4bbe-a98f-5304b907c953" source="id_0199fa0a-8a4b-4d49-a56f-d04f024abe3c" target="dd927f64-a9ed-4234-878b-a0621cd5c8e7">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_a20398d1-df67-4883-b33d-9f1ef8bfe1c1" source="dd927f64-a9ed-4234-878b-a0621cd5c8e7" target="fa41d34c-04ee-4852-a8b7-3d2cc240ff43">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_1d44a204-daf7-4f6c-a0f2-ebcb651d21dc" source="fa41d34c-04ee-4852-a8b7-3d2cc240ff43" target="id_165ccf24-8c2f-43f5-9926-c7209824bbc4">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_2d3a0ae6-bf2e-4dba-8089-ca19236cf5cb" source="id_165ccf24-8c2f-43f5-9926-c7209824bbc4" target="ea5baf6f-5d8c-4634-830b-4b0ae998154b">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_75aefef9-0c89-4eb9-aa52-3240d516deb9" source="ea5baf6f-5d8c-4634-830b-4b0ae998154b" target="b5cfa0cb-3a96-4648-88e9-04c1a45e82e0">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_b73b53c6-77cc-47cf-b3bf-ba52b6496ac2" source="b5cfa0cb-3a96-4648-88e9-04c1a45e82e0" target="id_2e594966-2a91-48b9-b834-3c6f5ea30f92">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_73e00796-0a05-4fd3-9b10-751f99b8ca5f" source="id_2e594966-2a91-48b9-b834-3c6f5ea30f92" target="id_2973cae8-ad83-41df-9422-47406acdd948">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_b19861fa-6a2d-47b8-8922-fd7b694ec5fb" source="id_2e594966-2a91-48b9-b834-3c6f5ea30f92" target="id_13d20298-c47d-4a4d-83c8-89a811835ce4">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_95aa9900-a03c-49f1-a092-725bd6e23bdf" source="id_2973cae8-ad83-41df-9422-47406acdd948" target="id_15108ac7-343d-4277-8da0-b517557b4a9c">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_f3094f14-c8df-4d36-bd70-fb9ee106a291" source="id_15108ac7-343d-4277-8da0-b517557b4a9c" target="cfdb5c1a-c24c-48d9-9ea8-2848a1f752d2">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_a36156d0-b6a2-4d30-bcd3-228faa46749b" source="id_13d20298-c47d-4a4d-83c8-89a811835ce4" target="id_6ffec6ba-c247-4407-8c82-8b871cf96652">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_b23459e9-5313-44a6-80e7-18081c3d88ea" source="b5cfa0cb-3a96-4648-88e9-04c1a45e82e0" target="fb35827f-6ae6-4a1f-91fd-f0ce5680076c">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>right</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_17944e99-32bb-4d8a-8a1d-778decf1f06c" source="fb35827f-6ae6-4a1f-91fd-f0ce5680076c" target="id_006b0f13-a56a-44a1-b09a-e190500d35af">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>left</sourceHandle>
+          <targetHandle>bottom</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_1892beaf-0178-467d-ab53-5dc3d1a408be" source="id_6ffec6ba-c247-4407-8c82-8b871cf96652" target="b5cfa0cb-3a96-4648-88e9-04c1a45e82e0">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>bottom</sourceHandle>
+          <targetHandle>bottom</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_4d45d2f3-6702-4364-a23f-0c7aa46b83fd" source="cfdb5c1a-c24c-48d9-9ea8-2848a1f752d2" target="id_6ffec6ba-c247-4407-8c82-8b871cf96652">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>bottom</sourceHandle>
+          <targetHandle>top</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_301b3efb-2715-4b46-9000-80f67e140b61" source="b5cfa0cb-3a96-4648-88e9-04c1a45e82e0" target="id_3ed93d7a-53fc-45fa-a35a-85fd761f77c9">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>top</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_898d10d5-cce4-4e8a-9bb8-52ba66aa60bc" source="id_3ed93d7a-53fc-45fa-a35a-85fd761f77c9" target="id_7045199f-8a3d-4516-bf7f-844d01bf634b">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_f0e63824-882a-49a5-a432-fc3a369c6121" source="id_13d20298-c47d-4a4d-83c8-89a811835ce4" target="id_93aadbbb-87d7-4ded-b0f0-743306f47280">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_4f497d59-f044-4b8b-9897-fd3d47d9d61b" source="id_2973cae8-ad83-41df-9422-47406acdd948" target="id_93aadbbb-87d7-4ded-b0f0-743306f47280">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_716a12c2-517a-4e9b-bd48-e1772d86597e" source="id_93aadbbb-87d7-4ded-b0f0-743306f47280" target="id_006b0f13-a56a-44a1-b09a-e190500d35af">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>bottom</sourceHandle>
+          <targetHandle>bottom</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_9b67fd2e-7d8c-473e-b2c1-84a2cb19b1bb" source="id_13d20298-c47d-4a4d-83c8-89a811835ce4" target="id_199e512b-effb-49b9-93b6-250e124f594c">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>right</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_d0a25fbe-897a-42f6-acf4-c2ebf0b73180" source="id_2973cae8-ad83-41df-9422-47406acdd948" target="id_199e512b-effb-49b9-93b6-250e124f594c">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>right</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_11ae622f-fcba-4ddd-862b-9b46793483d2" source="id_199e512b-effb-49b9-93b6-250e124f594c" target="id_7045199f-8a3d-4516-bf7f-844d01bf634b">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>left</sourceHandle>
+          <targetHandle>right</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_efbe92a8-182f-4e56-bd33-abd9f064ba9f" source="b5cfa0cb-3a96-4648-88e9-04c1a45e82e0" target="a6b82e25-b159-4776-84cd-9986589eb0a0">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>top</sourceHandle>
+          <targetHandle>right</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_a7780e39-25a1-4e92-89c7-87c49c149919" source="a6b82e25-b159-4776-84cd-9986589eb0a0" target="dd927f64-a9ed-4234-878b-a0621cd5c8e7">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>left</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_6b0e6809-30e7-464e-871d-71aa99e984cd" source="id_006b0f13-a56a-44a1-b09a-e190500d35af" target="d053c3df-47b8-42d6-a7b9-2769a6d90e6e">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_78f08bf6-8831-4f77-9640-e3586db0121a" source="d053c3df-47b8-42d6-a7b9-2769a6d90e6e" target="e1dd8ed5-63aa-4f77-9e24-2fed351c909e">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_b39b6b3d-26e9-40ea-a7a4-0d9b5b05c4a4" source="b5cfa0cb-3a96-4648-88e9-04c1a45e82e0" target="id_798e8c55-7428-48cc-8028-a73da9748261">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>top</sourceHandle>
+          <targetHandle>right</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_35a20bdb-2b90-4d46-a8ed-f06d120b5687" source="id_798e8c55-7428-48cc-8028-a73da9748261" target="e1dd8ed5-63aa-4f77-9e24-2fed351c909e">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>left</sourceHandle>
+          <targetHandle>right</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_615fb7f8-f46e-45ee-b293-d726c89b1a06" source="e1dd8ed5-63aa-4f77-9e24-2fed351c909e" target="id_94b15a58-d7e9-4e20-ac91-6ae84f3e0453">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>top</sourceHandle>
+          <targetHandle>right</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_70b89ef9-ccad-4d5a-a02f-61f05e8b4e12" source="id_94b15a58-d7e9-4e20-ac91-6ae84f3e0453" target="id_006b0f13-a56a-44a1-b09a-e190500d35af">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>left</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+    </page>
+  </net>
+</pnml><pnml xmlns="http://www.pnml.org/version-2009/grammar/pnml">
+  <net id="id_37a721e7-b490-4bbf-8831-6c913dfd332a" type="http://www.pnml.org/version-2009/grammar/highlevelnet">
+    <name><text>WILLTOPICUPD 6.4</text></name>
+    <toolspecific tool="protocol-designer" version="1.0">
+      <description>Auto-generated CPN for protocol MQTT-SN</description>
+    </toolspecific>
+    <declaration>
+      <structure>
+        <declarations>
+          <namedsort id="aa9ba08c-181b-4bb8-847b-eb04fec48aa5" name="UNIT">
+            <finiteenumeration>
+              <feconstant id="aa9ba08c-181b-4bb8-847b-eb04fec48aa5_unit" name="unit"/>
+            </finiteenumeration>
+          </namedsort>
+        </declarations>
+      </structure>
+    </declaration>
+    <page id="page0">
+      <name><text>Page</text></name>
+      <place id="id_3874dadb-2a31-4c1f-b7d1-7af9a9398bcc">
+        <name><text>Connected</text></name>
+        <graphics><position x="-245" y="-189"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+        <hlinitialMarking>
+          <text>1`0</text>
+        </hlinitialMarking>
+      </place>
+      <place id="ab1bf33b-2387-4383-99cb-efaf81e53471">
+        <name><text>WILLTOPICUPD_Chan</text></name>
+        <graphics><position x="31" y="-190"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <place id="acd2e708-ca78-464c-9e6b-98cb942182e1">
+        <name><text>WILLTOPICRESP_Chan</text></name>
+        <graphics><position x="312" y="-194"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <place id="id_8ce65dcf-0138-4985-83d2-427a4ee3bf61">
+        <name><text>Will_Topic_Updated</text></name>
+        <graphics><position x="598" y="-185"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <transition id="id_88c1557b-cb50-48a2-a797-016de765ba5c">
+        <name><text>Send_WILLTOPICUPD</text></name>
+        <graphics><position x="-113" y="-201"/></graphics>
+      </transition>
+      <transition id="id_7ec15d14-b112-4ce9-aacd-4c5374296ce7">
+        <name><text>GW_Process_WILLTOPICUPD</text></name>
+        <graphics><position x="185" y="-199"/></graphics>
+      </transition>
+      <transition id="b22da64b-a305-41f4-b1a4-8259a33e4bd7">
+        <name><text>Recv_WILLTOPICRESP</text></name>
+        <graphics><position x="458" y="-195"/></graphics>
+      </transition>
+      <arc id="cpn_arc_cc488b0a-76fb-4359-8153-084b6a45763c" source="id_3874dadb-2a31-4c1f-b7d1-7af9a9398bcc" target="id_88c1557b-cb50-48a2-a797-016de765ba5c">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_e63dc479-274e-4df2-96a5-9928bd5d7d67" source="id_88c1557b-cb50-48a2-a797-016de765ba5c" target="ab1bf33b-2387-4383-99cb-efaf81e53471">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_bd9d8ac7-f132-491f-ab65-a07821ed2baf" source="ab1bf33b-2387-4383-99cb-efaf81e53471" target="id_7ec15d14-b112-4ce9-aacd-4c5374296ce7">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_e12f939d-7894-4c8b-9032-6d80ae5df9cc" source="id_7ec15d14-b112-4ce9-aacd-4c5374296ce7" target="acd2e708-ca78-464c-9e6b-98cb942182e1">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_aecfd754-8eba-40ee-8a15-ce4a5c26548e" source="acd2e708-ca78-464c-9e6b-98cb942182e1" target="b22da64b-a305-41f4-b1a4-8259a33e4bd7">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_d9b98f54-bc50-4271-bbf8-a5a8a0135f11" source="b22da64b-a305-41f4-b1a4-8259a33e4bd7" target="id_8ce65dcf-0138-4985-83d2-427a4ee3bf61">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+    </page>
+  </net>
+</pnml><pnml xmlns="http://www.pnml.org/version-2009/grammar/pnml">
+  <net id="id_1897e1b9-4aaa-4745-8fc0-c0c99f049525" type="http://www.pnml.org/version-2009/grammar/highlevelnet">
+    <name><text>WILLMSGUPD 6.4</text></name>
+    <toolspecific tool="protocol-designer" version="1.0">
+      <description>Auto-generated CPN for protocol MQTT-SN</description>
+    </toolspecific>
+    <declaration>
+      <structure>
+        <declarations>
+          <namedsort id="aa9ba08c-181b-4bb8-847b-eb04fec48aa5" name="UNIT">
+            <finiteenumeration>
+              <feconstant id="aa9ba08c-181b-4bb8-847b-eb04fec48aa5_unit" name="unit"/>
+            </finiteenumeration>
+          </namedsort>
+        </declarations>
+      </structure>
+    </declaration>
+    <page id="page0">
+      <name><text>Page</text></name>
+      <place id="d7383ac4-c603-4bcc-a69a-35bf30916a71">
+        <name><text>Connected</text></name>
+        <graphics><position x="-245" y="-189"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+        <hlinitialMarking>
+          <text>1`0</text>
+        </hlinitialMarking>
+      </place>
+      <place id="id_407353df-69a2-4c41-9d00-a546bcebae36">
+        <name><text>WILLMSGUPD_Chan</text></name>
+        <graphics><position x="31" y="-190"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <place id="e780bd43-d7a9-421b-b00f-0b017d01fdb9">
+        <name><text>WILLMSGRESP_Chan</text></name>
+        <graphics><position x="312" y="-194"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <place id="id_7a605cb9-6db4-4bd8-8de8-417ab8a0c831">
+        <name><text>Will_Msg_Updated</text></name>
+        <graphics><position x="598" y="-185"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <transition id="ea8902f7-c042-43bb-a8e0-9c676a021e46">
+        <name><text>Send_WILLMSGUPD</text></name>
+        <graphics><position x="-113" y="-201"/></graphics>
+      </transition>
+      <transition id="id_58697a87-79ae-4882-a451-c0de629db3d9">
+        <name><text>GW_Process_WILLMSGUPD</text></name>
+        <graphics><position x="185" y="-199"/></graphics>
+      </transition>
+      <transition id="id_1a3e2456-3565-45d3-b851-48a2f8cb088e">
+        <name><text>Recv_WILLMSGRESP</text></name>
+        <graphics><position x="458" y="-195"/></graphics>
+      </transition>
+      <arc id="d13f92f7-9f73-42bc-a440-e75e821352e5" source="d7383ac4-c603-4bcc-a69a-35bf30916a71" target="ea8902f7-c042-43bb-a8e0-9c676a021e46">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="id_3e629c0e-57b6-4897-9ddf-e3eac9a6bc9e" source="ea8902f7-c042-43bb-a8e0-9c676a021e46" target="id_407353df-69a2-4c41-9d00-a546bcebae36">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="f4024b89-1f6b-448e-88a0-8403ecb98a3a" source="id_407353df-69a2-4c41-9d00-a546bcebae36" target="id_58697a87-79ae-4882-a451-c0de629db3d9">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="id_4e7ee0fe-7afe-4315-afae-4af99754a3cf" source="id_58697a87-79ae-4882-a451-c0de629db3d9" target="e780bd43-d7a9-421b-b00f-0b017d01fdb9">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="id_5cb1f55e-70d1-4f7d-a271-f58468b38251" source="e780bd43-d7a9-421b-b00f-0b017d01fdb9" target="id_1a3e2456-3565-45d3-b851-48a2f8cb088e">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="id_85499a27-aa35-42cd-9b66-c62289b699b6" source="id_1a3e2456-3565-45d3-b851-48a2f8cb088e" target="id_7a605cb9-6db4-4bd8-8de8-417ab8a0c831">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+    </page>
+  </net>
+</pnml><pnml xmlns="http://www.pnml.org/version-2009/grammar/pnml">
+  <net id="id_6c16fc25-6731-447a-b9cb-f3f81691bb70" type="http://www.pnml.org/version-2009/grammar/highlevelnet">
+    <name><text>GATEWAYDISC 6.1</text></name>
+    <toolspecific tool="protocol-designer" version="1.0">
+      <description>Auto-generated CPN for protocol MQTT-SN</description>
+    </toolspecific>
+    <declaration>
+      <structure>
+        <declarations>
+          <namedsort id="id_6cf03c06-2a0c-4234-b0b2-d3d6187734f8" name="retry">
+            <finiteintrange start="0" end="3"/>
+          </namedsort>
+          <namedsort id="a273e2f2-0795-4bd8-aeaa-f40d79ab7b82" name="unit">
+            <finiteenumeration>
+              <feconstant id="a273e2f2-0795-4bd8-aeaa-f40d79ab7b82_unit" name="unit"/>
+            </finiteenumeration>
+          </namedsort>
+          <variabledecl id="id_9c92ff31-dc24-4028-96b6-2d213599c447" name="n">
+            <usersort declaration="retry"/>
+          </variabledecl>
+        </declarations>
+      </structure>
+    </declaration>
+    <page id="page0">
+      <name><text>Page</text></name>
+      <place id="id_268389cb-3cf0-44d8-bdf8-ac015a6bcf57">
+        <name><text>Searching</text></name>
+        <graphics><position x="-425" y="-342"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="retry"/>
+          </structure>
+        </type>
+        <hlinitialMarking>
+          <text>1`3</text>
+        </hlinitialMarking>
+      </place>
+      <place id="id_63b1082f-da4f-48d7-9a89-dd9b7f40d5e5">
+        <name><text>SEARCHGW_Chan</text></name>
+        <graphics><position x="-123" y="-363"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="retry"/>
+          </structure>
+        </type>
+      </place>
+      <place id="id_0b367a83-20b2-490c-97d0-c96e9e6a0ea0">
+        <name><text>GWINFO_Chan</text></name>
+        <graphics><position x="144" y="-355"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="unit"/>
+          </structure>
+        </type>
+      </place>
+      <place id="f6afc66d-07bc-4018-b444-eeded4288f76">
+        <name><text>GW_Found</text></name>
+        <graphics><position x="376" y="-372"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="unit"/>
+          </structure>
+        </type>
+      </place>
+      <place id="id_4bdb5c51-40ce-4262-bd13-2eb670588d6e">
+        <name><text>GW_Not_Found</text></name>
+        <graphics><position x="140" y="-118"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="unit"/>
+          </structure>
+        </type>
+      </place>
+      <transition id="id_2febd5b2-7f1e-4786-8965-6176769ecd43">
+        <name><text>Send_SEARCHGW</text></name>
+        <graphics><position x="-265" y="-375"/></graphics>
+      </transition>
+      <transition id="d2bab6d8-267e-4164-8f45-0318b77954f0">
+        <name><text>GW_Responds</text></name>
+        <graphics><position x="20" y="-379"/></graphics>
+      </transition>
+      <transition id="f441ef12-96f3-4f86-b825-7eb572976e35">
+        <name><text>Recv_GWINFO</text></name>
+        <graphics><position x="268" y="-381"/></graphics>
+      </transition>
+      <transition id="id_36936eb0-3e94-4487-851a-4f6ace687f4b">
+        <name><text>No_Response_Retry</text></name>
+        <graphics><position x="-173" y="-207"/></graphics>
+        <condition>
+          <text>n &gt; 0</text>
+        </condition>
+      </transition>
+      <transition id="id_3f7b9154-81e7-4da8-8d11-46f0be3d9d5a">
+        <name><text>No_Response_Give_Up</text></name>
+        <graphics><position x="20" y="-116"/></graphics>
+        <condition>
+          <text>n == 0</text>
+        </condition>
+      </transition>
+      <arc id="cpn_arc_136f0fef-1319-43e1-af73-4fc9dbaf15f5" source="id_268389cb-3cf0-44d8-bdf8-ac015a6bcf57" target="id_2febd5b2-7f1e-4786-8965-6176769ecd43">
+        <hlinscription>
+          <text>1`n</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_495e4bfc-c5cb-4b2c-8b0d-d611c203fd56" source="id_2febd5b2-7f1e-4786-8965-6176769ecd43" target="id_63b1082f-da4f-48d7-9a89-dd9b7f40d5e5">
+        <hlinscription>
+          <text>1`n</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_13000b11-dcaa-4071-8d79-e03ca32e22f6" source="id_63b1082f-da4f-48d7-9a89-dd9b7f40d5e5" target="d2bab6d8-267e-4164-8f45-0318b77954f0">
+        <hlinscription>
+          <text>1`n</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_c684770b-72f4-444d-8e6a-6c7eaa0a6df9" source="d2bab6d8-267e-4164-8f45-0318b77954f0" target="id_0b367a83-20b2-490c-97d0-c96e9e6a0ea0">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_260867e7-add0-4788-a7ce-770863af76a0" source="id_0b367a83-20b2-490c-97d0-c96e9e6a0ea0" target="f441ef12-96f3-4f86-b825-7eb572976e35">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_08c6a6e1-680d-4093-af51-e5008583ddc6" source="f441ef12-96f3-4f86-b825-7eb572976e35" target="f6afc66d-07bc-4018-b444-eeded4288f76">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_bd4fcc0a-4e62-4764-9200-4ad3ce53c1b3" source="id_63b1082f-da4f-48d7-9a89-dd9b7f40d5e5" target="id_3f7b9154-81e7-4da8-8d11-46f0be3d9d5a">
+        <hlinscription>
+          <text>1`n</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_19367b95-af88-4daf-b2b3-8678e4818515" source="id_3f7b9154-81e7-4da8-8d11-46f0be3d9d5a" target="id_4bdb5c51-40ce-4262-bd13-2eb670588d6e">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_8173e608-0d71-4e5d-aa33-e3524598b8b7" source="id_63b1082f-da4f-48d7-9a89-dd9b7f40d5e5" target="id_36936eb0-3e94-4487-851a-4f6ace687f4b">
+        <hlinscription>
+          <text>1`n</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>bottom</sourceHandle>
+          <targetHandle>right</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_e106310c-c18a-43a0-8044-c03d0eef8e9e" source="id_36936eb0-3e94-4487-851a-4f6ace687f4b" target="id_268389cb-3cf0-44d8-bdf8-ac015a6bcf57">
+        <hlinscription>
+          <text>1`(n-1)</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>left</sourceHandle>
+          <targetHandle>bottom</targetHandle>
+        </toolspecific>
+      </arc>
+    </page>
+  </net>
+</pnml><pnml xmlns="http://www.pnml.org/version-2009/grammar/pnml">
+  <net id="id_4ddafceb-1bec-4a21-95c3-cc968031d7f6" type="http://www.pnml.org/version-2009/grammar/highlevelnet">
+    <name><text>PUBLISH 6.8 QOS-1</text></name>
+    <toolspecific tool="protocol-designer" version="1.0">
+      <description>Auto-generated CPN for protocol MQTT-SN</description>
+    </toolspecific>
+    <declaration>
+      <structure>
+        <declarations>
+          <namedsort id="id_25d70f9c-23ae-4d88-91ca-b49efca74328" name="UNIT">
+            <finiteenumeration>
+              <feconstant id="id_25d70f9c-23ae-4d88-91ca-b49efca74328_unit" name="unit"/>
+            </finiteenumeration>
+          </namedsort>
+        </declarations>
+      </structure>
+    </declaration>
+    <page id="page0">
+      <name><text>Page</text></name>
+      <place id="id_51e1d9a1-1d76-4695-970d-2729e83d29cc">
+        <name><text>Ready</text></name>
+        <graphics><position x="-272" y="-358"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+        <hlinitialMarking>
+          <text>1`0</text>
+        </hlinitialMarking>
+      </place>
+      <place id="a5905bea-3278-41ef-b0d0-6af3bc556404">
+        <name><text>Published</text></name>
+        <graphics><position x="73" y="-403"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <transition id="id_705c1c80-2e6e-4cc5-b4c3-fac18cba7e28">
+        <name><text>Send_Publish</text></name>
+        <graphics><position x="-86" y="-387"/></graphics>
+      </transition>
+      <arc id="cpn_arc_d05f39c6-3d66-416e-afd1-b728ff3440fe" source="id_51e1d9a1-1d76-4695-970d-2729e83d29cc" target="id_705c1c80-2e6e-4cc5-b4c3-fac18cba7e28">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_b9ab3cd7-be49-48d6-a8df-9a92807c289a" source="id_705c1c80-2e6e-4cc5-b4c3-fac18cba7e28" target="a5905bea-3278-41ef-b0d0-6af3bc556404">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+    </page>
+  </net>
+</pnml><pnml xmlns="http://www.pnml.org/version-2009/grammar/pnml">
+  <net id="id_710c70bf-e557-4682-b85f-a3265d803f78" type="http://www.pnml.org/version-2009/grammar/highlevelnet">
+    <name><text>CLRETRANSMISSION 6.13</text></name>
+    <toolspecific tool="protocol-designer" version="1.0">
+      <description>Auto-generated CPN for protocol MQTT-SN</description>
+    </toolspecific>
+    <declaration>
+      <structure>
+        <declarations>
+          <namedsort id="id_31420dba-2555-4f7d-85c1-4811cd61a870" name="unit">
+            <finiteenumeration>
+              <feconstant id="id_31420dba-2555-4f7d-85c1-4811cd61a870_unit" name="unit"/>
+            </finiteenumeration>
+          </namedsort>
+          <namedsort id="de4bc037-57d0-480f-9f13-709d72d1f394" name="retryInt">
+            <finiteintrange start="0" end="3"/>
+          </namedsort>
+          <variabledecl id="id_9fdff9e0-9627-430c-bd78-102426b32f9f" name="n">
+            <usersort declaration="retryInt"/>
+          </variabledecl>
+        </declarations>
+      </structure>
+    </declaration>
+    <page id="page0">
+      <name><text>Page</text></name>
+      <place id="de2b0c88-ee4d-40da-be1b-ac68f94661f2">
+        <name><text>Waiting</text></name>
+        <graphics><position x="-301" y="-510"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="retryInt"/>
+          </structure>
+        </type>
+        <hlinitialMarking>
+          <text>1`3</text>
+        </hlinitialMarking>
+      </place>
+      <place id="a3211361-948c-414c-a95d-8e361db40045">
+        <name><text>Success</text></name>
+        <graphics><position x="45" y="-643"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="unit"/>
+          </structure>
+        </type>
+      </place>
+      <place id="id_03f83f00-2d64-4260-8b49-03ce5c4a587d">
+        <name><text>Connection Lost</text></name>
+        <graphics><position x="65" y="-317"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="unit"/>
+          </structure>
+        </type>
+      </place>
+      <transition id="id_4fcdccb5-4ec1-4f25-badb-66fecd251800">
+        <name><text>Recv_reply</text></name>
+        <graphics><position x="-127" y="-597"/></graphics>
+      </transition>
+      <transition id="id_24aa7eae-ee29-4cb7-bd06-ec14ae7e8307">
+        <name><text>Timeout_Retry</text></name>
+        <graphics><position x="-101" y="-475"/></graphics>
+        <condition>
+          <text>n &gt; 0</text>
+        </condition>
+      </transition>
+      <transition id="id_9c7aa3aa-ebc2-4a9f-b423-611f12559b0c">
+        <name><text>Timeout_Abort</text></name>
+        <graphics><position x="-103" y="-312"/></graphics>
+        <condition>
+          <text>n == 0</text>
+        </condition>
+      </transition>
+      <arc id="cpn_arc_a1a7156a-cf25-4e55-b0f5-276840dfd5b2" source="de2b0c88-ee4d-40da-be1b-ac68f94661f2" target="id_4fcdccb5-4ec1-4f25-badb-66fecd251800">
+        <hlinscription>
+          <text>1`n</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_090487f3-e55e-4710-b4a4-9b7f8af0014c" source="id_4fcdccb5-4ec1-4f25-badb-66fecd251800" target="a3211361-948c-414c-a95d-8e361db40045">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_6e8bd358-6186-4f88-b07f-757dead0cc26" source="de2b0c88-ee4d-40da-be1b-ac68f94661f2" target="id_24aa7eae-ee29-4cb7-bd06-ec14ae7e8307">
+        <hlinscription>
+          <text>1`n</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_5f5eaf89-c779-4831-b7b5-194dc6e5260e" source="id_24aa7eae-ee29-4cb7-bd06-ec14ae7e8307" target="de2b0c88-ee4d-40da-be1b-ac68f94661f2">
+        <hlinscription>
+          <text>1`(n-1)</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>bottom</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_8734ea88-7588-4bf6-a1da-57080eddb214" source="de2b0c88-ee4d-40da-be1b-ac68f94661f2" target="id_9c7aa3aa-ebc2-4a9f-b423-611f12559b0c">
+        <hlinscription>
+          <text>1`n</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_e490f9c1-b1c8-48ac-8a85-5e320a64722a" source="id_9c7aa3aa-ebc2-4a9f-b423-611f12559b0c" target="id_03f83f00-2d64-4260-8b49-03ce5c4a587d">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+    </page>
+  </net>
+</pnml><pnml xmlns="http://www.pnml.org/version-2009/grammar/pnml">
+  <net id="ba75cc33-baee-4397-b638-dc17b2172c28" type="http://www.pnml.org/version-2009/grammar/highlevelnet">
+    <name><text>MQTT-SN CPN 16</text></name>
+    <toolspecific tool="protocol-designer" version="1.0">
+      <description>Auto-generated CPN for protocol MQTT-SN</description>
+    </toolspecific>
+    <declaration>
+      <structure>
+        <declarations>
+          <namedsort id="id_227a6722-bb3c-49ad-8bb3-42f0d5d3154f" name="UNIT">
+            <finiteenumeration>
+              <feconstant id="id_227a6722-bb3c-49ad-8bb3-42f0d5d3154f_unit" name="unit"/>
+            </finiteenumeration>
+          </namedsort>
+          <namedsort id="id_7cf5a5b3-3461-475d-99cb-cbf4b97d4055" name="Length">
+            <finiteintrange start="0" end="255"/>
+          </namedsort>
+          <namedsort id="id_2a222928-7b92-41fe-bd37-e83c5f5992b2" name="MsgType">
+            <finiteintrange start="0" end="255"/>
+          </namedsort>
+          <namedsort id="c126f745-503a-4713-9d09-068aa7b3f0e6" name="VariablePart">
+            <finiteintrange start="0" end="0"/>
+          </namedsort>
+          <variabledecl id="id_097de678-f1d2-43d6-8b66-9608f452651a" name="length">
+            <usersort declaration="Length"/>
+          </variabledecl>
+          <variabledecl id="id_2b1854e8-6200-4bf0-a6cd-fb77dd64785c" name="msgtype">
+            <usersort declaration="MsgType"/>
+          </variabledecl>
+          <variabledecl id="id_4cdfa78e-8da8-4a8e-ba7f-59c8cc76a87b" name="variablePart">
+            <usersort declaration="VariablePart"/>
+          </variabledecl>
+        </declarations>
+      </structure>
+    </declaration>
+    <page id="page0">
+      <name><text>Page</text></name>
+      <place id="id_000ce457-2272-4ad7-863a-812965f27ffc">
+        <name><text>P1</text></name>
+        <graphics><position x="110" y="-228"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+        <hlinitialMarking>
+          <text>1`0</text>
+        </hlinitialMarking>
+      </place>
+      <transition id="id_4e8c7022-af55-49f4-8c9c-9ff2f36c9a4b">
+        <name><text>T1</text></name>
+        <graphics><position x="345" y="-279"/></graphics>
+      </transition>
+      <arc id="cpn_arc_206b957b-09cf-40a5-b72e-49886dc7fd9c" source="id_4e8c7022-af55-49f4-8c9c-9ff2f36c9a4b" target="id_000ce457-2272-4ad7-863a-812965f27ffc">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>bottom</sourceHandle>
+          <targetHandle>bottom</targetHandle>
+        </toolspecific>
+      </arc>
+    </page>
+  </net>
+</pnml><pnml xmlns="http://www.pnml.org/version-2009/grammar/pnml">
+  <net id="f9377aef-caf3-4f99-a751-ed9260091a92" type="http://www.pnml.org/version-2009/grammar/highlevelnet">
+    <name><text>MQTT-SN CPN 17</text></name>
+    <toolspecific tool="protocol-designer" version="1.0">
+      <description>Auto-generated CPN for protocol MQTT-SN</description>
+    </toolspecific>
+    <declaration>
+      <structure>
+        <declarations>
+          <namedsort id="id_6586f189-6b25-44fb-bb47-ea5859672e72" name="UNIT">
+            <finiteenumeration>
+              <feconstant id="id_6586f189-6b25-44fb-bb47-ea5859672e72_unit" name="unit"/>
+            </finiteenumeration>
+          </namedsort>
+          <namedsort id="id_95de72cd-0988-45f3-a266-1f65849deda2" name="Length">
+            <finiteintrange start="0" end="255"/>
+          </namedsort>
+          <namedsort id="id_3318f688-c8ed-4f5e-b2dd-ed22ebcbfff3" name="MsgType">
+            <finiteintrange start="0" end="255"/>
+          </namedsort>
+          <namedsort id="id_9bc4b6e2-8e51-4215-be07-170d6e123954" name="VariablePart">
+            <finiteintrange start="0" end="0"/>
+          </namedsort>
+          <variabledecl id="id_4b4eb021-2e6a-4d36-8c38-1c02e6cfec34" name="length">
+            <usersort declaration="Length"/>
+          </variabledecl>
+          <variabledecl id="id_77df72c4-1a6e-4ccf-8866-c4e0e6a9392b" name="msgtype">
+            <usersort declaration="MsgType"/>
+          </variabledecl>
+          <variabledecl id="eabc4d1a-7d75-4b54-b314-1dd19f21a605" name="variablePart">
+            <usersort declaration="VariablePart"/>
+          </variabledecl>
+          <variabledecl id="c7a31a93-37cb-4152-9b14-583e6aaad297" name="token">
+            <usersort declaration="UNIT"/>
+          </variabledecl>
+        </declarations>
+      </structure>
+    </declaration>
+    <page id="page0">
+      <name><text>Page</text></name>
+      <place id="baf6415d-0c9a-4576-8ee0-3ca96c43bcab">
+        <name><text>A1</text></name>
+        <graphics><position x="-130" y="-442"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+        <hlinitialMarking>
+          <text>200`()</text>
+        </hlinitialMarking>
+      </place>
+      <place id="c1131462-2fbf-456c-9500-360546860594">
+        <name><text>A2</text></name>
+        <graphics><position x="240" y="-468"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <place id="f8db5932-dab0-49a8-92f6-822d5bbe8c1e">
+        <name><text>B1</text></name>
+        <graphics><position x="375" y="-506"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+        <hlinitialMarking>
+          <text>100`0</text>
+        </hlinitialMarking>
+      </place>
+      <place id="c9b0e782-2e1c-48f5-bb2f-78cdec9a1e95">
+        <name><text>B2</text></name>
+        <graphics><position x="572" y="-514"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <transition id="f56cf1d0-e814-4bfb-b6e1-b530d7ab5503">
+        <name><text>T_A</text></name>
+        <graphics><position x="69" y="-461"/></graphics>
+      </transition>
+      <transition id="id_9f020ab0-1dee-4077-8bb3-0878b184b426">
+        <name><text>T_A_Back</text></name>
+        <graphics><position x="75" y="-294"/></graphics>
+      </transition>
+      <transition id="id_9323bc9d-ad03-46b4-b665-b39dc5fea5ea">
+        <name><text>T_B</text></name>
+        <graphics><position x="486" y="-527"/></graphics>
+      </transition>
+      <transition id="id_74674358-0ad4-46a8-bb1a-4119bc8792b8">
+        <name><text>T_B_Back</text></name>
+        <graphics><position x="471" y="-394"/></graphics>
+      </transition>
+      <arc id="cpn_arc_e4371588-f9dc-40a7-b2cb-ce0ea68aaf6d" source="baf6415d-0c9a-4576-8ee0-3ca96c43bcab" target="f56cf1d0-e814-4bfb-b6e1-b530d7ab5503">
+        <hlinscription>
+          <text>1`token</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_3e051bfa-434d-440f-9bd4-335db591b229" source="f56cf1d0-e814-4bfb-b6e1-b530d7ab5503" target="c1131462-2fbf-456c-9500-360546860594">
+        <hlinscription>
+          <text>1`token</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_4f11e464-a1b9-42e0-bf62-21968dedbc28" source="c1131462-2fbf-456c-9500-360546860594" target="id_9f020ab0-1dee-4077-8bb3-0878b184b426">
+        <hlinscription>
+          <text>1`token</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>bottom</sourceHandle>
+          <targetHandle>right</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_887d5989-dda9-4b28-801e-61dfce83beaf" source="id_9f020ab0-1dee-4077-8bb3-0878b184b426" target="baf6415d-0c9a-4576-8ee0-3ca96c43bcab">
+        <hlinscription>
+          <text>1`token</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>left</sourceHandle>
+          <targetHandle>bottom</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_197e622b-64f0-4554-bf7c-e471a2a0f79a" source="f8db5932-dab0-49a8-92f6-822d5bbe8c1e" target="id_9323bc9d-ad03-46b4-b665-b39dc5fea5ea">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_706f35a2-3b53-4f5f-828f-5e64978ed20e" source="id_9323bc9d-ad03-46b4-b665-b39dc5fea5ea" target="c9b0e782-2e1c-48f5-bb2f-78cdec9a1e95">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_91d92612-4fad-438d-b4b0-75accb97f21b" source="c9b0e782-2e1c-48f5-bb2f-78cdec9a1e95" target="id_74674358-0ad4-46a8-bb1a-4119bc8792b8">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>bottom</sourceHandle>
+          <targetHandle>right</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_bfc9b847-a962-40aa-a4ba-389bcde2721c" source="id_74674358-0ad4-46a8-bb1a-4119bc8792b8" target="f8db5932-dab0-49a8-92f6-822d5bbe8c1e">
+        <hlinscription>
+          <text>1`0</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>left</sourceHandle>
+          <targetHandle>bottom</targetHandle>
+        </toolspecific>
+      </arc>
+    </page>
+  </net>
+</pnml><pnml xmlns="http://www.pnml.org/version-2009/grammar/pnml">
+  <net id="id_039c517e-9117-440f-a67d-dfba4bf39797" type="http://www.pnml.org/version-2009/grammar/highlevelnet">
+    <name><text>CPN</text></name>
+    <toolspecific tool="protocol-designer" version="1.0">
+      <description>Auto-generated CPN for protocol MQTT-SN</description>
+    </toolspecific>
+    <declaration>
+      <structure>
+        <declarations>
+          <namedsort id="id_709fff42-638a-4137-a941-d7b30ac00403" name="UNIT">
+            <finiteenumeration>
+              <feconstant id="id_709fff42-638a-4137-a941-d7b30ac00403_unit" name="unit"/>
+            </finiteenumeration>
+          </namedsort>
+        </declarations>
+      </structure>
+    </declaration>
+    <page id="page0">
+      <name><text>Page</text></name>
+      <place id="id_8c8c2766-f836-4a5a-9181-f04bebf8129e">
+        <name><text>P1</text></name>
+        <graphics><position x="-240" y="-532"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+        <hlinitialMarking>
+          <text>1`()</text>
+        </hlinitialMarking>
+      </place>
+      <place id="id_61c8893a-4df1-4577-be1e-d9a5e43c1713">
+        <name><text>P2</text></name>
+        <graphics><position x="87" y="-449"/></graphics>
+        <type>
+          <structure>
+            <usersort declaration="UNIT"/>
+          </structure>
+        </type>
+      </place>
+      <transition id="id_184f2aec-b06a-4f1e-b2a3-ebed785da446">
+        <name><text>T1</text></name>
+        <graphics><position x="-58" y="-490"/></graphics>
+      </transition>
+      <arc id="cpn_arc_33c010ce-c355-465e-a43f-c068c5dd69f0" source="id_8c8c2766-f836-4a5a-9181-f04bebf8129e" target="id_184f2aec-b06a-4f1e-b2a3-ebed785da446">
+        <hlinscription>
+          <text>1`()</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>place-to-transition</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+      <arc id="cpn_arc_0d5d3fc1-bb49-442e-930f-fe7abded5a0b" source="id_184f2aec-b06a-4f1e-b2a3-ebed785da446" target="id_61c8893a-4df1-4577-be1e-d9a5e43c1713">
+        <hlinscription>
+          <text>1`()</text>
+        </hlinscription>
+        <toolspecific tool="protocol-designer" version="1.0">
+          <arcType>transition-to-place</arcType>
+          <sourceHandle>right</sourceHandle>
+          <targetHandle>left</targetHandle>
+        </toolspecific>
+      </arc>
+    </page>
+  </net>
+</pnml><scxml:scxml version="1.0" name="CONNSETUP_6.2" xmlns:pd="http://www.protocoldescription.com" initial="fsm_node_0"><scxml:datamodel><scxml:data id="fsm_id" expr="3737be33-9372-4b3a-8a14-a9128de446c7"/><scxml:data id="description" expr=""/><scxml:data id="author" expr="Filip Škrabák"/><scxml:data id="version" expr="1.0.0"/><scxml:data id="created_at" expr="2026-01-27T10:30:13.076Z"/><scxml:data id="updated_at" expr="2026-05-04T00:02:51.985Z"/><scxml:data id="protocol_id" expr="2e6e8c7d-041a-4be1-9183-bda3eaea8949"/><scxml:data id="retry_count" pd:variable_id="f208ed00-73ff-491f-b30c-80b8258a480a" pd:variable_type="int" pd:min_value="0" pd:max_value="3" expr="0"/><scxml:data id="connack_rc" pd:variable_id="86c40b2e-e09b-4e44-b318-f6fc38be64fa" pd:variable_type="bool" expr="true"/></scxml:datamodel><pd:events><pd:event name="send_connect" type="output"/><pd:event name="recv_WILLTOPICREQ" type="input"/><pd:event name="recv_CONNACK" type="input"/><pd:event name="timeout_retry" type="timeout"/><pd:event name="send_WILLTOPIC" type="output"/><pd:event name="recv_WILLMSGREQ" type="input"/></pd:events><scxml:state id="fsm_node_0" pd:label="Idle" pd:position_x="7.790703356208695" pd:position_y="385.0212601794136"><scxml:transition target="fsm_node_1" pd:id="edge_ce953907-255b-4270-8183-a01bab506ab3" event="send_connect" pd:action="retry_count = 0" pd:source_handle="right" pd:target_handle="left"/></scxml:state><scxml:state id="fsm_node_1" pd:label="WaitConnAck" pd:position_x="339.56994282469896" pd:position_y="265.4663782844868"><scxml:transition target="fsm_node_4" pd:id="edge_8cbdafc0-15e5-4c30-b556-5d22f5bb76d5" event="recv_CONNACK" pd:source_handle="bottom" pd:target_handle="left" cond="connack_rc == true"/><scxml:transition target="fsm_node_5" pd:id="edge_545c095e-aa14-4652-b66d-3aa92cd09c48" event="recv_CONNACK" pd:source_handle="bottom" pd:target_handle="left" cond="connack_rc == false"/><scxml:transition target="fsm_node_1" pd:id="edge_db5e9772-2252-4854-8b15-54d9e745bcf5" event="timeout_retry" pd:action="retry_count = retry_count + 1;send_connect" pd:source_handle="top" pd:target_handle="left" cond="retry_count &lt; 3"/><scxml:transition target="fsm_node_5" pd:id="edge_08b31958-3b34-4652-b016-ac39bbdcd0fc" event="timeout_retry" pd:source_handle="bottom" pd:target_handle="top" cond="retry_count &gt;= 3"/><scxml:transition target="fsm_node_2" pd:id="edge_888ca60f-2077-4ba3-8c6f-6b01717fd3cc" event="recv_WILLTOPICREQ" pd:action="retry_count = 0" pd:source_handle="right" pd:target_handle="right"/></scxml:state><scxml:state id="fsm_node_2" pd:label="WaitWillTopic" pd:position_x="583.3246910724325" pd:position_y="108.64333455547327"><scxml:transition target="fsm_node_3" pd:id="edge_f64fedd4-0ad3-490c-9195-66c3a763ee2e" event="send_WILLTOPIC" pd:source_handle="left" pd:target_handle="right"/></scxml:state><scxml:state id="fsm_node_3" pd:label="WaitWillMsg" pd:position_x="58.015810142598504" pd:position_y="111.14007231252248"><scxml:transition target="fsm_node_1" pd:id="edge_e7ebefd7-cced-44fe-bcbd-70e7c787cf6d" event="recv_WILLMSGREQ" pd:action="send_WILLMSG" pd:source_handle="left" pd:target_handle="left"/></scxml:state><scxml:state id="fsm_node_4" final="true" pd:label="Connected" pd:position_x="485.6853884962324" pd:position_y="557.2102327785623"/><scxml:state id="fsm_node_5" final="true" pd:label="Failed" pd:position_x="726.9900069653957" pd:position_y="391.7951336714939"/></scxml:scxml><scxml:scxml version="1.0" name="FSM" xmlns:pd="http://www.protocoldescription.com" initial="fsm_node_6"><scxml:datamodel><scxml:data id="fsm_id" expr="a8e38c3b-0cf1-421a-8ab3-fd067ee60515"/><scxml:data id="description" expr=""/><scxml:data id="author" expr="Filip Škrabák"/><scxml:data id="version" expr="1.0.0"/><scxml:data id="created_at" expr="2026-04-11T19:02:43.256Z"/><scxml:data id="updated_at" expr="2026-04-14T11:40:23.065Z"/><scxml:data id="protocol_id" expr="4987bf72-fc68-42df-bebd-6e0c9e46e31d"/><scxml:data id="length" pd:variable_id="e72163e5-2f39-457b-b747-7e2d01761566" pd:variable_type="int" pd:min_value="0" pd:max_value="255" expr="3"/><scxml:data id="msgtype" pd:variable_id="9cf05141-34cf-4e8b-94fa-c1f6f5ad565b" pd:variable_type="int" pd:min_value="0" pd:max_value="255" expr="0"/><scxml:data id="variablePart" pd:variable_id="fb7eb67c-3f4f-4d45-9ef9-1bcafe850d55" pd:variable_type="int" pd:min_value="0" pd:max_value="0" expr="0"/></scxml:datamodel><scxml:state id="fsm_node_6" pd:label="Start" pd:position_x="229.45547668058117" pd:position_y="89.28211894543836"><scxml:transition target="fsm_node_7" pd:id="edge_288f4356-2b9c-44dd-aa95-7fb72c5ba55b" pd:source_handle="right" pd:target_handle="left" cond="length &gt;= 3"/></scxml:state><scxml:state id="fsm_node_7" pd:label="S1" pd:position_x="476.77110850436503" pd:position_y="148.89002355425745"><scxml:transition target="fsm_node_9" pd:id="edge_c636ec4a-f5ae-402a-bdcb-803984f8935a" pd:source_handle="right" pd:target_handle="left"/></scxml:state><scxml:state id="fsm_node_9" final="true" pd:label="End" pd:position_x="628.2792415924567" pd:position_y="205.74971685837693"/></scxml:scxml></metadata>
+
+    <!--Classes -->
+    <style>
+        
+            rect.field {
+                fill:rgb(255,255,255);
+                stroke-width:2;
+                stroke:rgb(0,0,0);
+            }
+            text.fieldText {
+                font-family: Verdana;
+                font-size: 14px;
+                fill: black;
+                text-anchor: middle;
+                dominant-baseline: middle;
+            }
+        
+    </style>
+
+    <!-- Shows the bits per row (scale) -->
+    <g transform="translate(0,0)" data-scale="true">
+        
+    <svg width="1024" height="40"><defs><marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10" fill="transparent" stroke="black" stroke-width="2px"/></marker></defs><g transform="translate(0, 20)"><line x1="0" y1="0" x2="100%" y2="0" stroke="black" stroke-width="2" marker-end="url(#arrow)" marker-start="url(#arrow)"/></g><rect x="462" y="0" height="40" width="100" fill="rgb(255,255,255)"/><text x="50%" y="50%" class="fieldText">32 bits</text></svg></g>
+    
+    <!-- Protocol Header -->
+    <g transform="translate(0, 40)" data-table="true">
+    <g transform="translate(0, 0)"><g transform="translate(0, 0)" data-id="length" class="dataElement"><rect class="field" width="768" height="40" style="fill: rgba(33, 150, 243, 0.08);" data-original-style-fill="rgba(33, 150, 243, 0.08)"/><svg width="768" height="40"><text x="50%" y="50%" class="fieldText">Length ...</text></svg></g><g transform="translate(768, 0)" data-id="msg_type" class="dataElement"><rect class="field" width="256" height="40" style="fill: rgba(33, 150, 243, 0.08);" data-original-style-fill="rgba(33, 150, 243, 0.08)"/><svg width="256" height="40"><text x="50%" y="50%" class="fieldText">MsgType</text></svg></g></g><g transform="translate(0, 40)"><g transform="translate(0, 0)" data-id="var" class="dataElement"><rect class="field" width="1024" height="40" style="fill: white;" data-original-style-fill="white"/><svg width="1024" height="40"><text x="50%" y="50%" class="fieldText">variable part ...</text></svg></g></g></g>
+</svg>
