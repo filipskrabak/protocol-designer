@@ -2,6 +2,12 @@
 node_modules
 /dist
 
+# VitePress docs build artifacts
+docs-site/.vitepress/dist
+docs-site/.vitepress/cache
+# Placeholder images
+docs-site/guide/img/
+
 # local env files
 .env.local
 .env.*.local

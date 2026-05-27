@@ -13,6 +13,9 @@ import App from "./App.vue";
 // Composables
 import { createApp } from "vue";
 
+// VueFlow
+import '@vue-flow/core/dist/style.css';
+
 // Axios
 import axios from "axios";
 

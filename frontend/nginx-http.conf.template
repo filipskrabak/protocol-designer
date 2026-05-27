@@ -47,6 +47,12 @@ http {
       proxy_read_timeout 60s;
     }
     
+    # Serve VitePress documentation
+    location /docs/ {
+      root /usr/share/nginx/html;
+      try_files $uri $uri/ $uri.html =404;
+    }
+
     # Serve static files from Vue frontend
     location / {
       root   /usr/share/nginx/html;

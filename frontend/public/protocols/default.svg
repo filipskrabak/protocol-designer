@@ -1,4 +1,4 @@
- <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:pd="http://www.protocoldescription.com" height="100%" width="100%">
+ <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:pd="http://www.protocoldescription.com" xmlns:scxml="http://www.w3.org/2005/07/scxml" height="100%" width="100%">
     <!-- Protocol Description -->
     <metadata>
         <pd:info>

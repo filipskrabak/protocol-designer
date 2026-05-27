@@ -110,6 +110,11 @@
           </v-btn>
         </template>
 
+        <v-btn icon @click="openHelp">
+          <v-icon>mdi-help-circle-outline</v-icon>
+          <v-tooltip activator="parent" location="bottom">Help</v-tooltip>
+        </v-btn>
+
         <v-menu
           v-model="profileMenu"
           :close-on-content-click="false"
@@ -226,6 +231,7 @@ import ExportModal from "@/components/modals/ExportModal.vue";
 import LibraryModal from "@/components/modals/LibraryModal.vue";
 import ProfileAvatar from "@/components/ProfileAvatar.vue";
 import { useSidebar } from "@/composables/useSidebar";
+import { useHelpUrl } from "@/composables/useHelpUrl";
 
 import { ref } from "vue";
 
@@ -236,6 +242,11 @@ import { useNotificationStore } from "@/store/NotificationStore";
 import router from "@/router";
 
 const { toggleDrawer } = useSidebar();
+const { helpUrl } = useHelpUrl();
+
+const openHelp = (): void => {
+  window.open(helpUrl.value, '_blank', 'noopener,noreferrer')
+}
 
 const settingsModal = ref(false);
 const libraryModal = ref(false);

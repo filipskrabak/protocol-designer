@@ -181,7 +181,7 @@
 <script lang="ts" setup>
 import { ref, watch, onMounted } from 'vue';
 import { ExportFormat } from '@/contracts';
-import { exportManager, SvgExportHandler, P4ExportHandler, LuaExportHandler } from '@/utils/exports';
+import { exportManager, SvgExportHandler, P4ExportHandler, LuaExportHandler, PngExportHandler } from '@/utils/exports';
 import { useProtocolStore } from '@/store/ProtocolStore';
 import { useProtocolRenderStore } from '@/store/ProtocolRenderStore';
 import { useNotificationStore } from '@/store/NotificationStore';
@@ -218,6 +218,7 @@ onMounted(() => {
   exportManager.registerHandler(new SvgExportHandler());
   exportManager.registerHandler(new P4ExportHandler());
   exportManager.registerHandler(new LuaExportHandler());
+  exportManager.registerHandler(new PngExportHandler());
   availableFormats.value = exportManager.getAvailableFormats();
 });
 
@@ -342,8 +343,11 @@ const downloadExport = async () => {
     );
 
     if (result.success) {
+      const fsmCount = protocolStore.protocol.finite_state_machines?.length || 0;
+      const fsmMessage = fsmCount > 0 ? ` with ${fsmCount} FSM${fsmCount > 1 ? 's' : ''}` : '';
+
       notificationStore.showNotification({
-        message: `${selectedFormat.value.name} exported successfully`,
+        message: `${selectedFormat.value.name} exported successfully${fsmMessage}`,
         color: 'success',
         icon: 'mdi-check',
         timeout: 3000

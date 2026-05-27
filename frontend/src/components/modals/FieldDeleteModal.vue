@@ -3,7 +3,6 @@
     <v-dialog
       v-model="protocolRenderStore.fieldDeleteModal"
       max-width="400"
-      persistent
     >
       <v-card
         prepend-icon="mdi-delete"

@@ -13,6 +13,8 @@ import { RouteLocationNormalized } from "vue-router";
 import { createRouter, createWebHistory } from "vue-router";
 import { useProtocolRenderStore } from "@/store/ProtocolRenderStore";
 
+const publicRoutes = ["/login", "/register", "/landing"];
+
 const routes = [
   {
     path: "/",
@@ -34,6 +36,16 @@ const routes = [
         path: "protocols/:id",
         name: "protocol",
         component: () => import("@/pages/index.vue"),
+      },
+    ],
+  },
+  {
+    path: "/landing",
+    component: () => import("@/layouts/landing.vue"),
+    children: [
+      {
+        path: "",
+        component: () => import("@/pages/landing.vue"),
       },
     ],
   },
@@ -67,11 +79,10 @@ const router = createRouter({
 router.beforeEach(
   async (to: RouteLocationNormalized, from: RouteLocationNormalized) => {
     if (
-      to.path !== "/login" &&
-      to.path !== "/register" &&
+      !publicRoutes.includes(to.path) &&
       !(await useAuthStore().isAuthenticated())
     ) {
-      return { path: "/login" };
+      return { path: "/landing" };
     }
 
     if (to.path === "/" && useProtocolStore().uploaded == false) {
