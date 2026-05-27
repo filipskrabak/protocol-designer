@@ -4,6 +4,7 @@ CPN Analysis Endpoint - S-invariant computation via Z3
 Receives a CPN definition and returns structural S-invariants
 computed via Z3 integer linear programming (Tier 2).
 """
+import ast
 import re
 import itertools
 from collections import defaultdict
@@ -171,6 +172,49 @@ def _eval_inscription(inscription: str, binding: dict, all_enum_values: Set[str]
     return result
 
 
+# ---------------------------------------------------------------------------
+# Safe guard evaluator — AST whitelist + sandboxed eval
+# ---------------------------------------------------------------------------
+_GUARD_ALLOWED_NODES = (
+    # structural
+    ast.Expression,
+    # boolean operators
+    ast.BoolOp, ast.And, ast.Or,
+    ast.UnaryOp, ast.Not, ast.UAdd, ast.USub,
+    # comparisons
+    ast.Compare,
+    ast.Eq, ast.NotEq, ast.Lt, ast.LtE, ast.Gt, ast.GtE,
+    # arithmetic (needed for guards like "x + 1 > y")
+    ast.BinOp,
+    ast.Add, ast.Sub, ast.Mult, ast.Div, ast.Mod, ast.FloorDiv,
+    # literals only — no Name, no Call, no Attribute
+    ast.Constant,
+    ast.Tuple,
+)
+
+
+def _safe_eval_guard(g: str) -> bool:
+    """
+    Evaluate a fully-substituted guard string using an AST whitelist.
+
+    Only literals and pure arithmetic/comparison/boolean operators are
+    allowed.  No function calls, no attribute access, no imports.
+    Returns True (fail-open) for any parse error or disallowed construct.
+    """
+    try:
+        tree = ast.parse(g, mode="eval")
+    except SyntaxError:
+        return True  # unparseable — fail-open
+    for node in ast.walk(tree):
+        if not isinstance(node, _GUARD_ALLOWED_NODES):
+            return True  # disallowed AST node — fail-open
+    try:
+        # Empty builtins dict prevents access to any Python built-in name.
+        return bool(eval(compile(tree, "<guard>", "eval"), {"__builtins__": {}}, {}))
+    except Exception:
+        return True  # evaluation error — fail-open
+
+
 def _eval_guard(guard: Optional[str], binding: dict) -> bool:
     """Evaluate a transition guard with a given variable binding."""
     if not guard:
@@ -183,12 +227,7 @@ def _eval_guard(guard: Optional[str], binding: dict) -> bool:
            .replace("andalso", "and")
            .replace("orelse", "or"))
     g = re.sub(r"(?<![=!<>])=(?!=)", "==", g)
-    if re.match(r"^[\w\s\d+\-*/%()=!<>&|.\'\"]+$", g):
-        try:
-            return bool(eval(g))  # noqa: S307 – guarded: identifier/operator chars only
-        except Exception:
-            pass
-    return True  # fail-open
+    return _safe_eval_guard(g)
 
 
 def _eval_marking_multiset(marking: str, cs: ColorSet, all_enum_values: Set[str]) -> Dict[Any, int]:

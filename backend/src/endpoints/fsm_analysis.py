@@ -1,10 +1,11 @@
 """
 FSM Determinism Checking Endpoint using Z3
 """
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from typing import List, Optional, Literal, Any
 from ..z3_utils import parse_manual_expression as parse_manual_expr
+from src.auth.jwthandler import get_current_user
 
 router = APIRouter()
 
@@ -59,7 +60,10 @@ class CheckCompletenessResponse(BaseModel):
 
 
 @router.post("/fsm/check-guards", response_model=CheckGuardsResponse)
-async def check_guards_satisfiability(request: CheckGuardsRequest):
+async def check_guards_satisfiability(
+    request: CheckGuardsRequest,
+    current_user=Depends(get_current_user),
+):
     """
     Check if two guards can be satisfied simultaneously using Z3 SMT solver.
 
@@ -156,7 +160,10 @@ async def check_guards_satisfiability(request: CheckGuardsRequest):
 
 
 @router.post("/fsm/check-completeness", response_model=CheckCompletenessResponse)
-async def check_guards_completeness(request: CheckCompletenessRequest):
+async def check_guards_completeness(
+    request: CheckCompletenessRequest,
+    current_user=Depends(get_current_user),
+):
     """
     Check if a set of guards covers all possible cases (completeness check).
     Used to detect potential local deadlocks where no guard fires.
